@@ -46,25 +46,9 @@ class ConhecimentoPDFGenerator
         $pdf->Image('app/images/CRT.jpg', 6, 6, 18, 18);
         $pdf->Image('app/images/assinatura2.jpg', 56, 255, 35, 25);
         $pdf->SetFont('Helvetica', '', 6);
-      //  $pdf->Image('app/images/sulconexlog.png', 140, 15, 80);
-      if (!empty($object->logotransporte)) {
-        // Decodifica o JSON corretamente
-        $logo_data = json_decode($object->logotransporte, true);
-    
-        // Verifica se a chave fileName existe e monta o caminho corretamente
-        if (!empty($logo_data['fileName'])) {
-            $caminho_logo = 'app/images/' . $logo_data['fileName'];
-    
-            // Verifica se o arquivo realmente existe
-            if (file_exists($caminho_logo)) {
-                $pdf->Image($caminho_logo, 140, 15, 80); // Exibe a imagem no PDF
-            } else {
-                echo "Imagem não encontrada: $caminho_logo";
-            }
-        } else {
-            echo "fileName não encontrado no JSON.";
-        }
-    }
+        $pdf->Image('app/images/' . $object->logotransporte, 150, 48, 45, 20);
+        
+  
 
         // Texto do cabeçalho
         $texto = "El transporte realizado bajo esta carta de ponte Internacional está sujeto a las disposições del Convenio sobre el contrato de transporte y la responsabilidad Civil del porteador en el Transportes Terrestre Internacional de Mercancias.las cuales anulan toda estipulação que se aparte de ellas en prejuicio del remitente o del consignatário.O transporte realizado ao amparo deste Conheçimento de Transporte Internacional está sujeto às disposições del Convênio sobre o Contrato de Transporte e a Responsabilidade Civil do Transportador no transporte terrestre internacional.de mercadorias, as cuales anulam toda especulação contrária às mesmas en prejuicio del remitente o del consignatário";
@@ -300,6 +284,34 @@ Nome e assinatura do remetente ou seu representante"));
         //$pdf->MultiCell(90, 3, utf8_decode($object->endereco_transportador), 0, 'L');
       //  $transp = "COOP.TRANSP. CARGAS E SERVIÇOS LOG -SULCONEXLOG AVENIDA SANTOS DUMONT , 777 SALA 07 e 08                          BAIRRO RUI RAMOS URUGUAIANA- RS- BRASIL                        CNPJ: 48.816.176/0001-42";
         $pdf->MultiCell(85, 4, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $object->nome_transportador), 0, 'L'); 
+
+
+        if (!empty($object->permisso->logo)) {
+            // Debug: exibe o conteúdo do campo logotransporte
+            TTransaction::log("Valor de logotransporte: " . $object->logotransporte);
+            
+            // Decodifica o JSON contido em logotransporte
+            $logoData = json_decode($object->logotransporte, true);
+            
+            if (isset($logoData['fileName']) && !empty($logoData['fileName'])) {
+                $caminhoLogo = 'app/images/' . $logoData['fileName'];
+                TTransaction::log("Caminho da imagem: " . $caminhoLogo);
+                
+                // Verifica se o arquivo existe no caminho especificado
+                if (file_exists($caminhoLogo)) {
+                    $pdf->Image($caminhoLogo, 140, 15, 80);
+                } else {
+                    TTransaction::log("Imagem não encontrada: " . $caminhoLogo);
+                    echo "Imagem não encontrada: " . $caminhoLogo;
+                }
+            } else {
+                TTransaction::log("Chave 'fileName' não encontrada no JSON.");
+                echo "Chave 'fileName' não encontrada no JSON.";
+            }
+        } else {
+            TTransaction::log("Campo logotransporte vazio.");
+            echo "Campo logotransporte vazio.";
+        }
 
         // Insere o nome no rodapé (ex.: VIA ORIGINAL)
         $pdf->Text(5, 289, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $name));

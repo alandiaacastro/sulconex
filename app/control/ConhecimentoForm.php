@@ -37,7 +37,7 @@ class ConhecimentoForm extends TPage
         $nome_transportador            = new TText('nome_transportador');
         $nome_transportador->setSize('100%', 120);
         // Alterado para campo oculto
-        $logotransporte = new TText('logotransporte');
+        $logotransporte = new TEntry('logotransporte');
 
         // Organiza os campos em uma única linha com labels acima dos inputs
         $table = new TTable;
@@ -84,8 +84,6 @@ class ConhecimentoForm extends TPage
         $cell->colspan = 4; // Ocupa 4 colunas
         $cell->add(new TLabel('🚚 Transportador'));
         $cell->add($nome_transportador);
-
-   
 
         $panel_geral->add($table);
         $this->form->addContent([$panel_geral]);
@@ -482,14 +480,14 @@ class ConhecimentoForm extends TPage
 
         $assinatura_nome = new TEntry('assinatura_nome');
         $faturado        = new TEntry('faturado');
-      
+
         $this->form->addFields(
             [new TLabel('🖋️ Assinatura')], [$assinatura_nome],
             [new TLabel('✅ Faturado')], [$faturado],
-            [new TLabel('✅ Logo')], [$logotransporte]
-        );
+           );
+        $this->form->addFields([new TLabel('Logotransporte')], [$logotransporte]);
 
-       
+
         // Botões de ação
         $this->form->addAction('💾 Salvar', new TAction([$this, 'onSave']), 'fa:save')->class = 'btn btn-primary';
         $this->form->addActionLink('🔙 Voltar', new TAction(['ConhecimentoList', 'onReload']), 'fa:arrow-left green');
@@ -526,55 +524,45 @@ class ConhecimentoForm extends TPage
      * Ação estática para carregar os dados da tabela Permissox ao selecionar um permisso
      */
     public static function onPermissoChange($param)
-{
-    try {
-        TTransaction::log("Parâmetros recebidos (Permisso): " . json_encode($param));
-        $obj = new stdClass;
-        
-        if (!empty($param['permisso'])) {
-            TTransaction::open('sample');
-            $permissox = new Permissox($param['permisso']);
-
-            if ($permissox) {
-                // Preenche os campos com os dados da Permissox
-                $obj->nome_transportador = $permissox->transportadora ?? '';
-                $obj->pais_destino = $permissox->pais_destino ?? '';
-                // Se houver logo, envia como JSON (ex.: {"fileName": "imagem.png"})
-                $obj->logotransporte = !empty($permissox->logo)
-                    ? json_encode(['fileName' => basename($permissox->logo)])
-                    : '';
-                
-                TForm::sendData('form_Conhecimento', $obj);
-                
-                TTransaction::log("Dados enviados: Transportadora=" . $obj->nome_transportador .
-                                  ", País Destino=" . $obj->pais_destino .
-                                  ", Logo=" . $obj->logotransporte);
-            } else {
-                // Se o registro não for encontrado, limpa os campos
-                $obj->nome_transportador = '';
-                $obj->pais_destino = '';
-                $obj->logotransporte = '';
-                TForm::sendData('form_Conhecimento', $obj);
-                new TMessage('warning', 'Registro não encontrado para ID: ' . $param['permisso']);
-            }
-            
-            TTransaction::close();
-        } else {
-            // Se o campo permisso não estiver preenchido, limpa os campos
-            $obj->nome_transportador = '';
-            $obj->pais_destino = '';
-            $obj->logotransporte = '';
-            TForm::sendData('form_Conhecimento', $obj);
-        }
-    } catch (Exception $e) {
-        new TMessage('error', 'Erro ao carregar dados do Permisso: ' . $e->getMessage());
-        TTransaction::log("Erro: " . $e->getMessage());
-        TTransaction::rollback();
-    }
-}
-
+    {
+        try {
+            TTransaction::log("Parâmetros recebidos (Permisso): " . json_encode($param));
+            $obj = new stdClass;
     
-
+            if (!empty($param['permisso'])) {
+                TTransaction::open('sample');
+                $permissox = new Permissox($param['permisso']);
+    
+                if ($permissox) {
+                    $obj->nome_transportador = !empty($permissox->transportadora) ? $permissox->transportadora : '';
+                    $obj->pais_destino       = !empty($permissox->pais_destino) ? $permissox->pais_destino : '';
+                    $obj->logotransporte     = !empty($permissox->logo) ? $permissox->logo : '';
+    
+                    TTransaction::log("Dados enviados: Transportadora={$obj->nome_transportador}, País Destino={$obj->pais_destino}, logotransporte={$obj->logotransporte}");
+                    TForm::sendData('form_Conhecimento', $obj);
+                } else {
+                    $obj->nome_transportador = '';
+                    $obj->pais_destino       = '';
+                    $obj->logotransporte     = '';
+                    TForm::sendData('form_Conhecimento', $obj);
+                    new TMessage('warning', 'Registro não encontrado para ID: ' . $param['permisso']);
+                }
+    
+                TTransaction::close();
+            } else {
+                $obj->nome_transportador = '';
+                $obj->pais_destino       = '';
+                $obj->logotransporte     = '';
+                TForm::sendData('form_Conhecimento', $obj);
+            }
+        } catch (Exception $e) {
+            new TMessage('error', 'Erro ao carregar dados do Permisso: ' . $e->getMessage());
+            TTransaction::log("Erro: " . $e->getMessage());
+            TTransaction::rollback();
+        }
+    }
+    
+    
     /**
      * Salvar dados do formulário
      */
@@ -590,6 +578,7 @@ class ConhecimentoForm extends TPage
                 $data->data_transportador_assinatura = TDate::date2us($data->data_transportador_assinatura);
             }
 
+            // Ajusta o valor do campo de cópia do CRT
             $data->copiarcrt = in_array($data->copiacrt, ['1', 1, true], true) ? '1' : '0';
 
             if (!empty($data->id)) {
@@ -631,7 +620,9 @@ class ConhecimentoForm extends TPage
                 TTransaction::open('sample');
                 $object = new Conhecimento($param['key']);
 
-                if ($object->copiacrt == '1') {
+                // Corrige a atribuição do campo de cópia do CRT:
+                // No banco o campo é "copiarcrt" e no formulário o campo é "copiacrt"
+                if ($object->copiarcrt == '1') {
                     $object->copiacrt = '1';
                 } else {
                     $object->copiacrt = null;
@@ -660,13 +651,13 @@ class ConhecimentoForm extends TPage
                 $cliente = new Clientes($param['remetente_id']);
                 if ($cliente) {
                     $obj = new stdClass;
-                    $obj->nome_remetente = $cliente->nome;
+                    $obj->nome_remetente    = $cliente->nome;
                     $obj->endereco_remetente = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
                     TTransaction::log("Dados enviados (Remetente): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
-                    $obj->nome_remetente = '';
+                    $obj->nome_remetente    = '';
                     $obj->endereco_remetente = '';
                     TForm::sendData('form_Conhecimento', $obj);
                     new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['remetente_id']);
@@ -692,13 +683,13 @@ class ConhecimentoForm extends TPage
                 $cliente = new Clientes($param['destinatario_id']);
                 if ($cliente) {
                     $obj = new stdClass;
-                    $obj->nome_destinatario = $cliente->nome;
+                    $obj->nome_destinatario    = $cliente->nome;
                     $obj->endereco_destinatario = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
                     TTransaction::log("Dados enviados (Destinatário): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
-                    $obj->nome_destinatario = '';
+                    $obj->nome_destinatario    = '';
                     $obj->endereco_destinatario = '';
                     TForm::sendData('form_Conhecimento', $obj);
                     new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['destinatario_id']);
@@ -724,13 +715,13 @@ class ConhecimentoForm extends TPage
                 $cliente = new Clientes($param['consignatario_id']);
                 if ($cliente) {
                     $obj = new stdClass;
-                    $obj->nome_consignatario = $cliente->nome;
+                    $obj->nome_consignatario    = $cliente->nome;
                     $obj->endereco_consignatario = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
                     TTransaction::log("Dados enviados (Consignatário): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
-                    $obj->nome_consignatario = '';
+                    $obj->nome_consignatario    = '';
                     $obj->endereco_consignatario = '';
                     TForm::sendData('form_Conhecimento', $obj);
                     new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['consignatario_id']);
@@ -756,13 +747,13 @@ class ConhecimentoForm extends TPage
                 $cliente = new Clientes($param['notificar_id']);
                 if ($cliente) {
                     $obj = new stdClass;
-                    $obj->notificar_nome = $cliente->nome;
+                    $obj->notificar_nome    = $cliente->nome;
                     $obj->notificar_endereco = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
                     TTransaction::log("Dados enviados (Notificar): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
-                    $obj->notificar_nome = '';
+                    $obj->notificar_nome    = '';
                     $obj->notificar_endereco = '';
                     TForm::sendData('form_Conhecimento', $obj);
                     new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['notificar_id']);
