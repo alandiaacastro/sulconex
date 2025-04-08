@@ -32,7 +32,7 @@ class ClientesList extends TPage
         $action_delete->setLabel('Excluir');
         $action_delete->setImage('fa:trash red');
         $this->datagrid->addAction($action_delete);
-
+        $this->form->addAction('Novo', new TAction(['ClientesForm', 'onEdit']), 'fa:plus green');
         $this->datagrid->createModel();
 
         // Navegação

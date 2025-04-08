@@ -32,7 +32,7 @@ class ConhecimentoList extends TPage
         $btn_filtrar = $this->form->addAction('Filtrar', new TAction([$this, 'onSearch']), 'fa:search');
         $btn_filtrar->class = 'btn btn-sm btn-primary';
 
-        $btn_novo = $this->form->addAction('➕ Novo CRT', new TAction(['ConhecimentoForm', 'onEdit']), 'fa:plus green');
+        $btn_novo = $this->form->addAction('Novo CRT', new TAction(['ConhecimentoForm', 'onEdit']), 'fa:plus green');
         $btn_novo->class = 'btn btn-sm btn-success';
 
         $this->form->setData(TSession::getValue(__CLASS__ . '_filter_data'));

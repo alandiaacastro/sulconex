@@ -67,24 +67,30 @@ class PermissoxForm extends TPage
             $data = $this->form->getData();
 
             // Verifica se foi feito upload de imagem
-            if (!empty($data->logo) && file_exists($data->logo)) {
-                $extensao = pathinfo($data->logo, PATHINFO_EXTENSION);
-                $nome_arquivo = uniqid('logo_') . '.' . $extensao;
-                $destino = 'app/images/' . $nome_arquivo;
+            if (!empty($data->logo)) {
+                // Considera que o arquivo foi salvo na pasta tmp/
+                $temp_file = 'tmp/' . $data->logo;
+                if (file_exists($temp_file)) {
+                    $extensao = pathinfo($data->logo, PATHINFO_EXTENSION);
+                    $nome_arquivo = uniqid('logo_') . '.' . $extensao;
+                    $destino = 'app/images/' . $nome_arquivo;
 
-                // Copia o arquivo do tmp/ para app/images/
-                copy($data->logo, $destino);
+                    // Copia o arquivo da pasta tmp/ para app/images/
+                    if (!copy($temp_file, $destino)) {
+                        throw new Exception('Erro ao copiar o arquivo para o destino.');
+                    }
 
-                // Define apenas o nome no campo logo
-                $data->logo = $nome_arquivo;
+                    // Atualiza o campo logo com o nome do arquivo salvo
+                    $data->logo = $nome_arquivo;
+                }
             }
 
-            // Cria objeto e armazena
+            // Cria objeto e armazena os dados
             $object = new Permissox;
             $object->fromArray((array) $data);
             $object->store();
 
-            // Atualiza o formulário
+            // Atualiza o formulário com o ID gerado
             $data->id = $object->id;
             $this->form->setData($data);
 

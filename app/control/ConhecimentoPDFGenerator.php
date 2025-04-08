@@ -47,8 +47,6 @@ class ConhecimentoPDFGenerator
         $pdf->Image('app/images/assinatura2.jpg', 56, 255, 35, 25);
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Image('app/images/' . $object->logotransporte, 150, 48, 45, 20);
-        
-  
 
         // Texto do cabeçalho
         $texto = "El transporte realizado bajo esta carta de ponte Internacional está sujeto a las disposições del Convenio sobre el contrato de transporte y la responsabilidad Civil del porteador en el Transportes Terrestre Internacional de Mercancias.las cuales anulan toda estipulação que se aparte de ellas en prejuicio del remitente o del consignatário.O transporte realizado ao amparo deste Conheçimento de Transporte Internacional está sujeto às disposições del Convênio sobre o Contrato de Transporte e a Responsabilidade Civil do Transportador no transporte terrestre internacional.de mercadorias, as cuales anulam toda especulação contrária às mesmas en prejuicio del remitente o del consignatário";
@@ -137,7 +135,7 @@ class ConhecimentoPDFGenerator
         $pdf->Text(107, 73, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->local_emissao));
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(106, 80);
-        $pdf->MultiCell(140, 2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '7 Lugar pais y fecha en que el porteador se hace cargo de las mercancias /
+        $pdf->MultiCell(140, 2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '7 Lugar pais y fecha en que el porteador se hace cargo de las mercancias / 
 Localidade pais e data em que o transportador se responsabiliza para mercadoria '));
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(106, 94, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '8 Lugar pais y plazo de entrega / Localidade, pais e prazo de entrega'));
@@ -150,28 +148,31 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
 
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(166, 118, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '12 Peso Bruto kg./Peso bruto kg'));
+
+        $pdf->Text(168, 123, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'PESO BRUTO KG'));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(168, 122, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'PESO BRUTO KG'));
-        $pdf->Text(168, 126, number_format((float)$object->peso_bruto_kg, 3, ',', '.'));
+        $pdf->Text(168, 127, (string)$object->peso_bruto_kg);
+        $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(168, 130, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'PESO LIQUIDO KG'));
-        $pdf->Text(168, 134, number_format((float)$object->peso_liq_kg, 3, ',', '.'));
+        $pdf->SetFont('Helvetica', '', 8);
+        $pdf->Text(168, 134, (string)$object->peso_liq_kg);
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(166, 139, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '13 Volume en m.cu / Volume em m.cu.'));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(180, 145, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->volume_m3));
+        $pdf->Text(180, 145, (string)$object->volume_m3);
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(166, 150, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '14 Valor / Valor'));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(168, 154, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->incoterm));
-        $pdf->Text(168, 160, number_format((float)$object->valor_mercadorias, 2, ',', '.'));
+        $pdf->Text(168, 154, (string)$object->incoterm);
+        $pdf->Text(168, 160, (string)$object->valor_mercadorias);
         $pdf->Text(168, 166, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Moneda / Moeda'));
         $pdf->Text(168, 170, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->moeda_valor_mercadorias));
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(106, 176, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '16 Declaración del valor de las mercancias / Declaração do valor das mercadorias'));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(107, 180, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->incoterm16));
-        $pdf->Text(114, 180, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->moeda_valor_mercadorias));
-        $pdf->Text(124, 180, number_format((float)$object->valor_declarado, 2, ',', '.'));
+        $pdf->Text(107, 180, (string)$object->incoterm16);
+        $pdf->Text(114, 180, (string)$object->moeda_valor_mercadorias);
+        $pdf->Text(124, 180, (string)$object->valor_declarado);
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(106, 186, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', '17 Documentos anexos / Documentos anexos'));
         $pdf->SetFont('Helvetica', '', 8);
@@ -194,10 +195,8 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
         $pdf->SetFont('Helvetica', '', 8);
         $pdf->Text(106, 272, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->nome_destinatario));
         $pdf->SetFont('Helvetica', '', 6);
-        //$pdf->Text(6, 278, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->nome_transportador));
-        $pdf->SetFont('Helvetica', '', 6);
-        $pdf->Text(106, 280, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "Fecha/Data"));
-        $pdf->Text(6, 280, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "Fecha/Data"));
+        $pdf->SetXY(6, 280, 0);
+        $pdf->MultiCell(100, 2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "Fecha/Data"));
         $pdf->SetFont('Helvetica', '', 8);
 
         $data_original1   = $object->data_transportador_assinatura;
@@ -221,14 +220,14 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
 
         $x_pos = 50;
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custoremetente1, 2, ',', '.')), 187, 
-    !empty($object->custoremetente1) ? number_format((float)$object->custoremetente1, 2, ',', '.') : '');
-$pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custoremetente2, 2, ',', '.')), 195, 
-    !empty($object->custoremetente2) ? number_format((float)$object->custoremetente2, 2, ',', '.') : '');
-$pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custoremetente3, 2, ',', '.')), 202, 
-    !empty($object->custoremetente3) ? number_format((float)$object->custoremetente3, 2, ',', '.') : '');
-$pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->total_custo_remetente, 2, ',', '.')), 211, 
-    !empty($object->total_custo_remetente) ? number_format((float)$object->total_custo_remetente, 2, ',', '.') : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente1), 187, 
+            !empty($object->custoremetente1) ? (string)$object->custoremetente1 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente2), 195, 
+            !empty($object->custoremetente2) ? (string)$object->custoremetente2 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente3), 202, 
+            !empty($object->custoremetente3) ? (string)$object->custoremetente3 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->total_custo_remetente), 211, 
+            !empty($object->total_custo_remetente) ? (string)$object->total_custo_remetente : '');
         $pdf->Text(56, 186, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->gastosmoeda));
         $pdf->Text(56, 195, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->gastosmoeda));
         $pdf->Text(56, 202, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$object->gastosmoeda));
@@ -242,25 +241,25 @@ $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->total_cus
 
         $x_pos = 85;
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custodestino1, 2, ',', '.')), 187, 
-            !empty($object->custodestino1) ? number_format((float)$object->custodestino1, 2, ',', '.') : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custodestino2, 2, ',', '.')), 195, 
-            !empty($object->custodestino2) ? number_format((float)$object->custodestino2, 2, ',', '.') : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->custodestino3, 2, ',', '.')), 202, 
-            !empty($object->custodestino3) ? number_format((float)$object->custodestino3, 2, ',', '.') : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth(number_format((float)$object->total_custo_destinatario, 2, ',', '.')), 211, 
-            !empty($object->total_custo_destinatario) ? number_format((float)$object->total_custo_destinatario, 2, ',', '.') : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino1), 187, 
+            !empty($object->custodestino1) ? (string)$object->custodestino1 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino2), 195, 
+            !empty($object->custodestino2) ? (string)$object->custodestino2 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino3), 202, 
+            !empty($object->custodestino3) ? (string)$object->custodestino3 : '');
+        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->total_custo_destinatario), 211, 
+            !empty($object->total_custo_destinatario) ? (string)$object->total_custo_destinatario : '');
 
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(95, 174);
         $pdf->MultiCell(10, 2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "Moneda moeda"));
         $pdf->Text(6, 216, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "19-monto del flete extermo/Vakor do frete externo"));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(6, 220, !empty($object->valor_frete_externo) ? $object->gastosmoeda . number_format((float)$object->valor_frete_externo, 2, ',', '.') : '');
+        $pdf->Text(6, 220, !empty($object->valor_frete_externo) ? $object->gastosmoeda . (string)$object->valor_frete_externo : '');
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(6, 223, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "20-monto de rembolso contra entrega/valor de rembolso contra entrega"));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(6, 226, !empty($object->valor_reembolso) ? $object->gastosmoeda . number_format((float)$object->valor_reembolso, 2, ',', '.') : '');
+        $pdf->Text(6, 226, !empty($object->valor_reembolso) ? $object->gastosmoeda . (string)$object->valor_reembolso : '');
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(5, 232);
         $pdf->MultiCell(60, 2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', "21 Nombre y firma del remitente o su representante
@@ -281,10 +280,7 @@ Nome e assinatura do remetente ou seu representante"));
 
         $pdf->SetFont('Helvetica', '', 8);
         $pdf->SetXY(105,36);  
-        //$pdf->MultiCell(90, 3, utf8_decode($object->endereco_transportador), 0, 'L');
-      //  $transp = "COOP.TRANSP. CARGAS E SERVIÇOS LOG -SULCONEXLOG AVENIDA SANTOS DUMONT , 777 SALA 07 e 08                          BAIRRO RUI RAMOS URUGUAIANA- RS- BRASIL                        CNPJ: 48.816.176/0001-42";
         $pdf->MultiCell(85, 4, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $object->nome_transportador), 0, 'L'); 
-
 
         if (!empty($object->permisso->logo)) {
             // Debug: exibe o conteúdo do campo logotransporte
@@ -323,8 +319,11 @@ Nome e assinatura do remetente ou seu representante"));
     public function gerarPDFArquivo()
     {
         try {
-            $nomePagina = "VIA ORIGINAL";
-            $this->addPageContent($nomePagina);
+            // Adiciona a primeira página com o nome "ORIGINAL"
+            $this->addPageContent("ORIGINAL");
+
+            // Adiciona a segunda página com o nome "COPIA"
+            $this->addPageContent("COPIA");
 
             // Sanitiza os componentes para o nome do arquivo
             $invalidChars      = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
@@ -346,3 +345,4 @@ Nome e assinatura do remetente ou seu representante"));
         }
     }
 }
+?>

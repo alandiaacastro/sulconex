@@ -102,7 +102,7 @@
 }
 
 .tippy-box[data-theme~=light-border]>.tippy-svg-arrow {
-	fill: #fff
+	fill: #0b68f3
 }
 
 .tippy-box[data-theme~=light-border]>.tippy-svg-arrow:after {

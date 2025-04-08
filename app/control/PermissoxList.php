@@ -8,31 +8,36 @@ class PermissoxList extends TPage
     {
         parent::__construct();
 
+        // Criação do formulário de busca
         $this->form = new BootstrapFormBuilder('form_search_permissox');
-        $this->form->setFormTitle('Buscar Permissos');
+        $this->form->setFormTitle('Buscar Permissões');
 
         $permisso = new TEntry('permisso');
-        $this->form->addFields([new TLabel('Permisso')], [$permisso]);
+        $this->form->addFields([new TLabel('Permissão')], [$permisso]);
         $this->form->addAction('Buscar', new TAction([$this, 'onSearch']), 'fa:search');
 
+        // Criação do DataGrid
         $this->datagrid = new BootstrapDatagridWrapper(new TDataGrid);
 
         $this->datagrid->addColumn(new TDataGridColumn('id', 'ID', 'center', 50));
-        $this->datagrid->addColumn(new TDataGridColumn('permisso', 'Permisso', 'left'));
+        $this->datagrid->addColumn(new TDataGridColumn('permisso', 'Permissão', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('pais_destino', 'País Destino', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('numerocrt', 'Número CRT', 'left'));
 
+        // Ações do DataGrid
         $action_edit = new TDataGridAction(['PermissoxForm', 'onEdit'], ['id' => '{id}']);
-        $action_delete = new TDataGridAction([$this, 'onDelete'], ['id' => '{id}']);
+        $action_delete = new TDataGridAction([__CLASS__, 'onDelete'], ['id' => '{id}']);
 
         $this->datagrid->addAction($action_edit, 'Editar', 'fa:edit blue');
         $this->datagrid->addAction($action_delete, 'Excluir', 'fa:trash red');
 
         $this->datagrid->createModel();
 
+        // Navegação da página
         $this->pageNavigation = new TPageNavigation;
         $this->pageNavigation->setAction(new TAction([$this, 'onReload']));
 
+        // Agrupando os componentes
         $panel = new TPanelGroup('Lista de Permissões');
         $panel->add($this->datagrid);
         $panel->addFooter($this->pageNavigation);
@@ -45,7 +50,7 @@ class PermissoxList extends TPage
 
         parent::add($container);
 
-        $this->onReload();
+        $this->onReload(); // Carrega os dados inicialmente
     }
 
     public function onReload($param = NULL)
@@ -59,6 +64,12 @@ class PermissoxList extends TPage
             $criteria->setProperties($param);
             $criteria->setProperty('limit', $limit);
 
+            // Filtro de busca (se houver)
+            if (!empty($param['filter']['permisso'])) {
+                $criteria->add(new TFilter('permisso', 'like', "%{$param['filter']['permisso']}%"));
+            }
+
+            // Carrega objetos
             $objects = $repository->load($criteria, FALSE);
 
             $this->datagrid->clear();
@@ -68,6 +79,7 @@ class PermissoxList extends TPage
                 }
             }
 
+            // Paginação
             $criteria->resetProperties();
             $count = $repository->count($criteria);
             $this->pageNavigation->setCount($count);
@@ -83,18 +95,27 @@ class PermissoxList extends TPage
 
     public function onSearch($param)
     {
-        $this->onReload($param);
+        $data = $this->form->getData();
+        $this->form->setData($data); // Retém os dados no formulário
+
+        $filter = [];
+
+        if (!empty($data->permisso)) {
+            $filter['permisso'] = $data->permisso;
+        }
+
+        $this->onReload(['filter' => $filter]);
     }
 
-    public function onDelete($param)
+    public static function onDelete($param)
     {
-        $action = new TAction([$this, 'Delete']);
+        $action = new TAction([__CLASS__, 'Delete']);
         $action->setParameters($param);
 
         new TQuestion('Deseja realmente excluir?', $action);
     }
 
-    public function Delete($param)
+    public static function Delete($param)
     {
         try {
             TTransaction::open('sample');
@@ -102,8 +123,9 @@ class PermissoxList extends TPage
             $object->delete();
             TTransaction::close();
 
-            $this->onReload();
             new TMessage('info', 'Registro excluído com sucesso!');
+
+            AdiantiCoreApplication::reloadPage(); // recarrega a página atual
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();

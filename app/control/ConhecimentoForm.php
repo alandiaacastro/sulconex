@@ -28,6 +28,8 @@ class ConhecimentoForm extends TPage
         $numero                        = new TEntry('numero');
         $data_transportador_assinatura = new TDate('data_transportador_assinatura');
         $data_transportador_assinatura->setMask('dd/mm/yyyy');
+        $data_transportador_assinatura->setDatabaseMask('yyyy-mm-dd');
+        $data_transportador_assinatura->setMask('dd/mm/yyyy');
         $fatura_crt                    = new TEntry('fatura_crt');
         $pais_destino                  = new TEntry('pais_destino');
         $status_crt_id                 = new TDBCombo('status_crt_id', 'sample', 'StatusCRT', 'id', 'nome');
@@ -223,8 +225,9 @@ class ConhecimentoForm extends TPage
         $descricao_mercadoria->setSize('100%', null);
         $descricao_mercadoria->setProperty('style', 'height:300px !important; resize: none;');
 
-        $peso_bruto_kg = new TNumeric('peso_bruto_kg', 3, ',', '.', null, true);
-        $peso_liq_kg   = new TNumeric('peso_liq_kg', 3, ',', '.', null, true);
+        // Removendo os formatos monetários: os campos TNumeric foram substituídos por TEntry
+        $peso_bruto_kg = new TEntry('peso_bruto_kg');
+        $peso_liq_kg   = new TEntry('peso_liq_kg');
         $volume_m3     = new TEntry('volume_m3');
 
         $peso_bruto_kg->setSize('100%');
@@ -238,12 +241,12 @@ class ConhecimentoForm extends TPage
         $incoterm16->setSize('100%');
 
         $moeda_valor_mercadorias = new TEntry('moeda_valor_mercadorias');
-        $valor_mercadorias       = new TNumeric('valor_mercadorias', 2, ',', '.', null, true);
+        $valor_mercadorias       = new TEntry('valor_mercadorias');
 
         $moeda_valor_mercadorias->setSize('100%');
         $valor_mercadorias->setSize('100%');
 
-        $valor_declarado = new TNumeric('valor_declarado', 2, ',', '.', null, true);
+        $valor_declarado = new TEntry('valor_declarado');
         $valor_declarado->setSize('100%');
 
         $left_box = new TVBox;
@@ -310,24 +313,24 @@ class ConhecimentoForm extends TPage
 
         $quantidade_volumes       = new TEntry('quantidade_volumes');
         $especie_vol              = new TEntry('especie_vol');
-        $valor_reembolso          = new TNumeric('valor_reembolso', 2, ',', '.', null, true);
-        $valor_frete_externo      = new TNumeric('valor_frete_externo', 2, ',', '.', null, true);
+        $valor_reembolso          = new TEntry('valor_reembolso');
+        $valor_frete_externo      = new TEntry('valor_frete_externo');
         $moeda_frete_externo      = new TEntry('moeda_frete_externo');
 
         $textogasto1              = new TEntry('textogasto1');
         $textogasto2              = new TEntry('textogasto2');
         $textogasto3              = new TEntry('textogasto3');
 
-        $custoremetente1          = new TNumeric('custoremetente1', 2, ',', '.', null, true);
-        $custoremetente2          = new TNumeric('custoremetente2', 2, ',', '.', null, true);
-        $custoremetente3          = new TNumeric('custoremetente3', 2, ',', '.', null, true);
+        $custoremetente1          = new TEntry('custoremetente1');
+        $custoremetente2          = new TEntry('custoremetente2');
+        $custoremetente3          = new TEntry('custoremetente3');
 
-        $custodestino1            = new TNumeric('custodestino1', 2, ',', '.', null, true);
-        $custodestino2            = new TNumeric('custodestino2', 2, ',', '.', null, true);
-        $custodestino3            = new TNumeric('custodestino3', 2, ',', '.', null, true);
+        $custodestino1            = new TEntry('custodestino1');
+        $custodestino2            = new TEntry('custodestino2');
+        $custodestino3            = new TEntry('custodestino3');
 
-        $total_custo_remetente    = new TNumeric('total_custo_remetente', 2, ',', '.', null, true);
-        $total_custo_destinatario = new TNumeric('total_custo_destinatario', 2, ',', '.', null, true);
+        $total_custo_remetente    = new TEntry('total_custo_remetente');
+        $total_custo_destinatario = new TEntry('total_custo_destinatario');
 
         $gastosmoeda = new TCombo('gastosmoeda');
         $gastosmoeda->addItems([
@@ -344,19 +347,25 @@ class ConhecimentoForm extends TPage
         $documentos_anexos->setSize('100%', null);
         $documentos_anexos->setProperty('style', 'height:200px; resize: none;');
 
-        $fields = [
-            $quantidade_volumes, $especie_vol,
-            $valor_reembolso, $valor_frete_externo, $moeda_frete_externo,
-            $textogasto1, $textogasto2, $textogasto3,
-            $custoremetente1, $custoremetente2, $custoremetente3,
-            $custodestino1, $custodestino2, $custodestino3,
-            $total_custo_remetente, $total_custo_destinatario,
-            $gastosmoeda
+        // Removendo a conversão dos formatos monetários (pois os campos agora são TEntry)
+        /*
+        $numericFields = [
+            'peso_bruto_kg', 'peso_liq_kg', 'valor_mercadorias', 'valor_declarado',
+            'valor_reembolso', 'valor_frete_externo', 'custoremetente1', 'custoremetente2', 
+            'custoremetente3', 'custodestino1', 'custodestino2', 'custodestino3',
+            'total_custo_remetente', 'total_custo_destinatario', 'taxadolar', 
+            'valorfaturausd', 'valor_fatbr'
         ];
 
-        foreach ($fields as $f) {
-            $f->setSize('100%');
+        foreach ($numericFields as $field)
+        {
+            if (isset($data->{$field}) && $data->{$field} !== '')
+            {
+                $data->{$field} = str_replace('.', '', $data->{$field});
+                $data->{$field} = str_replace(',', '.', $data->{$field});
+            }
         }
+        */
 
         $table_layout = new TTable;
         $table_layout->width = '100%';
@@ -423,69 +432,161 @@ class ConhecimentoForm extends TPage
 
         $panel_custos->add($table_layout);
 
-        // 1️⃣1️⃣ TRANSPORTE & PAGADOR
-        $panel_transporte = new TPanelGroup('1️⃣1️⃣ Transporte & Pagador');
-        $this->form->addContent([$panel_transporte]);
 
-        $porteador    = new TEntry('porteador');
-        $pagador_id   = new TEntry('pagador_id');
-        $nome_pagador = new TEntry('nome_pagador');
 
-        $this->form->addFields(
-            [new TLabel('🚛 Porteador')], [$porteador]
-        );
-        $this->form->addFields(
-            [new TLabel('💳 Pagador ID')], [$pagador_id],
-            [new TLabel('💳 Nome Pagador')], [$nome_pagador]
-        );
 
-        // 1️⃣2️⃣ FATURAS & TAXAS
-        $panel_faturas = new TPanelGroup('1️⃣2️⃣ Faturas & Taxas');
-        $this->form->addContent([$panel_faturas]);
-
-        $valorfaturausd = new TEntry('valorfaturausd');
-        $valor_fatbr    = new TEntry('valor_fatbr');
-        $fatura_usd     = new TEntry('fatura_usd');
-        $fatura_brl     = new TEntry('fatura_brl');
-        $taxadolar      = new TEntry('taxadolar');
-
-        $this->form->addFields(
-            [new TLabel('💵 Valor Fatura USD')], [$valorfaturausd],
-            [new TLabel('💴 Valor Fatura BRL')], [$valor_fatbr]
-        );
-        $this->form->addFields(
-            [new TLabel('💱 Taxa Dólar')], [$taxadolar]
-        );
-        $this->form->addFields(
-            [new TLabel('📄 Fatura USD')], [$fatura_usd],
-            [new TLabel('📄 Fatura BRL')], [$fatura_brl]
-        );
-        // 1️⃣3️⃣ OBSERVAÇÕES & INSTRUÇÕES
+        
         $panel_obs = new TPanelGroup('1️⃣3️⃣ Observações & Instruções');
-        $this->form->addContent([$panel_obs]);
+$this->form->addContent([$panel_obs]);
 
-        $observacoes         = new TText('observacoes');
-        $instrucoes_alfandega = new TText('instrucoes_alfandega');
+// Cria os campos e define a altura de 120px
+$observacoes         = new TText('observacoes');
+$instrucoes_alfandega = new TText('instrucoes_alfandega');
+$observacoes->setSize('100%', 120);
+$instrucoes_alfandega->setSize('100%', 120);
 
-        $this->form->addFields(
-            [new TLabel('📝 Observações')], [$observacoes]
-        );
-        $this->form->addFields(
-            [new TLabel('🛃 Instruções Alfândega')], [$instrucoes_alfandega]
-        );
+// Cria uma div para o campo "Observações" com rótulo acima
+$boxObservacoes = new TElement('div');
+$boxObservacoes->add(new TLabel('📝 Observações'));
+$boxObservacoes->add($observacoes);
+$boxObservacoes->style = "width:50%; float:left; padding-right: 10px;";
 
-        // 1️⃣4️⃣ DOCUMENTAÇÃO & ASSINATURA
-        $panel_docs = new TPanelGroup('1️⃣4️⃣ Documentos & Assinatura');
-        $this->form->addContent([$panel_docs]);
+// Cria uma div para o campo "Instruções Alfândega" com rótulo acima
+$boxInstrucoes = new TElement('div');
+$boxInstrucoes->add(new TLabel('🛃 Instruções Alfândega'));
+$boxInstrucoes->add($instrucoes_alfandega);
+$boxInstrucoes->style = "width:50%; float:left;";
 
-        $assinatura_nome = new TEntry('assinatura_nome');
-        $faturado        = new TEntry('faturado');
+// Cria um container para agrupar as duas divs na mesma linha
+$linha = new TElement('div');
+$linha->style = "width:100%; overflow:hidden;";
+$linha->add($boxObservacoes);
+$linha->add($boxInstrucoes);
 
-        $this->form->addFields(
-            [new TLabel('🖋️ Assinatura')], [$assinatura_nome],
-            [new TLabel('✅ Faturado')], [$faturado],
-           );
-        $this->form->addFields([new TLabel('Logotransporte')], [$logotransporte]);
+// Adiciona o container na sua form
+$this->form->addContent([$linha]);
+
+
+// 1️⃣1️⃣ TRANSPORTE & PAGADOR
+$panel_transporte = new TPanelGroup('1️⃣1️⃣ Transporte & Pagador');
+$this->form->addContent([$panel_transporte]);
+
+$porteador    = new TEntry('porteador');
+$pagador_id   = new TEntry('pagador_id');
+$nome_pagador = new TEntry('nome_pagador');
+
+// Cria um container para agrupar os campos em uma linha
+$row_transporte = new TElement('div');
+$row_transporte->style = "width:100%; overflow:hidden;";
+
+// Cada campo ficará em uma div com 33.33% da largura (pois são 3 campos)
+$div_porteador = new TElement('div');
+$div_porteador->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_porteador->add(new TLabel('🚛 Porteador'));
+$div_porteador->add($porteador);
+$row_transporte->add($div_porteador);
+
+$div_pagador_id = new TElement('div');
+$div_pagador_id->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_pagador_id->add(new TLabel('💳 Pagador ID'));
+$div_pagador_id->add($pagador_id);
+$row_transporte->add($div_pagador_id);
+
+$div_nome_pagador = new TElement('div');
+$div_nome_pagador->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_nome_pagador->add(new TLabel('💳 Nome Pagador'));
+$div_nome_pagador->add($nome_pagador);
+$row_transporte->add($div_nome_pagador);
+
+// Adiciona a linha criada no painel
+$panel_transporte->add($row_transporte);
+
+
+
+// 1️⃣2️⃣ FATURAS & TAXAS
+$panel_faturas = new TPanelGroup('1️⃣2️⃣ Faturas & Taxas');
+$this->form->addContent([$panel_faturas]);
+
+$valorfaturausd = new TEntry('valorfaturausd');
+$valor_fatbr    = new TEntry('valor_fatbr');
+$taxadolar      = new TEntry('taxadolar');
+$fatura_usd     = new TEntry('fatura_usd');
+$fatura_brl     = new TEntry('fatura_brl');
+
+// Container para os 5 campos (cada um com 20% de largura)
+$row_faturas = new TElement('div');
+$row_faturas->style = "width:100%; overflow:hidden;";
+
+$div_valorUSD = new TElement('div');
+$div_valorUSD->style = "float:left; width:20%; padding: 0 10px; text-align: center;";
+$div_valorUSD->add(new TLabel('💵 Valor Fatura USD'));
+$div_valorUSD->add($valorfaturausd);
+$row_faturas->add($div_valorUSD);
+
+$div_valorBRL = new TElement('div');
+$div_valorBRL->style = "float:left; width:20%; padding: 0 10px; text-align: center;";
+$div_valorBRL->add(new TLabel('💴 Valor Fatura BRL'));
+$div_valorBRL->add($valor_fatbr);
+$row_faturas->add($div_valorBRL);
+
+$div_taxa = new TElement('div');
+$div_taxa->style = "float:left; width:20%; padding: 0 10px; text-align: center;";
+$div_taxa->add(new TLabel('💱 Taxa Dólar'));
+$div_taxa->add($taxadolar);
+$row_faturas->add($div_taxa);
+
+$div_faturaUSD = new TElement('div');
+$div_faturaUSD->style = "float:left; width:20%; padding: 0 10px; text-align: center;";
+$div_faturaUSD->add(new TLabel('📄 Fatura USD'));
+$div_faturaUSD->add($fatura_usd);
+$row_faturas->add($div_faturaUSD);
+
+$div_faturaBRL = new TElement('div');
+$div_faturaBRL->style = "float:left; width:20%; padding: 0 10px; text-align: center;";
+$div_faturaBRL->add(new TLabel('📄 Fatura BRL'));
+$div_faturaBRL->add($fatura_brl);
+$row_faturas->add($div_faturaBRL);
+
+$panel_faturas->add($row_faturas);
+
+
+
+// 1️⃣4️⃣ DOCUMENTAÇÃO & ASSINATURA
+$panel_docs = new TPanelGroup('1️⃣4️⃣ Documentos & Assinatura');
+$this->form->addContent([$panel_docs]);
+
+$assinatura_nome = new TTEXT('assinatura_nome');
+$faturado        = new TEntry('faturado');
+// Certifique-se de que a variável $logotransporte esteja definida
+$logotransporte  = new TEntry('logotransporte');
+
+$row_docs = new TElement('div');
+$row_docs->style = "width:100%; overflow:hidden;";
+
+// Cada campo em 33.33% da largura
+$div_assinatura = new TElement('div');
+$div_assinatura->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_assinatura->add(new TLabel('🖋️ Assinatura'));
+$div_assinatura->add($assinatura_nome);
+$row_docs->add($div_assinatura);
+
+$div_faturado = new TElement('div');
+$div_faturado->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_faturado->add(new TLabel('✅ Faturado'));
+$div_faturado->add($faturado);
+$row_docs->add($div_faturado);
+
+$div_logo = new TElement('div');
+$div_logo->style = "float:left; width:33.33%; padding: 0 10px; text-align: center;";
+$div_logo->add(new TLabel('Logotransporte'));
+$div_logo->add($logotransporte);
+$row_docs->add($div_logo);
+
+$panel_docs->add($row_docs);
+
+
+
+
 
 
         // Botões de ação
@@ -574,13 +675,13 @@ class ConhecimentoForm extends TPage
 
             $data = $this->form->getData();
 
-            if (!empty($data->data_transportador_assinatura)) {
-                $data->data_transportador_assinatura = TDate::date2us($data->data_transportador_assinatura);
-            }
+            // Como os campos monetários não possuem mais formatação, 
+            // não há necessidade de conversão dos valores
 
             // Ajusta o valor do campo de cópia do CRT
             $data->copiarcrt = in_array($data->copiacrt, ['1', 1, true], true) ? '1' : '0';
 
+            // Cria ou carrega o objeto Conhecimento
             if (!empty($data->id)) {
                 $object = new Conhecimento($data->id);
             } else {
@@ -590,6 +691,7 @@ class ConhecimentoForm extends TPage
             $object->fromArray((array) $data);
             $object->store();
 
+            // Atualiza o formulário com o ID gerado/atualizado
             $data->id = $object->id;
             $this->form->setData($data);
 
@@ -602,17 +704,6 @@ class ConhecimentoForm extends TPage
         }
     }
 
-    /**
-     * Limpar formulário
-     */
-    public function onClear($param)
-    {
-        $this->form->clear(TRUE);
-    }
-
-    /**
-     * Editar registro existente
-     */
     public function onEdit($param)
     {
         try {
@@ -620,14 +711,10 @@ class ConhecimentoForm extends TPage
                 TTransaction::open('sample');
                 $object = new Conhecimento($param['key']);
 
-                // Corrige a atribuição do campo de cópia do CRT:
-                // No banco o campo é "copiarcrt" e no formulário o campo é "copiacrt"
-                if ($object->copiarcrt == '1') {
-                    $object->copiacrt = '1';
-                } else {
-                    $object->copiacrt = null;
-                }
+                // Ajusta o valor do checkbutton: no banco o campo é 'copiarcrt'
+                $object->copiacrt = ($object->copiarcrt == '1') ? '1' : null;
 
+                // NÃO faça conversão manual da data; o TDate com setDatabaseMask já realiza isso automaticamente
                 $this->form->setData($object);
                 TTransaction::close();
             } else {
@@ -639,6 +726,19 @@ class ConhecimentoForm extends TPage
         }
     }
 
+    
+    /**
+     * Limpar formulário
+     */
+    public function onClear($param)
+    {
+        $this->form->clear(TRUE);
+    }
+
+    /**
+     * Editar registro existente
+     */
+    
     /**
      * Ação estática para carregar os dados do cliente para o Remetente
      */

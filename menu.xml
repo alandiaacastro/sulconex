@@ -94,16 +94,27 @@
                 <icon>fas:book fa-fw</icon>
                 <action>ConhecimentoList</action>
             </menuitem>
+                   </menu>
+    </menuitem>
+     <menuitem label="Configurações">
+        <icon>fas:cog fa-fw</icon>
+        <menu>
             <menuitem label="Permisso CRT - Listagem">
                 <icon>fas:list fa-fw</icon>
                 <action>PermissoxList</action>
             </menuitem>
             <menuitem label="Permisso CRT - Cadastro">
-                <icon>fas:passport fa-fw</icon>
+                <icon>fas:list fa-fw</icon>
                 <action>PermissoxForm</action>
             </menuitem>
         </menu>
     </menuitem>
+
+
+
+
+
+
 
     <menuitem label="Logout">
         <icon>fas:sign-out-alt fa-fw</icon>
