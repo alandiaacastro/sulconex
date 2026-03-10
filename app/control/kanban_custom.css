@@ -1,0 +1,79 @@
+/* Esconde elementos com a classe hidden (mantido para uso futuro, se necessário) */
+.hidden {
+    display: none !important; /* Adicionado !important para garantir precedência */
+}
+
+/* Cores dos títulos dos estágios do Kanban */
+/* NOTA: TKanban do Adianti geralmente usa a classe 'kanban-stage-title' para o título da fase */
+div[id="stage-QUALIFICACAO"] .kanban-stage-title {
+    background-color: #FF0000; /* Vermelho */
+    color: white;
+}
+
+div[id="stage-PROPOSTA"] .kanban-stage-title {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+
+div[id="stage-NEGOCIACAO"] .kanban-stage-title {
+    background-color: #FF8C00; /* Laranja */
+    color: white;
+}
+
+div[id="stage-FECHAMENTO"] .kanban-stage-title {
+    background-color: #6f42c1; /* Roxo */
+    color: white;
+}
+
+/* --- Estilos Adicionais para o seu Kanban (Mantidos do exemplo anterior) --- */
+
+/* Estilo para o container principal do Kanban */
+.kanban-wrapper {
+    /* O padding já foi adicionado inline no PHP, mas você pode adicionar mais aqui */
+}
+
+/* Estilo para o formulário de filtro agora que está sempre visível */
+#filter_box {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 15px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 15px; /* Espaço abaixo do filtro */
+}
+
+/* Estilos para os cartões individuais do Kanban */
+.kanban-item-card {
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* Estilos para a parte do conteúdo dentro do cartão */
+.kanban-card-content {
+    /* Estilos para o conteúdo interno do card */
+}
+
+/* Estilos para as colunas/fases do Kanban */
+.kanban-stage {
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+}
+
+/* Estilo para o cartão sendo arrastado */
+.ui-sortable-helper {
+    opacity: 0.8;
+    transform: rotate(2deg);
+}
+
+/* Estilo do placeholder do jQuery UI ao arrastar */
+.ui-sortable-placeholder {
+    background-color: #e9f7ff;
+    border: 2px dashed #a0d9ff;
+    visibility: visible !important;
+    height: 80px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}

@@ -1,0 +1,94 @@
+<div class="no-print" style="background: #f1f5f9; padding: 15px; display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid #e2e8f0;">
+    <button onclick="window.print();" style="background: #153d73; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: sans-serif;">
+        <i class="fas fa-print"></i> IMPRIMIR AGORA
+    </button>
+    <p style="margin: 10px 0 0 10px; font-size: 12px; color: #64748b; font-family: sans-serif;">
+        Dica: Para salvar como PDF, escolha "Salvar como PDF" no destino da impressão.
+    </p>
+</div>
+
+<div class="document-page">
+    <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #153d73; padding-bottom: 20px;">
+        <div>
+            <h1 style="color: #153d73; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px;">SULCONEX</h1>
+            <small style="color: #64748b; text-transform: uppercase; font-weight: bold;">Logística Internacional</small>
+        </div>
+        <div style="text-align: right;">
+            <h2 style="margin: 0; font-size: 16px; color: #153d73;">PROPOSTA COMERCIAL</h2>
+            <span style="background: #ecf2ff; color: #153d73; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px;">Nº {$id}</span>
+        </div>
+    </header>
+
+    <div style="margin-top: 30px;">
+        <p style="font-size: 14px;">Uruguaiana/RS, {$data_emissao}</p>
+        <p style="font-size: 16px; margin-top: 10px;">À <strong>{$cliente_nome}</strong>,</p>
+        <p style="font-size: 14px; color: #475569; line-height: 1.6;">Conforme solicitado, apresentamos as condições tarifárias para o transporte internacional de mercadorias via modal rodoviário (FTL).</p>
+    </div>
+
+    <h3 style="font-size: 13px; color: #153d73; border-left: 4px solid #153d73; padding-left: 10px; margin-top: 30px; text-transform: uppercase;">Dados da Operação</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
+        <tr>
+            <td style="padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: bold; width: 25%;">Origem:</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0;">{$local_coleta}</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: bold; width: 25%;">Destino:</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0;">{$local_entrega}</td>
+        </tr>
+        <tr>
+            <td style="padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: bold;">Mercadoria:</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0;">{$mercadoria}</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: bold;">Tempo de Trânsito:</td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0;">{$transito}</td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 40px; background: #153d73; color: white; padding: 30px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <p style="margin: 0; font-size: 12px; text-transform: uppercase; opacity: 0.8;">Valor Total do Frete (BRL)</p>
+            <h2 style="margin: 0; font-size: 36px; font-weight: 800;">R$ {$valor_brl}</h2>
+        </div>
+        <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 30px;">
+            <p style="margin: 0; font-size: 14px;">Equivalente: <strong>USD {$valor_usd}</strong></p>
+            <p style="margin: 0; font-size: 12px; opacity: 0.8;">Taxa utilizada: {$taxa_dolar}</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; font-size: 11px; color: #64748b; line-height: 1.5;">
+        <p><strong>Observações importantes:</strong></p>
+        <ul style="padding-left: 15px;">
+            <li>Validade desta proposta: {$validade}.</li>
+            <li>Seguro RCTR-VI incluso na cotação.</li>
+            <li>Carga e descarga por conta do cliente.</li>
+            <li>Inverno Andino: Sujeito a atrasos por fechamento de passagens fronteiriças.</li>
+        </ul>
+    </div>
+
+    <footer style="margin-top: 60px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+        <p style="margin: 0; font-weight: bold; color: #153d73;">SULCONEXLOG - LOGÍSTICA INTERNACIONAL</p>
+        <p style="margin: 0; font-size: 11px;">CNPJ 48.816.176/0001-42 | Uruguaiana/RS</p>
+    </footer>
+</div>
+<style>
+/* Estilo Base da Página */
+body { background: #f1f5f9; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.document-page {
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 20mm;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+/* Regras de Impressão */
+@media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .document-page {
+        margin: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        padding: 10mm !important;
+    }
+}
+</style>
