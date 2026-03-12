@@ -1,25 +1,5 @@
 <?php
 
-namespace Adianti\Control;
-
-use Adianti\Control\TPage;
-use Adianti\Database\TTransaction;
-use Adianti\Database\TFilter;
-use Adianti\Registry\TRegistry;
-use Adianti\Model\CctTransmissao;
-use Adianti\Service\Siscomex\SiscomexTransmissionService;
-use Adianti\Widgets\Datagrid\TDataGrid;
-use Adianti\Widgets\Datagrid\TDataGridColumn;
-use Adianti\Widgets\Datagrid\TDataGridAction;
-use Adianti\Widgets\Datagrid\TPaginatorColumn;
-use Adianti\Widgets\Form\TForm;
-use Adianti\Widgets\Form\TFieldList;
-use Adianti\Widgets\Form\TEntry;
-use Adianti\Widgets\Form\TButton;
-use Adianti\Widgets\Form\TCombo;
-use Adianti\Widgets\Container\TPanel;
-use Adianti\Dialogs\TMessage;
-
 /**
  * CctTransmissaoList
  * Lista de transmissões MIC/DTA ao Siscomex
