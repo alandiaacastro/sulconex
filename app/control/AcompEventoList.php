@@ -26,9 +26,10 @@ class AcompEventoList extends TPage
         $this->datagrid = new BootstrapDatagridWrapper(new TDataGrid);
         $this->datagrid->style = 'width:100%';
 
-        $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '18%');
-        $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '15%');
-        $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '35%');
+        $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '15%');
+        $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '12%');
+        $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '22%');
+        $col_localizacao = new TDataGridColumn('localizacao', 'Localização', 'left', '16%');
         $col_franquia = new TDataGridColumn('franquia', 'Franquia', 'left', '15%');
 
         $col_data->setTransformer(function ($value) {
@@ -45,6 +46,7 @@ class AcompEventoList extends TPage
         $this->datagrid->addColumn($col_data);
         $this->datagrid->addColumn($col_demora);
         $this->datagrid->addColumn($col_status);
+        $this->datagrid->addColumn($col_localizacao);
         $this->datagrid->addColumn($col_franquia);
 
         $act_edit = new TDataGridAction(['AcompEventoForm', 'onEdit']);
