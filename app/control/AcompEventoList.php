@@ -263,16 +263,18 @@ class AcompEventoList extends TPage
     private static function formatEventSub($evento): string
     {
         $sub = '';
-        if (!empty($evento->demora)) {
+        // Prioriza localização
+        if (!empty($evento->localizacao)) {
+            $sub = (string) $evento->localizacao;
+        }
+        // Se não tiver localização, tenta extrair do demora
+        else if (!empty($evento->demora)) {
             $sub = (string) $evento->demora;
             // Extract city if present
             $parts = explode('|', $sub);
             if (!empty($parts[0])) {
                 $sub = trim($parts[0]);
             }
-        }
-        if (empty($sub) && !empty($evento->localizacao)) {
-            $sub = (string) $evento->localizacao;
         }
         return $sub ?: '-';
     }

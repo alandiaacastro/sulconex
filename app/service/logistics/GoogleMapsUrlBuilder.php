@@ -87,18 +87,18 @@ class GoogleMapsUrlBuilder
      */
     private static function extractLocation($evento): ?string
     {
-        // Tenta cidade do demora field
+        // Tenta localizacao field primeiro
+        if (!empty($evento->localizacao)) {
+            return (string) $evento->localizacao;
+        }
+
+        // Tenta cidade do demora field como fallback
         if (!empty($evento->demora)) {
             $demora = (string) $evento->demora;
             $parts = explode('|', $demora);
             if (!empty($parts[0])) {
                 return trim($parts[0]);
             }
-        }
-
-        // Tenta localizacao field
-        if (!empty($evento->localizacao)) {
-            return (string) $evento->localizacao;
         }
 
         return null;
