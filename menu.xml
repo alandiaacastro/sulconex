@@ -76,6 +76,10 @@
                 <icon>fas:cog fa-fw</icon>
                 <action>SystemPreferenceForm#method=onEdit</action>
             </menuitem>
+            <menuitem label='CCT - Certificado Digital'>
+                <icon>fas:key fa-fw</icon>
+                <action>CctCertificateConfigForm</action>
+            </menuitem>
         </menu>
     </menuitem>
 
@@ -148,6 +152,32 @@
                 <icon>fas:cash-register fa-fw</icon>
                 <action>CaixaList</action>
             </menuitem>
+            <menuitem label="Tabela de Fretes">
+                <icon>fas:route fa-fw</icon>
+                <action>TabelaFreteList</action>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label="CCT - Siscomex">
+        <icon>fas:ship fa-fw</icon>
+        <menu>
+            <menuitem label="Histórico de Transmissões">
+                <icon>fas:history fa-fw</icon>
+                <action>CctTransmissaoList</action>
+            </menuitem>
+            <menuitem label="Transmitir via CRT">
+                <icon>fas:paper-plane fa-fw</icon>
+                <action>CctTransmissaoForm</action>
+            </menuitem>
+            <menuitem label="Emissão Manual">
+                <icon>fas:keyboard fa-fw</icon>
+                <action>CctManualForm</action>
+            </menuitem>
+            <menuitem label="Upload de XML">
+                <icon>fas:cloud-upload-alt fa-fw</icon>
+                <action>CctUploadXmlForm</action>
+            </menuitem>
         </menu>
     </menuitem>
 
@@ -182,4 +212,3 @@
         <icon>fas:sign-out-alt fa-fw</icon>
     </menuitem>
 </menu>
-
