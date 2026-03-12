@@ -157,7 +157,7 @@ class AcompEventoList extends TPage
 
         $exportador = (string) ($processo->exportador ?? '-');
         $importador = (string) ($processo->importador ?? '-');
-        $etapa = (string) ($processo->etapa ?? '-');
+        $crt = (string) ($processo->crt ?? '-');
         $previsao = !empty($processo->previsao_entrega) ?
             date('d/m/Y', strtotime((string) $processo->previsao_entrega)) : '-';
 
@@ -189,8 +189,8 @@ class AcompEventoList extends TPage
         <div class="col-md-3 mb-3">
             <div class="card shadow h-100 py-2 border-start border-4 border-info">
                 <div class="card-body">
-                    <div class="text-uppercase text-info small fw-bold"><i class="fa fa-truck"></i> Etapa</div>
-                    <div class="h6 mb-0 fw-bold">' . htmlspecialchars($etapa) . '</div>
+                    <div class="text-uppercase text-info small fw-bold"><i class="fa fa-barcode"></i> CRT</div>
+                    <div class="h6 mb-0 fw-bold">' . htmlspecialchars($crt) . '</div>
                 </div>
             </div>
         </div>';
