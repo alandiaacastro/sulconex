@@ -3,7 +3,7 @@
 class GoogleMapsUrlBuilder
 {
     /**
-     * Gera URL do Google Maps para visualizar uma localização
+     * Gera URL do Google Maps para visualizar uma localizacao
      */
     public static function getLocationUrl(string $city): string
     {
@@ -24,7 +24,7 @@ class GoogleMapsUrlBuilder
     }
 
     /**
-     * Gera URL do Google Maps para traçar rota entre múltiplos pontos
+     * Gera URL do Google Maps para tracar rota entre multiplos pontos
      *
      * @param array $waypoints Array de ['city' => 'name'] ou ['lat' => x, 'lon' => y, 'label' => 'name']
      */
@@ -37,14 +37,21 @@ class GoogleMapsUrlBuilder
         $parts = [];
         foreach ($waypoints as $point) {
             if (isset($point['lat']) && isset($point['lon'])) {
-                // Coordenadas
-                $parts[] = $point['lat'] . ',' . $point['lon'];
+                $parts[] = [
+                    'type' => 'coord',
+                    'lat' => $point['lat'],
+                    'lon' => $point['lon'],
+                ];
             } elseif (isset($point['city'])) {
-                // Nome da cidade
-                $parts[] = urlencode($point['city']);
+                $parts[] = [
+                    'type' => 'text',
+                    'value' => (string) $point['city'],
+                ];
             } elseif (is_string($point)) {
-                // String simples
-                $parts[] = urlencode($point);
+                $parts[] = [
+                    'type' => 'text',
+                    'value' => $point,
+                ];
             }
         }
 
@@ -52,13 +59,24 @@ class GoogleMapsUrlBuilder
             return "https://maps.google.com";
         }
 
-        // Mínimo 2 pontos para rota
         if (count($parts) < 2) {
-            return self::getCoordinatesUrl(0, 0, $parts[0]);
+            $single = $parts[0];
+            if ($single['type'] === 'coord') {
+                return self::getCoordinatesUrl((float) $single['lat'], (float) $single['lon']);
+            }
+            return self::getSearchUrl((string) $single['value']);
         }
 
-        // Google Maps directions URL
-        $route = implode('/', $parts);
+        $routeParts = [];
+        foreach ($parts as $part) {
+            if ($part['type'] === 'coord') {
+                $routeParts[] = $part['lat'] . ',' . $part['lon'];
+            } else {
+                $routeParts[] = urlencode((string) $part['value']);
+            }
+        }
+
+        $route = implode('/', $routeParts);
         return "https://maps.google.com/maps/dir/$route";
     }
 
@@ -83,7 +101,7 @@ class GoogleMapsUrlBuilder
     }
 
     /**
-     * Extrai localização de um evento
+     * Extrai localizacao de um evento
      */
     private static function extractLocation($evento): ?string
     {
@@ -105,7 +123,7 @@ class GoogleMapsUrlBuilder
     }
 
     /**
-     * Gera URL para buscar uma localização
+     * Gera URL para buscar uma localizacao
      */
     public static function getSearchUrl(string $query): string
     {
@@ -123,7 +141,7 @@ class GoogleMapsUrlBuilder
     }
 
     /**
-     * Retorna URL direto do mapa estático (imagem)
+     * Retorna URL direto do mapa estatico (imagem)
      */
     public static function getStaticMapUrl(float $lat, float $lon, int $zoom = 10, int $width = 600, int $height = 400): string
     {

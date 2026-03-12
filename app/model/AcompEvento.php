@@ -15,6 +15,7 @@ class AcompEvento extends TRecord
         parent::addAttribute('processo_id');
         parent::addAttribute('data_evento');
         parent::addAttribute('demora');
+        parent::addAttribute('localizacao');
         parent::addAttribute('status_texto');
         parent::addAttribute('franquia');
         parent::addAttribute('ordem');

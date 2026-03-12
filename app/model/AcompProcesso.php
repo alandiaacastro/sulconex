@@ -6,15 +6,20 @@ class AcompProcesso extends TRecord
     const PRIMARYKEY = 'id';
     const IDPOLICY = 'serial';
 
+    private static $schemaChecked = false;
+
     public function __construct($id = null, $callObjectLoad = true)
     {
         parent::__construct($id, $callObjectLoad);
 
         parent::addAttribute('numero_processo');
         parent::addAttribute('local_coleta');
+        parent::addAttribute('local_entrega');
         parent::addAttribute('data_coleta');
         parent::addAttribute('previsao_entrega');
         parent::addAttribute('transit_time_dias');
+        parent::addAttribute('aduana_origem');
+        parent::addAttribute('aduana_destino');
         parent::addAttribute('exportador');
         parent::addAttribute('importador');
         parent::addAttribute('produto');
@@ -30,15 +35,27 @@ class AcompProcesso extends TRecord
 
     public static function ensureTables(): void
     {
+        if (self::$schemaChecked) {
+            return;
+        }
+
         $conn = TTransaction::get();
+
+        if (self::schemaIsUpToDate($conn)) {
+            self::$schemaChecked = true;
+            return;
+        }
 
         $conn->exec("CREATE TABLE IF NOT EXISTS acomp_processo (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             numero_processo TEXT,
             local_coleta TEXT,
+            local_entrega TEXT,
             data_coleta TEXT,
             previsao_entrega TEXT,
             transit_time_dias INTEGER,
+            aduana_origem TEXT,
+            aduana_destino TEXT,
             exportador TEXT,
             importador TEXT,
             produto TEXT,
@@ -54,24 +71,39 @@ class AcompProcesso extends TRecord
 
         // Backfill schema changes for existing installs (SQLite)
         try {
-            $stmt = $conn->query('PRAGMA table_info(acomp_processo)');
-            $cols = $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
-            $colnames = array_map(static fn ($c) => $c['name'], $cols ?: []);
+            $processoCols = [
+                'etapa' => 'TEXT',
+                'local_entrega' => 'TEXT',
+                'aduana_origem' => 'TEXT',
+                'aduana_destino' => 'TEXT',
+                'cubagem' => 'REAL',
+                'mapa_url' => 'TEXT',
+            ];
 
-            if (!in_array('etapa', $colnames, true)) {
-                $conn->exec("ALTER TABLE acomp_processo ADD COLUMN etapa TEXT");
+            foreach ($processoCols as $name => $type) {
+                if (!self::tableHasColumn($conn, 'acomp_processo', $name)) {
+                    $conn->exec("ALTER TABLE acomp_processo ADD COLUMN $name $type");
+                }
             }
         } catch (Exception $e) {
             // ignore (best-effort backfill)
         }
 
-        $conn->exec("UPDATE acomp_processo SET etapa = 'coleta' WHERE etapa IS NULL OR etapa = ''");
+        try {
+            $missingEtapa = (int) $conn->query("SELECT COUNT(1) FROM acomp_processo WHERE etapa IS NULL OR etapa = ''")->fetchColumn();
+            if ($missingEtapa > 0) {
+                $conn->exec("UPDATE acomp_processo SET etapa = 'coleta' WHERE etapa IS NULL OR etapa = ''");
+            }
+        } catch (Exception $e) {
+            // ignore (best-effort backfill)
+        }
 
         $conn->exec("CREATE TABLE IF NOT EXISTS acomp_evento (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             processo_id INTEGER NOT NULL,
             data_evento TEXT NOT NULL,
             demora TEXT,
+            localizacao TEXT,
             status_texto TEXT NOT NULL,
             franquia TEXT,
             ordem INTEGER,
@@ -79,8 +111,59 @@ class AcompProcesso extends TRecord
             FOREIGN KEY (processo_id) REFERENCES acomp_processo(id) ON DELETE CASCADE
         )");
 
+        try {
+            if (!self::tableHasColumn($conn, 'acomp_evento', 'localizacao')) {
+                $conn->exec("ALTER TABLE acomp_evento ADD COLUMN localizacao TEXT");
+            }
+        } catch (Exception $e) {
+            // ignore (best-effort backfill)
+        }
+
         $conn->exec("CREATE INDEX IF NOT EXISTS idx_acomp_evento_processo ON acomp_evento(processo_id)");
         $conn->exec("CREATE INDEX IF NOT EXISTS idx_acomp_evento_data ON acomp_evento(data_evento)");
+
+        self::$schemaChecked = true;
+    }
+
+    private static function schemaIsUpToDate($conn): bool
+    {
+        if (!self::tableExists($conn, 'acomp_processo') || !self::tableExists($conn, 'acomp_evento')) {
+            return false;
+        }
+
+        $requiredProcessoColumns = ['etapa', 'local_entrega', 'aduana_origem', 'aduana_destino', 'cubagem', 'mapa_url'];
+        foreach ($requiredProcessoColumns as $column) {
+            if (!self::tableHasColumn($conn, 'acomp_processo', $column)) {
+                return false;
+            }
+        }
+
+        if (!self::tableHasColumn($conn, 'acomp_evento', 'localizacao')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function tableExists($conn, string $table): bool
+    {
+        $stmt = $conn->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
+        $stmt->execute([$table]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    private static function tableHasColumn($conn, string $table, string $column): bool
+    {
+        $stmt = $conn->query("PRAGMA table_info($table)");
+        $cols = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
+        foreach ($cols as $col) {
+            if (($col['name'] ?? null) === $column) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function onBeforeStore($object)

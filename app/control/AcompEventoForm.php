@@ -15,6 +15,7 @@ class AcompEventoForm extends TPage
         $processo_id = new THidden('processo_id');
         $data_evento = new TEntry('data_evento');
         $demora = new TEntry('demora');
+        $localizacao = new TEntry('localizacao');
         $status_texto = new TCombo('status_texto');
         $franquia = new TCombo('franquia');
 
@@ -22,11 +23,10 @@ class AcompEventoForm extends TPage
         $id->setSize('100%');
         $data_evento->setSize('100%');
         $demora->setSize('100%');
+        $localizacao->setSize('100%');
         $status_texto->setSize('100%');
-        $status_texto->setEditable(false);
         $status_texto->setDefaultOption('Selecione');
         $franquia->setSize('100%');
-        $franquia->setEditable(false);
         $franquia->setDefaultOption('Selecione');
 
         $franquia->addItems([
@@ -35,6 +35,7 @@ class AcompEventoForm extends TPage
             '48 HS' => '48 HS',
             'ESTADIA' => 'ESTADIA',
         ]);
+
         $status_texto->addItems([
             'COLETA' => 'COLETA',
             'TRANSITO BRASIL' => 'TRANSITO BRASIL',
@@ -51,11 +52,13 @@ class AcompEventoForm extends TPage
 
         $data_evento->addValidation('Data/Hora', new TRequiredValidator);
         $status_texto->addValidation('Status', new TRequiredValidator);
+        $localizacao->addValidation('Localizacao (cidade)', new TRequiredValidator);
 
         $this->form->addFields([$processo_id]);
         $this->form->addFields([new TLabel('ID')], [$id]);
         $this->form->addFields([new TLabel('Data e hora (dd/mm/aaaa hh:mm)')], [$data_evento]);
         $this->form->addFields([new TLabel('Status')], [$status_texto], [new TLabel('Franquia')], [$franquia]);
+        $this->form->addFields([new TLabel('Localizacao (cidade)')], [$localizacao]);
         $this->form->addFields([new TLabel('Evento')], [$demora]);
 
         $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fa:save green');
@@ -114,12 +117,6 @@ class AcompEventoForm extends TPage
             $obj = new AcompEvento($param['key']);
             $obj->data_evento = self::toViewDateTime((string) $obj->data_evento);
             $this->form->setData($obj);
-            if (!empty($obj->status_texto)) {
-                $field = $this->form->getField('status_texto');
-                if ($field instanceof TCombo) {
-                    $field->addItems([$obj->status_texto => $obj->status_texto]);
-                }
-            }
 
             TTransaction::close();
         } catch (Exception $e) {

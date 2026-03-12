@@ -155,10 +155,11 @@ class PropostaList extends TPage
 
         $act_edit = new TDataGridAction(['PropostaForm', 'onEdit'], ['key' => '{id}']);
         $this->datagrid->addAction($act_edit, 'Editar', 'fa:edit blue');
+        $act_print_proposta = new TDataGridAction(['PropostaRelatorio', 'onImprimir'], ['key' => '{id}']);
+        $this->datagrid->addAction($act_print_proposta, 'Imprimir proposta', 'fa:file-pdf red');
 
-        $act_print = new TDataGridAction(['PropostaRelatorio', 'onImprimir'], ['key' => '{id}']);
-        $this->datagrid->addAction($act_print, 'Imprimir', 'fa:file-pdf red');
-
+        $act_print_cotacao = new TDataGridAction(['CotacaoPDFView', 'onGenerate'], ['key' => '{id}']);
+        $this->datagrid->addAction($act_print_cotacao, 'Imprimir cotacao', 'fa:file-pdf blue');
         $act_del = new TDataGridAction([$this, 'onDelete'], ['key' => '{id}']);
         $this->datagrid->addAction($act_del, 'Excluir', 'fa:trash red');
 

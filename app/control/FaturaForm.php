@@ -11,10 +11,10 @@ class FaturaForm extends TPage
     {
         parent::__construct();
 
-        // Cria o formulÃ¡rio principal
+        // Cria o formulário principal
         $this->form = new TForm(self::$form_name);
 
-        // === CAMPOS DO FORMULÃRIO ===
+        // === CAMPOS DO FORMULÁRIO ===
         $id               = new TEntry('id');
         $numero_crt       = new TDBUniqueSearch('conhecimento_id', 'sample', 'Conhecimento', 'id', 'numero');
         $fatura_cliente   = new TEntry('fatura_cliente');
@@ -49,7 +49,7 @@ class FaturaForm extends TPage
         $pagamento        = new TDate('pagamento');
         $texto_observacao = new TText('texto_observacao');
 
-        // === CONFIGURAÃ‡Ã•ES DE CAMPOS ===
+        // === CONFIGURAÇÕES DE CAMPOS ===
         $id->setEditable(false);
         $remetente->setEditable(false);
         $destinatario->setEditable(false);
@@ -73,7 +73,7 @@ class FaturaForm extends TPage
         $numero_crt->setMinLength(0);
         $numero_crt->setMask('{numero}');
 
-        // === AÃ‡Ã•ES DINÃ‚MICAS ===
+        // === AÇÕES DINÂMICAS ===
         $pessoa_id->setChangeAction(new TAction([__CLASS__, 'onSelectCliente']));
         $numero_crt->setChangeAction(new TAction([__CLASS__, 'onExitCRT']));
         $prazo_dias->setExitAction(new TAction([__CLASS__, 'onCalculaVencimento']));
@@ -82,7 +82,7 @@ class FaturaForm extends TPage
         $valor2->setExitAction(new TAction([__CLASS__, 'onUpdateTotal']));
         $valor3->setExitAction(new TAction([__CLASS__, 'onUpdateTotal']));
 
-        // === CRIAÃ‡ÃƒO DE ABAS (NOTEBOOK) ===
+        // === CRIAÇÃO DE ABAS (NOTEBOOK) ===
         $notebook = new TNotebook;
 
         // --- ABA 1: DADOS GERAIS ---
@@ -97,26 +97,26 @@ class FaturaForm extends TPage
         $form_gerais->addFields([new TLabel('Fatura Cliente')], [$fatura_cliente]);
         $form_gerais->addFields([new TLabel('Cliente (*)', 'red')], [$pessoa_id]);
         $form_gerais->addFields([new TLabel('CNPJ')], [$cliente_cnpj], [new TLabel('IE')], [$cliente_ie]);
-        $form_gerais->addFields([new TLabel('EndereÃ§o')], [$cliente_endereco]);
-        $form_gerais->addFields([new TLabel('EmissÃ£o (*)', 'red')], [$data_emissao], [new TLabel('Prazo (Dias)')], [$prazo_dias]);
+        $form_gerais->addFields([new TLabel('Endereço')], [$cliente_endereco]);
+        $form_gerais->addFields([new TLabel('Emissão (*)', 'red')], [$data_emissao], [new TLabel('Prazo (Dias)')], [$prazo_dias]);
         $form_gerais->addFields([new TLabel('Vencimento')], [$data_vencimento], [new TLabel('Taxa')], [$taxa]);
         $form_gerais->addFields([new TLabel('Nota Fiscal')], [$nota_fiscal]);
         $form_gerais->addContent(['<h4>Dados do CRT</h4><hr>']);
         $form_gerais->addFields([new TLabel('Origem')], [$origem], [new TLabel('Destino')], [$destino]);
-        $form_gerais->addFields([new TLabel('Remetente')], [$remetente], [new TLabel('DestinatÃ¡rio')], [$destinatario]);
+        $form_gerais->addFields([new TLabel('Remetente')], [$remetente], [new TLabel('Destinatário')], [$destinatario]);
         $form_gerais->addFields([new TLabel('Produto')], [$produto], [new TLabel('Peso Bruto')], [$peso_bruto]);
 
-        // --- ABA 2: VALORES E OBSERVAÃ‡Ã•ES ---
+        // --- ABA 2: VALORES E OBSERVAÇÕES ---
         $page2_vbox = new TVBox;
         $page2_vbox->style = 'width: 100%';
-        $notebook->appendPage('Valores e ObservaÃ§Ãµes', $page2_vbox);
+        $notebook->appendPage('Valores e Observações', $page2_vbox);
 
         $panel_itens = new TPanelGroup('Itens da Fatura');
         $table_itens = new TTable;
         $table_itens->style = 'width:100%';
         $table_itens->addSection('thead');
         $row_head = $table_itens->addRow();
-        $row_head->addCell(new TLabel('<b>DescriÃ§Ã£o</b>'))->style = 'width:75%';
+        $row_head->addCell(new TLabel('<b>Descrição</b>'))->style = 'width:75%';
         $row_head->addCell(new TLabel('<b>Valor R$</b>'))->style = 'width:25%';
         $table_itens->addRowSet($descricao1, $valor1);
         $table_itens->addRowSet($descricao2, $valor2);
@@ -124,20 +124,20 @@ class FaturaForm extends TPage
         $panel_itens->add($table_itens);
         $page2_vbox->add($panel_itens);
 
-        $panel_totais = new TPanelGroup('Totais e ObservaÃ§Ãµes');
+        $panel_totais = new TPanelGroup('Totais e Observações');
         $form_totais = new BootstrapFormBuilder('form_totais_interno');
         $form_totais->setFieldSizes('100%');
         $form_totais->addFields([new TLabel('Valor por Extenso')], [$valor_extenso]);
         $form_totais->addFields([new TLabel('Valor Total Fatura')], [$valor_fatura]);
         $form_totais->addFields([new TLabel('Data Pagamento')], [$pagamento]);
-        $form_totais->addFields([new TLabel('ObservaÃ§Ãµes')], [$texto_observacao]);
+        $form_totais->addFields([new TLabel('Observações')], [$texto_observacao]);
         $panel_totais->add($form_totais);
         $page2_vbox->add($panel_totais);
 
-        // === BOTÃ•ES ===
+        // === BOTÕES ===
         $btn_save  = TButton::create('save', [$this, 'onSave'], 'Salvar', 'fa:save green');
         $btn_clear = TButton::create('clear', [$this, 'onClear'], 'Limpar', 'fa:eraser red');
-        // AQUI ESTÃ A CORREÃ‡ÃƒO
+        // AQUI ESTÁ A CORREÇÃO
         $btn_list  = new TActionLink('Listagem', new TAction(['FaturaList', 'onReload']), null, null, null, 'fa:table blue');
         $btn_list->class = 'btn btn-default';
 
@@ -152,7 +152,7 @@ class FaturaForm extends TPage
         $panel_main->addFooter($buttons_box);
         $this->form->add($panel_main);
 
-        // Registra todos os campos no formulÃ¡rio principal
+        // Registra todos os campos no formulário principal
         $this->form->setFields([
             $id, $numero_crt, $fatura_cliente, $pessoa_id, $cliente_cnpj, $cliente_ie, $cliente_endereco,
             $data_emissao, $prazo_dias, $data_vencimento, $taxa, $nota_fiscal,
@@ -182,7 +182,7 @@ class FaturaForm extends TPage
 
             if (!empty($fatura->emissao) && !empty($fatura->vencimento)) {
                 if (TDate::convertToMask($fatura->emissao, 'dd/mm/yyyy', 'yyyy-mm-dd') > TDate::convertToMask($fatura->vencimento, 'dd/mm/yyyy', 'yyyy-mm-dd')) {
-                    throw new Exception('A Data de EmissÃ£o nÃ£o pode ser maior que a Data de Vencimento.');
+                    throw new Exception('A Data de Emissão não pode ser maior que a Data de Vencimento.');
                 }
             }
 
@@ -197,7 +197,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Limpa o formulÃ¡rio
+     * Limpa o formulário
      */
     public function onClear($param)
     {
@@ -205,7 +205,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Carrega o formulÃ¡rio para ediÃ§Ã£o
+     * Carrega o formulário para edição
      */
     public function onEdit($param)
     {
@@ -223,8 +223,8 @@ class FaturaForm extends TPage
     }
 
     /**
-     * AÃ§Ã£o estÃ¡tica ao selecionar um cliente.
-     * Preenche os dados de CNPJ, IE e EndereÃ§o.
+     * Ação estática ao selecionar um cliente.
+     * Preenche os dados de CNPJ, IE e Endereço.
      */
     public static function onSelectCliente($param)
     {
@@ -248,8 +248,8 @@ class FaturaForm extends TPage
     }
 
     /**
-     * AÃ§Ã£o estÃ¡tica ao sair do campo CRT.
-     * Busca os dados do conhecimento e preenche o formulÃ¡rio.
+     * Ação estática ao sair do campo CRT.
+     * Busca os dados do conhecimento e preenche o formulário.
      */
     public static function onExitCRT($param)
     {
@@ -270,7 +270,7 @@ class FaturaForm extends TPage
                     TForm::sendData(self::$form_name, $data_to_send);
                     self::onSelectCliente(['pessoa_id' => $conhecimento->remetente_id]);
                 } else {
-                    new TMessage('info', 'Nenhum Conhecimento encontrado com este nÃºmero.');
+                    new TMessage('info', 'Nenhum Conhecimento encontrado com este número.');
                 }
 
                 TTransaction::close();
@@ -282,7 +282,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * AÃ§Ã£o estÃ¡tica para calcular a data de vencimento a partir do prazo.
+     * Ação estática para calcular a data de vencimento a partir do prazo.
      */
     public static function onCalculaVencimento($param)
     {
@@ -307,7 +307,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * AÃ§Ã£o estÃ¡tica para atualizar o total e o valor por extenso.
+     * Ação estática para atualizar o total e o valor por extenso.
      */
     public static function onUpdateTotal($param)
     {

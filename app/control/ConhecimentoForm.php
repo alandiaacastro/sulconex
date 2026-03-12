@@ -10,16 +10,16 @@ class ConhecimentoForm extends TPage
     {
         parent::__construct();
 
-        // Criação do formulário com nome 'form_Conhecimento'
+        // Criacao do formulario com nome 'form_Conhecimento'
         $this->form = new BootstrapFormBuilder('form_Conhecimento');
-        $this->form->setFormTitle('ðŸ“¦ Conhecimento de Transporte');
+        $this->form->setFormTitle('Conhecimento de Transporte');
         $this->form->setFieldSizes('100%');
-        // âœ… Campo oculto ID
+        //  Campo oculto ID
         $id = new THidden('id');
         $this->form->addFields([$id]);
-        // 1ï¸âƒ£ INFORMAÃ‡Ã•ES GERAIS
-        $panel_geral = new TPanelGroup('1ï¸âƒ£ InformaÃ§Ãµes Gerais');
-        // Criação dos campos
+        // 1 INFORMAES GERAIS
+                $panel_geral = new TPanelGroup('Informacoes Gerais');
+        // Criao dos campos
         $permisso = new TEntry('permisso');
         $numero                                  = new TEntry('numero');
         $data_transportador_assinatura = new TDate('data_transportador_assinatura');
@@ -37,39 +37,39 @@ class ConhecimentoForm extends TPage
         $table = new TTable;
         $table->width = '100%';
         $row = $table->addRow();
-        // Vincula o campo ao formulário para salvar corretamente (não duplica a visualização)
+        // Vinao duplica a visualizacao)
         $this->form->addFields([new TLabel('Copiar CRT')], [$copiacrt]);
-        // Coluna 1: Permisso
+        // Coluna 1: Permissao
         $cell = $row->addCell('');
-        $cell->add(new TLabel('ðŸ“Œ 2-Permisso'));
+        $cell->add(new TLabel('Permissao'));
         $cell->add($permisso);
-        // Coluna 2: País Destino
+        // Coluna 2: Pas Destino
         // $cell = $row->addCell('');
-        //  $cell->add(new TLabel('ðŸŒ 2-PaÃ­s Destino'));
+        //  $cell->add(new TLabel(' 2-Pas Destino'));
         // $cell->add($pais_destino);
-        // Coluna 3: Número CRT
+        // Coluna 3: Numero CRT
         $cell = $row->addCell('');
-        $cell->add(new TLabel('ðŸ“ƒ 2-NÃºmero CRT'));
+        $cell->add(new TLabel('Numero CRT'));
         $cell->add($numero);
         // Coluna 4: Data CRT
         $cell = $row->addCell('');
-        $cell->add(new TLabel('ðŸ—“ï¸ Data CRT'));
+        $cell->add(new TLabel('Data CRT'));
         $cell->add($data_transportador_assinatura);
         // Coluna 5: Fatura
         $cell = $row->addCell('');
-        $cell->add(new TLabel('ðŸ§¾ fatura_crt'));
+        $cell->add(new TLabel('Fatura'));
         $cell->add($fatura_crt);
-        // Coluna 6: Situação
+        // Coluna 6: Situacao
         $cell = $row->addCell('');
-        $cell->add(new TLabel('ðŸ“„ SituaÃ§Ã£o'));
+        $cell->add(new TLabel('Situacao'));
         $cell->add($status_crt_id);
         // Linha do Transportador e Logo (campo oculto)
         $row = $table->addRow();
                 
         $panel_geral->add($table);
         $this->form->addContent([$panel_geral]);
-        // ðŸ·ï¸ REMETENTE/DESTINATÃRIO
-        $panel_remetente_destinatario = new TPanelGroup('ðŸ·ï¸ Remetente / DestinatÃ¡rio');
+        //  REMETENTE/DESTINATRIO
+                $panel_remetente_destinatario = new TPanelGroup('Remetente / Destinatario');
         $this->form->addContent([$panel_remetente_destinatario]);
         // Remetente - busca na tabela Clientes
         $remetente_id = new TDBUniqueSearch('remetente_id', 'sample', 'Clientes', 'id', 'nome');
@@ -78,37 +78,37 @@ class ConhecimentoForm extends TPage
         $remetente_id->setSize('100%');
         $nome_remetente     = new THidden('nome_remetente');
         $endereco_remetente = new TText('endereco_remetente');
-        // Destinatário - busca na tabela Clientes
+        // Destinatario - busca na tabela Clientes
         $destinatario_id = new TDBUniqueSearch('destinatario_id', 'sample', 'Clientes', 'id', 'nome');
         $destinatario_id->setMinLength(2);
         $destinatario_id->setChangeAction(new TAction(['ConhecimentoForm', 'onClienteChangeDestinatario']));
         $destinatario_id->setSize('100%');
       $nome_destinatario     = new THidden('nome_destinatario');
         $endereco_destinatario = new TText('endereco_destinatario');
-        // Layout em tabela para Remetente e Destinatário
+        // Layout em tabela para Remetente e Destinatario
         $table = new TTable;
         $table->width = '100%';
 
         $row = $table->addRow();
-        $row->addCell(new TLabel('1ï¸âƒ£ Remetente'))->style = 'width: 10%';
+        $row->addCell(new TLabel('Remetente'))->style = 'width: 10%';
         $row->addCell($remetente_id)->style = 'width: 40%';
-        $row->addCell(new TLabel('4ï¸âƒ£ DestinatÃ¡rio'))->style = 'width: 10%';
+        $row->addCell(new TLabel('Destinatario'))->style = 'width: 10%';
         $row->addCell($destinatario_id)->style = 'width: 40%';
 
-        // Linha 3 - Endereços
+        // Linha 3 - Enderecos
         $row = $table->addRow();
-        $row->addCell(new TLabel('ðŸ“« EndereÃ§o'));
+        $row->addCell(new TLabel('Endereco'));
         $row->addCell($endereco_remetente)->style = 'width: 40%';
-        $row->addCell(new TLabel('ðŸ“« EndereÃ§o'));
+        $row->addCell(new TLabel('Endereco'));
         $row->addCell($endereco_destinatario)->style = 'width: 40%';
 
         $panel_remetente_destinatario->add($table);
 
-        // 4ï¸âƒ£ CONSIGNATÃRIO 5ï¸âƒ£ NOTIFICAR
-        $panel_consig_notify = new TPanelGroup('ðŸ·ï¸ ConsignatÃ¡rio / Notificar');
+        // 4 CONSIGNATRIO 5 NOTIFICAR
+                $panel_consig_notify = new TPanelGroup('Consignatario / Notificar');
         $this->form->addContent([$panel_consig_notify]);
 
-        // Consignatário - busca na tabela Clientes
+        // Consignatario - busca na tabela Clientes
         $consignatario_id = new TDBUniqueSearch('consignatario_id', 'sample', 'Clientes', 'id', 'nome');
         $consignatario_id->setMinLength(2);
         $consignatario_id->setChangeAction(new TAction(['ConhecimentoForm', 'onClienteChangeConsignatario']));
@@ -124,29 +124,29 @@ class ConhecimentoForm extends TPage
         $notificar_nome     = new TEntry('notificar_nome');
         $notificar_endereco = new TText('notificar_endereco');
 
-        // Tabela para Consignatário e Notificar
+        // Tabela para Consignatario e Notificar
         $table_consig_notify = new TTable;
         $table_consig_notify->width = '100%';
 
         // Linha 1 - IDs
         $row = $table_consig_notify->addRow();
-        $row->addCell(new TLabel('6ï¸âƒ£ Consig'))->style = 'width: 10%';
+        $row->addCell(new TLabel('6 Consig'))->style = 'width: 10%';
         $row->addCell($consignatario_id)->style = 'width: 40%';
-        $row->addCell(new TLabel('9ï¸âƒ£ Notificar'))->style = 'width: 10%';
+        $row->addCell(new TLabel('9 Notificar'))->style = 'width: 10%';
         $row->addCell($notificar_id)->style = 'width: 40%';
 
 
-        // Linha 3 - Endereços
+        // Linha 3 - Enderecos
         $row = $table_consig_notify->addRow();
-        $row->addCell(new TLabel('ðŸ“« EndereÃ§o'));
+        $row->addCell(new TLabel('Endereco'));
         $row->addCell($endereco_consignatario);
-        $row->addCell(new TLabel('ðŸ“« EndereÃ§o'));
+        $row->addCell(new TLabel('Endereco'));
         $row->addCell($notificar_endereco);
 
         $panel_consig_notify->add($table_consig_notify);
 
-        // ðŸ“¦ LOCAIS / PESO E CUBAGEM
-        $panel_locais = new TPanelGroup('ðŸ“¦ Locais, peso e cubagem');
+        //  LOCAIS / PESO E CUBAGEM
+                $panel_locais = new TPanelGroup('Locais, peso e cubagem');
         $this->form->addContent([$panel_locais]);
 
         $local_emissao          = new TEntry('local_emissao');
@@ -163,11 +163,11 @@ class ConhecimentoForm extends TPage
 
         // Linha 1 - Labels (Locais)
         $row = $table_locais->addRow();
-        $cell = $row->addCell(new TLabel('5ï¸âƒ£ EmissÃ£o'));
+        $cell = $row->addCell(new TLabel('Emissao'));
         $cell->style = 'width: 33%; text-align: left;';
-        $cell = $row->addCell(new TLabel('7ï¸âƒ£ Responsabilidade'));
+        $cell = $row->addCell(new TLabel('Responsabilidade'));
         $cell->style = 'width: 33%; text-align: left;';
-        $cell = $row->addCell(new TLabel('8ï¸âƒ£ Entrega'));
+        $cell = $row->addCell(new TLabel('Entrega'));
         $cell->style = 'width: 34%; text-align: left;';
 
         // Linha 2 - Inputs (Locais)
@@ -178,8 +178,8 @@ class ConhecimentoForm extends TPage
 
         $panel_locais->add($table_locais);
 
-        // 7ï¸âƒ£ CARGA
-        $panel_carga = new TPanelGroup('7ï¸âƒ£ Carga');
+        // 7 CARGA
+                $panel_carga = new TPanelGroup('Carga');
         $this->form->addContent([$panel_carga]);
 
         $descricao_mercadoria = new TText('descricao_mercadoria');
@@ -211,7 +211,7 @@ class ConhecimentoForm extends TPage
 
         $left_box = new TVBox;
         $left_box->style = 'width: 100%;';
-        $left_box->add(new TLabel('ðŸ“ DescriÃ§Ã£o da Mercadoria'));
+        $left_box->add(new TLabel('Descricao'));
         $left_box->add($descricao_mercadoria);
 
         $right_box = new TVBox;
@@ -220,8 +220,8 @@ class ConhecimentoForm extends TPage
         $table_pesos = new TTable;
         $table_pesos->width = '100%';
         $row = $table_pesos->addRow();
-        $row->addCell(new TLabel('âš–ï¸ Peso Bruto (kg)'))->style = 'width: 50%; padding-right: 5px;';
-        $row->addCell(new TLabel('âš–ï¸ Peso LÃ­quido (kg)'))->style = 'width: 50%; padding-left: 5px;';
+        $row->addCell(new TLabel('Peso Bruto (kg)'))->style = 'width: 50%; padding-right: 5px;';
+        $row->addCell(new TLabel('Peso Liquido (kg)'))->style = 'width: 50%; padding-left: 5px;';
         $row = $table_pesos->addRow();
         $row->addCell($peso_bruto_kg)->style = 'width: 50%; padding-right: 5px;';
         $row->addCell($peso_liq_kg)->style = 'width: 50%; padding-left: 5px;';
@@ -230,8 +230,8 @@ class ConhecimentoForm extends TPage
         $table_volume_incoterm = new TTable;
         $table_volume_incoterm->width = '100%';
         $row = $table_volume_incoterm->addRow();
-        $row->addCell(new TLabel('ðŸ“ Vol(mÂ³)'))->style = 'width: 30%; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ’° Incoterm'))->style = 'width: 70%; padding-left: 5px;';
+        $row->addCell(new TLabel('Vol (m3)'))->style = 'width: 30%; padding-right: 5px;';
+        $row->addCell(new TLabel(' Incoterm'))->style = 'width: 70%; padding-left: 5px;';
         $row = $table_volume_incoterm->addRow();
         $row->addCell($volume_m3)->style = 'width: 30%; padding-right: 5px;';
         $row->addCell($incoterm)->style = 'width: 70%; padding-left: 5px;';
@@ -240,8 +240,8 @@ class ConhecimentoForm extends TPage
         $table_valores = new TTable;
         $table_valores->width = '100%';
         $row = $table_valores->addRow();
-        $row->addCell(new TLabel('ðŸ’± Moeda'))->style = 'width: 50%; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ’² Valor Mercadoria'))->style = 'width: 50%; padding-left: 5px;';
+        $row->addCell(new TLabel(' Moeda'))->style = 'width: 50%; padding-right: 5px;';
+        $row->addCell(new TLabel(' Valor Mercadoria'))->style = 'width: 50%; padding-left: 5px;';
         $row = $table_valores->addRow();
         $row->addCell($moeda_valor_mercadorias)->style = 'width: 50%; padding-right: 5px;';
         $row->addCell($valor_mercadorias)->style = 'width: 50%; padding-left: 5px;';
@@ -250,8 +250,8 @@ class ConhecimentoForm extends TPage
         $table_extras = new TTable;
         $table_extras->width = '100%';
         $row = $table_extras->addRow();
-        $row->addCell(new TLabel('ðŸ“˜ Incoterm (16)'))->style = 'width: 50%; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ“„ Valor Declarado'))->style = 'width: 50%; padding-left: 5px;';
+        $row->addCell(new TLabel(' Incoterm (16)'))->style = 'width: 50%; padding-right: 5px;';
+        $row->addCell(new TLabel(' Valor Declarado'))->style = 'width: 50%; padding-left: 5px;';
         $row = $table_extras->addRow();
         $row->addCell($incoterm16)->style = 'width: 50%; padding-right: 5px;';
         $row->addCell($valor_declarado)->style = 'width: 50%; padding-left: 5px;';
@@ -269,8 +269,8 @@ class ConhecimentoForm extends TPage
 
 
 
-        // 8ï¸âƒ£ Incoterm, Custos e Gastos
-        $panel_custos = new TPanelGroup('8ï¸âƒ£ Incoterm, Custos e Gastos');
+        // 8 Incoterm, Custos e Gastos
+                $panel_custos = new TPanelGroup('Incoterm, Custos e Gastos');
         $this->form->addContent([$panel_custos]);
 
         $textogasto1           = new TEntry('textogasto1');
@@ -300,11 +300,11 @@ class ConhecimentoForm extends TPage
         $gastosmoeda->addItems([
             'BRL' => 'R$ - Real (Brasil)',
             'ARS' => 'AR$ - Peso Argentino',
-            'PYG' => 'â‚² - Guarani (Paraguai)',
+            'PYG' => ' - Guarani (Paraguai)',
             'UYU' => 'U$U - Peso Uruguaio',
             'CLP' => 'CLP$ - Peso Chileno',
-            'EUR' => 'â‚¬ - Euro',
-            'USD' => 'US$ - Dólar Americano'
+            'EUR' => ' - Euro',
+            'USD' => 'US$ - Dlar Americano'
         ]);
 
         $documentos_anexos = new TText('documentos_anexos');
@@ -334,9 +334,9 @@ class ConhecimentoForm extends TPage
         $table_gastos->width = '100%';
 
         $row = $table_gastos->addRow();
-        $row->addCell(new TLabel('<b>ðŸ§¾ DescriÃ§Ã£o</b>'))->style = 'width: 50%';
-        $row->addCell(new TLabel('ðŸ’¸ Remetente'))->style = 'width: 25%';
-        $row->addCell(new TLabel('ðŸ’° DestinatÃ¡rio'))->style = 'width: 25%';
+        $row->addCell(new TLabel('Descricao'))->style = 'width: 50%';
+        $row->addCell(new TLabel('Remetente'))->style = 'width: 25%';
+        $row->addCell(new TLabel('Destinatario'))->style = 'width: 25%';
 
         for ($i = 1; $i <= 3; $i++) {
             $row = $table_gastos->addRow();
@@ -350,13 +350,13 @@ class ConhecimentoForm extends TPage
         $row->addCell($total_custo_remetente)->style = 'padding-top: 10px; padding-left: 5px;';
         $row->addCell($total_custo_destinatario)->style = 'padding-top: 10px; padding-left: 5px;';
 
-        $left_box->add(new TLabel('ðŸ’° Gastos a Pagar'));
+        $left_box->add(new TLabel(' Gastos a Pagar'));
         $left_box->add($table_gastos);
 
         $right_box = new TVBox;
-        $right_box->add(new TLabel('ðŸ“Ž Documentos Anexos'));
+        $right_box->add(new TLabel(' Documentos Anexos'));
         $right_box->style = 'width: 100%;';
-        $right_box->add(new TLabel('ðŸ—’ï¸Du-e e Despachante'));
+        $right_box->add(new TLabel('Du-e e Despachante'));
         $right_box->add($documentos_anexos);
 
         $row = $table_layout->addRow();
@@ -365,14 +365,14 @@ class ConhecimentoForm extends TPage
 
         $panel_custos->add($table_layout);
 
-        $panel_frete_volumes = new TPanelGroup('ðŸ›» Detalhes do Frete e Volumes');
+                $panel_frete_volumes = new TPanelGroup('Detalhes do Frete e Volumes');
         $this->form->addContent([$panel_frete_volumes]);
 
-        // Tabela para Moeda Frete, Frete Externo, Valor Reembolso, Quantidade de Volumes e Espécie Vol.
+        // Tabela para Moeda Frete, Frete Externo, Valor Reembolso, Quantidade de Volumes e Especie Vol.
         $table_frete_volumes = new TTable;
         $table_frete_volumes->width = '100%';
 
-        // Adicionando os rótulos e campos lado a lado na mesma linha
+        // Adicionando os rtulos e campos lado a lado na mesma linha
         $row = $table_frete_volumes->addRow();
 
         // Criando os campos
@@ -382,12 +382,12 @@ class ConhecimentoForm extends TPage
         $quantidade_volumes = new TEntry('quantidade_volumes');
         $especie_vol = new TEntry('especie_vol');
 
-        // Adicionando os rótulos (em uma linha)
-        $row->addCell(new TLabel('ðŸ’± Moeda Frete'))->style = 'width: 20%; padding-left: 5px;';
-        $row->addCell(new TLabel('ðŸšš Frete Externo'))->style = 'width: 20%; padding-left: 5px; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ’µ Valor Reembolso'))->style = 'width: 20%; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ“¦ Qtde Volumes'))->style = 'width: 20%; padding-right: 5px;';
-        $row->addCell(new TLabel('ðŸ“¦ EspÃ©cie Vol.'))->style = 'width: 20%; padding-left: 5px;';
+        // Adicionando os rtulos (em uma linha)
+        $row->addCell(new TLabel(' Moeda Frete'))->style = 'width: 20%; padding-left: 5px;';
+        $row->addCell(new TLabel(' Frete Externo'))->style = 'width: 20%; padding-left: 5px; padding-right: 5px;';
+        $row->addCell(new TLabel(' Valor Reembolso'))->style = 'width: 20%; padding-right: 5px;';
+        $row->addCell(new TLabel(' Qtde Volumes'))->style = 'width: 20%; padding-right: 5px;';
+        $row->addCell(new TLabel('Especie Vol.'))->style = 'width: 20%; padding-left: 5px;';
 
         // Adicionando os campos (na mesma linha)
         $row = $table_frete_volumes->addRow();
@@ -401,7 +401,7 @@ class ConhecimentoForm extends TPage
         $panel_frete_volumes->add($table_frete_volumes);
 
         // Painel agrupado
-        $panel_obs = new TPanelGroup('1ï¸âƒ£3ï¸âƒ£ ObservaÃ§Ãµes & InstruÃ§Ãµes');
+                $panel_obs = new TPanelGroup('Observacoes & Instrucoes');
         $panel_obs->style = 'margin-top: 20px';
         $this->form->addContent([$panel_obs]);
 
@@ -409,20 +409,20 @@ class ConhecimentoForm extends TPage
         $container = new TElement('div');
         $container->{'class'} = 'row';
 
-        // Campo 1: Observações
+        // Campo 1: Observacoes
         $observacoes = new TText('observacoes');
         $observacoes->setSize('100%', 80);
         $col1 = new TElement('div');
         $col1->{'class'} = 'col-sm-6';
-        $col1->add(new TLabel('ðŸ“ ObservaÃ§Ãµes'));
+        $col1->add(new TLabel(' Observacoes'));
         $col1->add($observacoes);
 
-        // Campo 2: Instru��es Alf�ndega
+        // Campo 2: Instrucoes Alfandega
         $instrucoes_alfandega = new TText('instrucoes_alfandega');
         $instrucoes_alfandega->setSize('100%', 80);
         $col2 = new TElement('div');
         $col2->{'class'} = 'col-sm-6';
-        $col2->add(new TLabel('ðŸ›ƒ InstruÃ§Ãµes AlfÃ¢ndega'));
+        $col2->add(new TLabel(' Instrucoes Alfandega'));
         $col2->add($instrucoes_alfandega);
 
         // Adiciona as colunas ao container
@@ -432,8 +432,8 @@ class ConhecimentoForm extends TPage
         // Adiciona o container ao painel
         $panel_obs->add($container);
 
-        // 1ï¸âƒ£4ï¸âƒ£ DOCUMENTAÃ‡ÃƒO & ASSINATURA
-        $panel_docs = new TPanelGroup('1ï¸âƒ£4ï¸âƒ£ Documentos & Assinatura');
+        // 14 DOCUMENTAO & ASSINATURA
+                $panel_docs = new TPanelGroup('Documentos & Assinatura');
         $panel_docs->style = 'margin-top: 20px';
         $this->form->addContent([$panel_docs]);
 
@@ -447,7 +447,7 @@ class ConhecimentoForm extends TPage
 
         $col_assinatura = new TElement('div');
         $col_assinatura->{'class'} = 'col-sm-6'; // Ajustado para 6 colunas
-        $col_assinatura->add(new TLabel('ðŸ–‹ï¸ Assinatura'));
+        $col_assinatura->add(new TLabel(' Assinatura'));
         $col_assinatura->add($assinatura_nome);
 
         // --- NOVO CAMPO: Pagador ---
@@ -457,7 +457,7 @@ class ConhecimentoForm extends TPage
 
         $col_pagador = new TElement('div');
         $col_pagador->{'class'} = 'col-sm-6'; // Ocupa as 6 colunas restantes
-        $col_pagador->add(new TLabel('ðŸ¤ Pagador'));
+        $col_pagador->add(new TLabel(' Pagador'));
         $col_pagador->add($pagador_id);
 
 
@@ -469,11 +469,11 @@ class ConhecimentoForm extends TPage
         $panel_docs->add($container_docs);
 
         
-        // Botões de ação
-        $this->form->addAction('ðŸ’¾ Salvar', new TAction([$this, 'onSave']), 'fa:save')->class = 'btn btn-primary';
-        $this->form->addActionLink('ðŸ”™ Voltar', new TAction(['ConhecimentoList', 'onReload']), 'fa:arrow-left green');
+        // Botes de ao
+        $this->form->addAction(' Salvar', new TAction([$this, 'onSave']), 'fa:save')->class = 'btn btn-primary';
+        $this->form->addActionLink(' Voltar', new TAction(['ConhecimentoList', 'onReload']), 'fa:arrow-left green');
 
-        // Registro de todos os campos no formulário
+        // Registro de todos os campos no formulrio
         $this->form->setFields([
             $id, $permisso, $numero, $data_transportador_assinatura, $fatura_crt,
             $remetente_id, $nome_remetente, $endereco_remetente,
@@ -491,7 +491,7 @@ class ConhecimentoForm extends TPage
             $logotransporte,
             $observacoes, $instrucoes_alfandega,
             $documentos_anexos, $copiacrt, $assinatura_nome, $status_crt_id,
-            $pagador_id // <<< CORREÃ‡ÃƒO APLICADA AQUI
+            $pagador_id // <<< CORREO APLICADA AQUI
         ]);
 
         // Container final
@@ -502,20 +502,20 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Ação estática para carregar os dados da tabela Permissox ao selecionar um permisso
+     * Ao esttica para carregar os dados da tabela Permissaox ao selecionar um permisso
      */
-    public static function onPermissoChange($param)
+    public static function onPermissaoChange($param)
     {
         try {
-            TTransaction::log("ParÃ¢metros recebidos (Permisso): " . json_encode($param));
+            TTransaction::log("Parmetros recebidos (Permissao): " . json_encode($param));
             $obj = new stdClass;
         
             if (!empty($param['permisso'])) {
                 TTransaction::open('sample');
-                $permissox = new Permissox($param['permisso']);
+                $permissox = new Permissaox($param['permisso']);
 
                 if ($permissox) {
-                    // Preenche os campos com os dados da Permissox
+                    // Preenche os campos com os dados da Permissaox
                     $obj->nome_transportador = $permissox->transportadora ?? '';
                     $obj->pais_destino = $permissox->pais_destino ?? '';
                     // Se houver logo, envia como JSON (ex.: {"fileName": "imagem.png"})
@@ -526,34 +526,34 @@ class ConhecimentoForm extends TPage
                     TForm::sendData('form_Conhecimento', $obj);
                 
                     TTransaction::log("Dados enviados: Transportadora=" . $obj->nome_transportador .
-                                        ", País Destino=" . $obj->pais_destino .
+                                        ", Pas Destino=" . $obj->pais_destino .
                                         ", Logo=" . $obj->logotransporte);
                 } else {
-                    // Se o registro não for encontrado, limpa os campos
+                    // Se o registro no for encontrado, limpa os campos
                     $obj->nome_transportador = '';
                     $obj->pais_destino = '';
                     $obj->logotransporte = '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    new TMessage('warning', 'Registro não encontrado para ID: ' . $param['permisso']);
+                    new TMessage('warning', 'Registro no encontrado para ID: ' . $param['permisso']);
                 }
                 
                 TTransaction::close();
             } else {
-                // Se o campo permisso não estiver preenchido, limpa os campos
+                // Se o campo permisso no estiver preenchido, limpa os campos
                 $obj->nome_transportador = '';
                 $obj->pais_destino = '';
                 $obj->logotransporte = '';
                 TForm::sendData('form_Conhecimento', $obj);
             }
         } catch (Exception $e) {
-            new TMessage('error', 'Erro ao carregar dados do Permisso: ' . $e->getMessage());
+            new TMessage('error', 'Erro ao carregar dados do Permissao: ' . $e->getMessage());
             TTransaction::log("Erro: " . $e->getMessage());
             TTransaction::rollback();
         }
     }
 
     /**
-     * Salvar dados do formulário
+     * Salvar dados do formulrio
      */
     public function onSave($param)
     {
@@ -591,7 +591,7 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Limpar formulário
+     * Limpar formulrio
      */
     public function onClear($param)
     {
@@ -614,7 +614,7 @@ class ConhecimentoForm extends TPage
                     $object->copiacrt = null;
                 }
                 
-                // <<< CORREÃ‡ÃƒO APLICADA AQUI
+                // <<< CORREO APLICADA AQUI
                 if (!empty($object->data_transportador_assinatura)) {
                     $object->data_transportador_assinatura = TDate::convertToMask($object->data_transportador_assinatura, 'yyyy-mm-dd', 'dd/mm/yyyy');
                 }
@@ -631,12 +631,12 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Ação estática para carregar os dados do cliente para o Remetente
+     * Ao esttica para carregar os dados do cliente para o Remetente
      */
     public static function onClienteChange($param)
     {
         try {
-            TTransaction::log("ParÃ¢metros recebidos (Remetente): " . json_encode($param));
+            TTransaction::log("Parmetros recebidos (Remetente): " . json_encode($param));
             if (!empty($param['remetente_id'])) {
                 TTransaction::open('sample');
                 $cliente = new Clientes($param['remetente_id']);
@@ -645,13 +645,13 @@ class ConhecimentoForm extends TPage
                     $obj->nome_remetente = $cliente->nome;
                     $obj->endereco_remetente = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    TTransaction::log("Dados enviados (Remetente): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
+                    TTransaction::log("Dados enviados (Remetente): Nome=" . $cliente->nome . ", Endereco=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
                     $obj->nome_remetente = '';
                     $obj->endereco_remetente = '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['remetente_id']);
+                    new TMessage('warning', 'Cliente no encontrado para ID: ' . $param['remetente_id']);
                 }
                 TTransaction::close();
             }
@@ -663,12 +663,12 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Ação estática para carregar os dados do cliente para o Destinatário
+     * Ao esttica para carregar os dados do cliente para o Destinatario
      */
     public static function onClienteChangeDestinatario($param)
     {
         try {
-            TTransaction::log("Par�metros recebidos (Destinat�rio): " . json_encode($param));
+            TTransaction::log("Parmetros recebidos (Destinatario): " . json_encode($param));
             if (!empty($param['destinatario_id'])) {
                 TTransaction::open('sample');
                 $cliente = new Clientes($param['destinatario_id']);
@@ -677,13 +677,13 @@ class ConhecimentoForm extends TPage
                     $obj->nome_destinatario = $cliente->nome;
                     $obj->endereco_destinatario = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    TTransaction::log("Dados enviados (Destinatário): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
+                    TTransaction::log("Dados enviados (Destinatario): Nome=" . $cliente->nome . ", Endereco=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
                     $obj->nome_destinatario = '';
                     $obj->endereco_destinatario = '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['destinatario_id']);
+                    new TMessage('warning', 'Cliente no encontrado para ID: ' . $param['destinatario_id']);
                 }
                 TTransaction::close();
             }
@@ -695,12 +695,12 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Ação estática para carregar os dados do cliente para o Consignatário
+     * Ao esttica para carregar os dados do cliente para o Consignatario
      */
     public static function onClienteChangeConsignatario($param)
     {
         try {
-            TTransaction::log("Par�metros recebidos (Consignat�rio): " . json_encode($param));
+            TTransaction::log("Parmetros recebidos (Consignatario): " . json_encode($param));
             if (!empty($param['consignatario_id'])) {
                 TTransaction::open('sample');
                 $cliente = new Clientes($param['consignatario_id']);
@@ -709,13 +709,13 @@ class ConhecimentoForm extends TPage
                     $obj->nome_consignatario = $cliente->nome;
                     $obj->endereco_consignatario = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    TTransaction::log("Dados enviados (Consignatário): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
+                    TTransaction::log("Dados enviados (Consignatario): Nome=" . $cliente->nome . ", Endereco=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
                     $obj->nome_consignatario = '';
                     $obj->endereco_consignatario = '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['consignatario_id']);
+                    new TMessage('warning', 'Cliente no encontrado para ID: ' . $param['consignatario_id']);
                 }
                 TTransaction::close();
             }
@@ -727,12 +727,12 @@ class ConhecimentoForm extends TPage
     }
 
     /**
-     * Ação estática para carregar os dados do cliente para o Notificar
+     * Ao esttica para carregar os dados do cliente para o Notificar
      */
     public static function onClienteChangeNotificar($param)
     {
         try {
-            TTransaction::log("ParÃ¢metros recebidos (Notificar): " . json_encode($param));
+            TTransaction::log("Parmetros recebidos (Notificar): " . json_encode($param));
             if (!empty($param['notificar_id'])) {
                 TTransaction::open('sample');
                 $cliente = new Clientes($param['notificar_id']);
@@ -741,13 +741,13 @@ class ConhecimentoForm extends TPage
                     $obj->notificar_nome = $cliente->nome;
                     $obj->notificar_endereco = $cliente->emissao_crt ?? '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    TTransaction::log("Dados enviados (Notificar): Nome=" . $cliente->nome . ", Endereço=" . ($cliente->emissao_crt ?? ''));
+                    TTransaction::log("Dados enviados (Notificar): Nome=" . $cliente->nome . ", Endereco=" . ($cliente->emissao_crt ?? ''));
                 } else {
                     $obj = new stdClass;
                     $obj->notificar_nome = '';
                     $obj->notificar_endereco = '';
                     TForm::sendData('form_Conhecimento', $obj);
-                    new TMessage('warning', 'Cliente não encontrado para ID: ' . $param['notificar_id']);
+                    new TMessage('warning', 'Cliente no encontrado para ID: ' . $param['notificar_id']);
                 }
                 TTransaction::close();
             }

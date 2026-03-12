@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class AcompProcessoList extends TPage
 {
@@ -23,7 +23,7 @@ class AcompProcessoList extends TPage
         $this->addFilterField('crt', 'like', 'crt');
 
         $this->form = new BootstrapFormBuilder('form_search_acomp_processo');
-        $this->form->setFormTitle('Acompanhamento Manual - Processos');
+        $this->form->setFormTitle('Acompanhamento Manual - Processos e Rastreio');
 
         $numero_processo = new TEntry('numero_processo');
         $exportador = new TEntry('exportador');
@@ -46,27 +46,50 @@ class AcompProcessoList extends TPage
         $this->datagrid->style = 'width:100%';
 
         $this->datagrid->addQuickColumn('ID', 'id', 'center', '5%');
-        $this->datagrid->addQuickColumn('No BR/AR', 'numero_processo', 'left', '15%');
-        $this->datagrid->addQuickColumn('Exportador', 'exportador', 'left', '20%');
-        $this->datagrid->addQuickColumn('Importador', 'importador', 'left', '20%');
-        $this->datagrid->addQuickColumn('CRT', 'crt', 'left', '12%');
-        $col_data = $this->datagrid->addQuickColumn('Data coleta', 'data_coleta', 'center', '10%');
+        $this->datagrid->addQuickColumn('No BR/AR', 'numero_processo', 'left', '14%');
+        $this->datagrid->addQuickColumn('Exportador', 'exportador', 'left', '19%');
+        $this->datagrid->addQuickColumn('Importador', 'importador', 'left', '19%');
+        $this->datagrid->addQuickColumn('CRT', 'crt', 'left', '11%');
 
+        $col_data = $this->datagrid->addQuickColumn('Data coleta', 'data_coleta', 'center', '10%');
         $col_data->setTransformer(function ($value) {
             if ($value && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
                 return TDate::convertToMask($value, 'yyyy-mm-dd', 'dd/mm/yyyy');
             }
-            return $value;
+            return $value ?: '-';
+        });
+
+        $col_etapa = $this->datagrid->addQuickColumn('Etapa', 'etapa', 'center', '12%');
+        $col_etapa->setTransformer(function ($value) {
+            $label = trim((string) $value);
+            if ($label === '') {
+                $label = 'COLETA';
+            }
+
+            $class = 'info';
+            $v = strtolower($label);
+            if (strpos($v, 'entrega') !== false || strpos($v, 'final') !== false) {
+                $class = 'success';
+            } elseif (strpos($v, 'aduana') !== false || strpos($v, 'transito') !== false) {
+                $class = 'warning';
+            }
+
+            return '<span class="label label-' . $class . '">' . strtoupper(htmlspecialchars($label)) . '</span>';
         });
 
         $act_edit = new TDataGridAction(['AcompProcessoForm', 'onEdit']);
         $act_view = new TDataGridAction(['AcompProcessoView', 'onShow']);
+
         $act_evt = new TDataGridAction(['AcompEventoList', 'onReload']);
         $act_evt->setParameter('processo_id', '{id}');
 
+        $act_track = new TDataGridAction(['AcompEventoList', 'onReload']);
+        $act_track->setParameter('processo_id', '{id}');
+
         $this->datagrid->addQuickAction('Editar', $act_edit, 'id', 'fa:edit blue');
         $this->datagrid->addQuickAction('Visualizar', $act_view, 'id', 'fa:eye');
-        $this->datagrid->addQuickAction('Status', $act_evt, 'id', 'fa:route orange');
+        $this->datagrid->addQuickAction('Status', $act_evt, 'id', 'fa:list-ol orange');
+        $this->datagrid->addQuickAction('Rastreio', $act_track, 'id', 'fa:crosshairs green');
 
         $this->datagrid->createModel();
 
@@ -102,7 +125,3 @@ class AcompProcessoList extends TPage
         $this->traitOnReload($param);
     }
 }
-
-
-
-

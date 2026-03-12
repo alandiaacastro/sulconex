@@ -29,7 +29,7 @@ class AcompEventoList extends TPage
         $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '15%');
         $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '12%');
         $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '22%');
-        $col_localizacao = new TDataGridColumn('localizacao', 'Localização', 'left', '16%');
+        $col_localizacao = new TDataGridColumn('localizacao', 'Localizacao', 'left', '16%');
         $col_franquia = new TDataGridColumn('franquia', 'Franquia', 'left', '15%');
 
         $col_data->setTransformer(function ($value) {
@@ -39,8 +39,8 @@ class AcompEventoList extends TPage
 
         $col_status->setTransformer(function ($value) {
             $value = (string) $value;
-            $class = $this->getStatusBadgeClass($value);
-            return '<span class="badge badge-' . $class . '">' . htmlspecialchars($value) . '</span>';
+            $style = $this->getStatusBadgeStyle($value);
+            return '<span class="badge rounded-pill status-badge" style="' . $style . '">' . htmlspecialchars($value) . '</span>';
         });
 
         $this->datagrid->addColumn($col_data);
@@ -73,8 +73,8 @@ class AcompEventoList extends TPage
         $box->add($this->infoCards);
 
         // Timeline Panel
-        $timelinePanel = new TPanelGroup('Histórico de Eventos');
-        $timelinePanel->addHeaderActionLink('📍 Abrir no Google Maps', new TAction([$this, 'onOpenGoogleMaps'], ['processo_id' => $this->processo_id]), 'fa:map-marker-alt blue');
+        $timelinePanel = new TPanelGroup('Historico de Eventos');
+        $timelinePanel->addHeaderActionLink('Abrir no Google Maps', new TAction([$this, 'onOpenGoogleMaps'], ['processo_id' => $this->processo_id]), 'fa:map-marker-alt blue');
         $timelinePanel->add($this->timelineContainer);
         $box->add($timelinePanel);
 
@@ -113,7 +113,7 @@ class AcompEventoList extends TPage
             $criteria = new TCriteria;
             $criteria->add(new TFilter('processo_id', '=', $this->processo_id));
             $criteria->setProperty('order', 'data_evento');
-            $criteria->setProperty('direction', 'asc');
+            $criteria->setProperty('direction', 'desc');
 
             $limit = 30;
             $criteria->setProperties($param);
@@ -224,21 +224,22 @@ class AcompEventoList extends TPage
         $this->timelineContainer->add($timeline);
     }
 
-    private function getStatusBadgeClass(string $status): string
+    private function getStatusBadgeStyle(string $status): string
     {
         $s = strtolower($status);
+
         if (strpos($s, 'entreg') !== false) {
-            return 'success';
+            return 'background:#1f8b4c;color:#fff;font-weight:700;';
         }
         if (strpos($s, 'aduana') !== false || strpos($s, 'aguard') !== false) {
-            return 'warning';
+            return 'background:#b45309;color:#fff;font-weight:700;';
         }
         if (strpos($s, 'erro') !== false || strpos($s, 'atras') !== false) {
-            return 'danger';
+            return 'background:#dc2626;color:#fff;font-weight:700;';
         }
-        return 'info';
-    }
 
+        return 'background:#0369a1;color:#fff;font-weight:700;';
+    }
     private function getEventIcon(string $status): string
     {
         $s = strtolower($status);
@@ -262,21 +263,34 @@ class AcompEventoList extends TPage
 
     private static function formatEventSub($evento): string
     {
-        $sub = '';
-        // Prioriza localização
+        $localizacao = '';
+        $demora = '';
+
         if (!empty($evento->localizacao)) {
-            $sub = (string) $evento->localizacao;
+            $localizacao = trim((string) $evento->localizacao);
         }
-        // Se não tiver localização, tenta extrair do demora
-        else if (!empty($evento->demora)) {
-            $sub = (string) $evento->demora;
-            // Extract city if present
-            $parts = explode('|', $sub);
+
+        if (!empty($evento->demora)) {
+            $demora = trim((string) $evento->demora);
+        }
+
+        // Fallback legado: quando nao havia localizacao, tentava extrair do campo demora.
+        if ($localizacao === '' && $demora !== '') {
+            $parts = explode('|', $demora);
             if (!empty($parts[0])) {
-                $sub = trim($parts[0]);
+                $localizacao = trim($parts[0]);
             }
         }
-        return $sub ?: '-';
+
+        $chunks = [];
+        if ($localizacao !== '') {
+            $chunks[] = '<strong>Localizacao:</strong> ' . htmlspecialchars($localizacao);
+        }
+        if ($demora !== '') {
+            $chunks[] = '<strong>Evento:</strong> ' . htmlspecialchars($demora);
+        }
+
+        return $chunks ? implode('<br>', $chunks) : '-';
     }
 
     public static function onDelete($param)
@@ -297,7 +311,7 @@ class AcompEventoList extends TPage
             $obj->delete();
 
             TTransaction::close();
-            new TMessage('info', 'Evento excluído com sucesso.', new TAction([__CLASS__, 'onReload'], ['processo_id' => $processo_id]));
+            new TMessage('info', 'Evento excluido com sucesso.', new TAction([__CLASS__, 'onReload'], ['processo_id' => $processo_id]));
         } catch (Exception $e) {
             TTransaction::rollback();
             new TMessage('error', $e->getMessage());
@@ -317,7 +331,7 @@ class AcompEventoList extends TPage
 
             $processo_id = $param['processo_id'] ?? null;
             if (empty($processo_id)) {
-                throw new Exception('Processo não informado.');
+                throw new Exception('Processo nao informado.');
             }
 
             // Load eventos
@@ -344,6 +358,4 @@ class AcompEventoList extends TPage
         }
     }
 }
-
-
 

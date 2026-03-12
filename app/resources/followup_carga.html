@@ -15,43 +15,36 @@
         </tr>
     </table>
 
-    <table class="fu-table fu-table--dados">
-        <thead>
-            <tr>
-                <th>FATURA</th>
-                <th>TRANSPORTE</th>
-                <th>CRT</th>
-                <th>DATA DE CARREGAMENTO</th>
-                <th>ADUANA DE ORIGEM</th>
-                <th>PORTO DE DESTINO</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{$fatura}</td>
-                <td>{$transporte}</td>
-                <td>{$crt}</td>
-                <td>{$data_carregamento}</td>
-                <td>{$aduana_origem}</td>
-                <td>{$porto_destino}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="fu-table-container">
+        <table class="fu-table fu-table--dados">
+            <thead>
+                <tr>
+                    <th>FATURA</th>
+                    <th>TRANSPORTE</th>
+                    <th>CRT</th>
+                    <th>DATA DE CARREGAMENTO</th>
+                    <th>ADUANA DE ORIGEM</th>
+                    <th>PORTO DE DESTINO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{$fatura}</td>
+                    <td>{$transporte}</td>
+                    <td>{$crt}</td>
+                    <td>{$data_carregamento}</td>
+                    <td>{$aduana_origem}</td>
+                    <td>{$porto_destino}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <table class="fu-table fu-table--timeline">
-    <thead>
-        <tr>
-            <th>Objeto</th>
-            <th>Status</th>
-            <th>Data da entrega</th>
-        </tr>
-    </thead>
-    <tbody>
-        {$timeline_rows|raw}
-    </tbody>
-</table>
+    <div class="fu-timeline-container">
+        <h3 class="fu-timeline-header">Histórico de Movimentações</h3>
+        <div class="fu-timeline">
+            {$timeline_html|raw}
+        </div>
+    </div>
 </div>
 <!--[/main]-->
-
-
-

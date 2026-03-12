@@ -3,7 +3,7 @@
     margin: 16px auto;
     border: 1px solid #2f2f2f;
     background: #ececec;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
 .fu-header {
@@ -28,6 +28,10 @@
 
 .fu-alert:not(:empty) {
     display: block;
+}
+
+.fu-table-container {
+    overflow-x: auto;
 }
 
 .fu-table {
@@ -68,33 +72,147 @@
     text-align: center;
 }
 
+/* Vertical Timeline UI */
+.fu-timeline-container {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.fu-timeline-header {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #0b5fa5;
+    text-transform: uppercase;
+    font-size: 18px;
+    border-bottom: 2px solid #0b5fa5;
+    padding-bottom: 8px;
+}
+
 .fu-timeline {
-    border-top: 0;
+    position: relative;
+    padding: 10px 0;
 }
 
-.fu-evento {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 10px;
-    border-top: 1px solid #c3c3c3;
-    background: #f1f1f1;
-    padding: 14px 12px;
+.fu-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 24px; /* Line position */
+    width: 2px;
+    background: #d0d0d0;
 }
 
-.fu-evento strong {
-    font-size: 30px;
-    line-height: 1;
-    color: #111;
+.fu-tl-node {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 24px;
 }
 
-.fu-evento span {
-    font-size: 30px;
-    line-height: 1.2;
-    color: #151515;
+.fu-tl-node:last-child {
+    margin-bottom: 0;
 }
 
-.fu-evento--highlight {
-    background: #b8cbe2;
+.fu-tl-icon {
+    position: absolute;
+    left: 8px; /* Offset to center on line: (24) - (34/2) + 1px for alignment */
+    top: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #ffd44d;
+    box-shadow: 0 0 0 4px #ffffff; /* White gap between line and icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    font-size: 15px;
+    z-index: 2;
+}
+
+.fu-tl-content {
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 16px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fu-tl-content::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -8px;
+    border-style: solid;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent #e0e0e0 transparent transparent;
+}
+
+.fu-tl-content::after {
+    content: '';
+    position: absolute;
+    top: 11px;
+    left: -7px;
+    border-style: solid;
+    border-width: 7px 7px 7px 0;
+    border-color: transparent #f6f6f6 transparent transparent;
+}
+
+.fu-tl-node:hover .fu-tl-content {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.fu-tl-node--highlight .fu-tl-icon {
+    background: #0b5fa5;
+    color: #ffffff;
+}
+
+.fu-tl-node--highlight .fu-tl-content {
+    background: #e7f1ff;
+    border-color: #b8cbe2;
+}
+
+.fu-tl-node--highlight .fu-tl-content::after {
+    border-color: transparent #e7f1ff transparent transparent;
+}
+
+.fu-tl-node--highlight .fu-tl-content::before {
+    border-color: transparent #b8cbe2 transparent transparent;
+}
+
+.fu-tl-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.fu-tl-title {
+    font-weight: 700;
+    color: #0b2b4a;
+    font-size: 15px;
+}
+
+.fu-tl-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+    background: #ebebeb;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.fu-tl-sub {
+    color: #4a4a4a;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.fu-tl-node--highlight .fu-tl-date {
+    background: #cddff5;
+    color: #0b2b4a;
 }
 
 @media (max-width: 900px) {
@@ -109,71 +227,13 @@
         font-size: 12px;
         padding: 8px 6px;
     }
-
-    .fu-evento {
-        grid-template-columns: 1fr;
+    
+    .fu-tl-header-row {
+        flex-direction: column;
     }
-
-    .fu-evento strong,
-    .fu-evento span {
-        font-size: 18px;
-    }
-}
-
-/* Timeline table (layout similar to tracking reports) */
-.fu-table--timeline thead th {
-    background: #0b5fa5;
-    color: #fff;
-    text-transform: uppercase;
-    font-size: 14px;
-}
-
-.fu-table--timeline tbody td {
-    background: #f6f6f6;
-    vertical-align: top;
-}
-
-.fu-tl-obj {
-    display: grid;
-    grid-template-columns: 42px 1fr;
-    gap: 10px;
-    align-items: start;
-}
-
-.fu-tl-ico {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #ffd44d;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #1a1a1a;
-    font-size: 16px;
-}
-
-.fu-tl-title {
-    font-weight: 700;
-    color: #0b2b4a;
-    margin-bottom: 2px;
-}
-
-.fu-tl-sub {
-    color: #2a2a2a;
-}
-
-.fu-tl-date {
-    color: #1a1a1a;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.fu-tl-row--highlight td {
-    background: #e7f1ff;
-}
-
-@media (max-width: 900px) {
+    
     .fu-tl-date {
-        white-space: normal;
+        margin-top: 6px;
+        align-self: flex-start;
     }
 }

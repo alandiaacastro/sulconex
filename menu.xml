@@ -144,6 +144,10 @@
                 <icon>fas:book fa-fw</icon>
                 <action>FaturaList</action>
             </menuitem>
+            <menuitem label="Caixa">
+                <icon>fas:cash-register fa-fw</icon>
+                <action>CaixaList</action>
+            </menuitem>
         </menu>
     </menuitem>
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class FollowUpCargaView extends TPage
 {
@@ -72,13 +72,15 @@ class FollowUpCargaView extends TPage
                     $status = new StatusCrt($crt->status_crt_id);
                     $statusNome = $status->nome ?: $statusNome;
                 } catch (Exception $e) {
+                    // Suppress or log internal error while continuing
+                    error_log('Error loading StatusCrt: ' . $e->getMessage());
                 }
             }
 
             $faturaNumero = (string) ($crt->fatura_crt ?? '-');
             $crtNumero = (string) ($crt->numero ?? '-');
             $transportadora = trim((string) ($crt->nome_transportador ?? $crt->porteador ?? '-'));
-            $dataCarregamento = self::formatDate((string) ($crt->data_transportador_assinatura ?? ''));
+            $dataCarregamento = FollowUpService::formatDate((string) ($crt->data_transportador_assinatura ?? ''));
 
             $exportador = trim((string) ($crt->nome_remetente ?? ''));
             $importador = trim((string) ($crt->nome_destinatario ?? ''));
@@ -87,6 +89,7 @@ class FollowUpCargaView extends TPage
                 try {
                     $exportador = (new Clientes($crt->remetente_id))->nome;
                 } catch (Exception $e) {
+                    error_log('Error loading Clientes (remetente): ' . $e->getMessage());
                 }
             }
 
@@ -94,10 +97,12 @@ class FollowUpCargaView extends TPage
                 try {
                     $importador = (new Clientes($crt->destinatario_id))->nome;
                 } catch (Exception $e) {
+                    error_log('Error loading Clientes (destinatario): ' . $e->getMessage());
                 }
             }
 
-            $eventos = $this->buildTimeline($crt, $statusNome);
+            $eventos = FollowUpService::getEventosTimeline($crt, $statusNome);
+            $timelineHtml = $this->buildTimelineHtml($eventos);
 
             $payload = [
                 'mensagem' => '',
@@ -109,7 +114,7 @@ class FollowUpCargaView extends TPage
                 'porto_destino' => (string) ($crt->local_entrega ?: '-'),
                 'exportador' => $exportador ?: '-',
                 'importador' => $importador ?: '-',
-                'timeline_rows' => $eventos ?: '<tr><td colspan="3">Nenhum evento informado.</td></tr>',
+                'timeline_html' => $timelineHtml ?: '<div class="fu-alert fu-alert--info" style="display:block;">Nenhum evento registrado.</div>',
             ];
 
             $this->html->enableSection('main', $payload);
@@ -146,148 +151,35 @@ class FollowUpCargaView extends TPage
         return null;
     }
 
-    private function buildTimeline(Conhecimento $crt, string $statusNome): string
+    private function buildTimelineHtml(array $eventos): string
     {
-        $eventos = [];
-
-        if (!empty($crt->data_transportador_assinatura)) {
-            $eventos[] = [
-                'ts' => strtotime((string) $crt->data_transportador_assinatura . ' 12:00:00') ?: 0,
-                'data' => self::formatDateTime((string) $crt->data_transportador_assinatura . ' 12:00:00'),
-                'texto' => 'CRT emitido / assinado pelo transportador.',
-                'hl' => true,
-            ];
+        if (empty($eventos)) {
+            return '';
         }
 
-        $eventos[] = [
-            'ts' => time(),
-            'data' => date('d/m/Y H\hi'),
-            'texto' => 'Status atual: ' . $statusNome . '.',
-            'hl' => false,
-        ];
-
-        $eventos = array_merge($eventos, $this->parseNotesToEvents((string) ($crt->observacoes ?? '')));
-        $eventos = array_merge($eventos, $this->parseNotesToEvents((string) ($crt->documentos_anexos ?? '')));
-
-        usort($eventos, function ($a, $b) {
-            return ($b['ts'] ?? 0) <=> ($a['ts'] ?? 0);
-        });
-
         $html = [];
-        foreach ($eventos as $i => $evento) {
-            $rowClass = ($i === 0 || !empty($evento['hl'])) ? 'fu-tl-row fu-tl-row--highlight' : 'fu-tl-row';
+        foreach ($eventos as $evento) {
+            $rowClass = !empty($evento['highlight']) ? 'fu-tl-node fu-tl-node--highlight' : 'fu-tl-node';
 
-            $rawDate = (string) ($evento['data'] ?? '-');
-            $rawText = (string) ($evento['texto'] ?? '');
+            $date = htmlspecialchars((string) ($evento['data'] ?? '-'));
+            $title = htmlspecialchars((string) ($evento['title'] ?? ''));
+            $sub = htmlspecialchars((string) ($evento['sub'] ?? ''));
+            $icon = (string) ($evento['icon'] ?? 'fas fa-circle');
 
-            [$title, $sub] = self::splitTimelineText($rawText);
-            $icon = self::pickTimelineIcon($title . ' ' . $sub);
-
-            $date = htmlspecialchars($rawDate);
-            $title = htmlspecialchars($title);
-            $sub = htmlspecialchars($sub);
-
-            $html[] =
-                '<tr class="' . $rowClass . '">' .
-                    '<td>' .
-                        '<div class="fu-tl-obj">' .
-                            '<span class="fu-tl-ico"><i class="' . $icon . '"></i></span>' .
-                            '<div><div class="fu-tl-title">' . $title . '</div></div>' .
-                        '</div>' .
-                    '</td>' .
-                    '<td><div class="fu-tl-sub">' . $sub . '</div></td>' .
-                    '<td class="fu-tl-date">' . $date . '</td>' .
-                '</tr>';
+            $html[] = '
+                <div class="' . $rowClass . '">
+                    <div class="fu-tl-icon"><i class="' . $icon . '"></i></div>
+                    <div class="fu-tl-content">
+                        <div class="fu-tl-header-row">
+                            <div class="fu-tl-title">' . $title . '</div>
+                            <div class="fu-tl-date">' . $date . '</div>
+                        </div>
+                        <div class="fu-tl-sub">' . $sub . '</div>
+                    </div>
+                </div>';
         }
 
         return implode('', $html);
-    }
-
-    private static function splitTimelineText(string $texto): array
-    {
-        $texto = trim($texto);
-        if ($texto === '') {
-            return ['-', ''];
-        }
-
-        if (preg_match('/^(.+?):\s*(.+)$/', $texto, $m)) {
-            return [trim($m[1]), trim($m[2])];
-        }
-
-        if (preg_match('/^(.+?\.)\s+(.+)$/', $texto, $m)) {
-            return [trim($m[1]), trim($m[2])];
-        }
-
-        return [$texto, ''];
-    }
-
-    private static function pickTimelineIcon(string $texto): string
-    {
-        $t = strtolower($texto);
-
-        if (strpos($t, 'entreg') !== false) {
-            return 'fas fa-check';
-        }
-
-        if (strpos($t, 'transit') !== false || strpos($t, 'rota') !== false) {
-            return 'fas fa-truck';
-        }
-
-        if (strpos($t, 'aguard') !== false) {
-            return 'fas fa-clock';
-        }
-
-        if (strpos($t, 'post') !== false || strpos($t, 'emitido') !== false || strpos($t, 'assinado') !== false) {
-            return 'fas fa-file-alt';
-        }
-
-        if (strpos($t, 'status atual') !== false) {
-            return 'fas fa-info-circle';
-        }
-
-        return 'fas fa-circle';
-    }
-
-    private function parseNotesToEvents(string $texto): array
-    {
-        $texto = trim($texto);
-        if ($texto === '') {
-            return [];
-        }
-
-        $linhas = preg_split('/\\r\\n|\\r|\\n/', $texto) ?: [];
-        $eventos = [];
-
-        foreach ($linhas as $linha) {
-            $linha = trim($linha);
-            if ($linha === '') {
-                continue;
-            }
-
-            $data = date('d/m/Y H\\hi');
-            $ts = time() - 60;
-            $mensagem = $linha;
-
-            if (preg_match('/^(\\d{2}\\/\\d{2}\\/\\d{4})(?:\\s+(\\d{2}[:h]\\d{2}))?\\s*[-:]\\s*(.+)$/', $linha, $m)) {
-                $hora = !empty($m[2]) ? str_replace('h', ':', $m[2]) : '12:00';
-                $raw = $m[1] . ' ' . $hora;
-                $parsed = strtotime(str_replace('/', '-', $raw));
-                if ($parsed) {
-                    $ts = $parsed;
-                    $data = date('d/m/Y H\\hi', $parsed);
-                }
-                $mensagem = trim($m[3]);
-            }
-
-            $eventos[] = [
-                'ts' => $ts,
-                'data' => $data,
-                'texto' => $mensagem,
-                'hl' => false
-            ];
-        }
-
-        return $eventos;
     }
 
     private function emptyPayload(string $msg = 'Informe o ID CRT ou numero CRT para visualizar o acompanhamento.'): array
@@ -302,33 +194,7 @@ class FollowUpCargaView extends TPage
             'porto_destino' => '-',
             'exportador' => '-',
             'importador' => '-',
-            'timeline_rows' => '<tr><td colspan="3">-</td></tr>',
+            'timeline_html' => '-',
         ];
     }
-
-    private static function formatDate(string $value): string
-    {
-        if (!$value) {
-            return '';
-        }
-
-        if (preg_match('/^\\d{4}-\\d{2}-\\d{2}$/', $value)) {
-            return TDate::convertToMask($value, 'yyyy-mm-dd', 'dd/mm/yyyy');
-        }
-
-        return $value;
-    }
-
-    private static function formatDateTime(string $value): string
-    {
-        $ts = strtotime($value);
-        if ($ts) {
-            return date('d/m/Y H\\hi', $ts);
-        }
-
-        return $value;
-    }
 }
-
-
-
