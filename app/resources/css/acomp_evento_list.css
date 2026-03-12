@@ -1,0 +1,336 @@
+/* Acompanhamento de Eventos - Estilos Melhorados */
+
+/* Cards de Informação */
+.col-md-3 .card {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.col-md-3 .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.col-md-3 .card-body {
+    padding: 1rem;
+}
+
+.col-md-3 .text-uppercase {
+    letter-spacing: 1px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.col-md-3 .text-uppercase i {
+    margin-right: 6px;
+}
+
+.col-md-3 .h6 {
+    font-size: 14px;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive Cards */
+@media (max-width: 1200px) {
+    .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 768px) {
+    .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Timeline Container */
+#timeline-container {
+    padding: 10px 0;
+}
+
+#timeline-container .ttimeline {
+    padding: 6px 2px;
+}
+
+/* Timeline Items */
+.ttimeline .timeline-item {
+    padding: 12px 0;
+    border-left: 3px solid #e5e7eb;
+    padding-left: 15px;
+    margin-left: 10px;
+    position: relative;
+}
+
+.ttimeline .timeline-item:before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+}
+
+.ttimeline .timeline-item.completed:before {
+    background: #1f8b4c;
+}
+
+.ttimeline .timeline-item.current:before {
+    background: #f97316;
+    width: 16px;
+    height: 16px;
+    left: -12px;
+    top: 6px;
+}
+
+.ttimeline .timeline-title {
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.ttimeline .timeline-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.ttimeline .timeline-date {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Datagrid Styling */
+.bootstrap .datagrid thead {
+    background: linear-gradient(90deg, #175ea6 0%, #2376d9 100%);
+    color: #fff;
+}
+
+.bootstrap .datagrid tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.bootstrap .datagrid tbody tr:hover {
+    background-color: #f0f9ff;
+}
+
+.bootstrap .datagrid tbody td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    border-color: #e5e7eb;
+}
+
+.bootstrap .datagrid tbody td:first-child {
+    font-weight: 500;
+}
+
+/* Badge Styling */
+.badge-primary {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #1f8b4c;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #f59e0b;
+    color: #fff;
+}
+
+.badge-danger {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+.badge-info {
+    background-color: #06b6d4;
+    color: #fff;
+}
+
+/* Panel Styling */
+.panel-group > .panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 15px;
+}
+
+.panel-heading {
+    background: linear-gradient(90deg, #175ea6 0%, #2376d9 100%);
+    color: #fff;
+    border-radius: 8px 8px 0 0;
+    padding: 12px 15px;
+    font-weight: 600;
+}
+
+.panel-heading .fa {
+    margin-right: 6px;
+}
+
+/* Flex Layout */
+.content-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.map-section {
+    flex: 2;
+    min-width: 320px;
+}
+
+.timeline-section {
+    flex: 1;
+    min-width: 280px;
+}
+
+@media (max-width: 768px) {
+    .content-row {
+        flex-direction: column;
+    }
+
+    .map-section,
+    .timeline-section {
+        flex: 1 100%;
+        min-width: auto;
+    }
+}
+
+/* Action Links */
+.panel-heading a {
+    color: #fff;
+    margin-left: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.panel-heading a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+}
+
+.panel-heading a .fa {
+    margin-right: 4px;
+}
+
+/* Datagrid Actions */
+.datagrid-action {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.datagrid-action a {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.datagrid-action a.blue {
+    color: #2563eb;
+    background-color: #dbeafe;
+}
+
+.datagrid-action a.blue:hover {
+    background-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.datagrid-action a.red {
+    color: #dc2626;
+    background-color: #fee2e2;
+}
+
+.datagrid-action a.red:hover {
+    background-color: #fecaca;
+    color: #b91c1c;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 15px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+.pagination .active a {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #fcd34d;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+/* Utility Classes */
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.pa-3 {
+    padding: 1rem;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+
+.fw-bold {
+    font-weight: 600;
+}
+
+.small {
+    font-size: 0.875rem;
+}
+
+/* Print Styles */
+@media print {
+    .panel-heading a,
+    .datagrid-action {
+        display: none;
+    }
+}
