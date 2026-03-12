@@ -1,23 +1,6 @@
 <?php
 
-namespace Adianti\Control;
 
-use Adianti\Control\TPage;
-use Adianti\Database\TTransaction;
-use Adianti\Model\CctTransmissao;
-use Adianti\Service\Siscomex\SiscomexTransmissionService;
-use Adianti\Widgets\Form\TForm;
-use Adianti\Widgets\Form\TFieldList;
-use Adianti\Widgets\Form\TEntry;
-use Adianti\Widgets\Form\TButton;
-use Adianti\Widgets\Form\TFile;
-use Adianti\Widgets\Form\TLabel;
-use Adianti\Widgets\Form\TTextArea;
-use Adianti\Widgets\Form\TCombo;
-use Adianti\Widgets\Container\TPanelGroup;
-use Adianti\Widgets\Container\TPanel;
-use Adianti\Widgets\Container\TFieldList;
-use Adianti\Dialogs\TMessage;
 
 /**
  * CctUploadXmlForm

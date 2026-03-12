@@ -1,6 +1,5 @@
 <?php
 
-namespace Adianti\Service\Siscomex;
 
 use Exception;
 

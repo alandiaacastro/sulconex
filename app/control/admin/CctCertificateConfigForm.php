@@ -1,22 +1,6 @@
 <?php
 
-namespace Adianti\Control\Admin;
 
-use Adianti\Control\TPage;
-use Adianti\Database\TTransaction;
-use Adianti\Registry\TRegistry;
-use Adianti\Service\Security\DigitalCertificateService;
-use Adianti\Widgets\Form\TForm;
-use Adianti\Widgets\Form\TFieldList;
-use Adianti\Widgets\Form\TEntry;
-use Adianti\Widgets\Form\TPassword;
-use Adianti\Widgets\Form\TButton;
-use Adianti\Widgets\Form\TFile;
-use Adianti\Widgets\Form\TTextArea;
-use Adianti\Widgets\Form\TCheckBox;
-use Adianti\Widgets\Container\TPanel;
-use Adianti\Widgets\Container\TPanelGroup;
-use Adianti\Dialogs\TMessage;
 
 /**
  * CctCertificateConfigForm

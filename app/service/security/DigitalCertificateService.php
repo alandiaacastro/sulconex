@@ -1,6 +1,5 @@
 <?php
 
-namespace Adianti\Service\Security;
 
 use Exception;
 use stdClass;

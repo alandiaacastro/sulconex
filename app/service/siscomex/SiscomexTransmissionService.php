@@ -1,10 +1,6 @@
 <?php
 
-namespace Adianti\Service\Siscomex;
 
-use Adianti\Model\CctTransmissao;
-use Adianti\Model\Conhecimento;
-use Adianti\Service\Security\DigitalCertificateService;
 use Exception;
 use stdClass;
 

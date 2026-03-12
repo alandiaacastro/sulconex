@@ -1,8 +1,6 @@
 <?php
 
-namespace Adianti\Model;
 
-use Adianti\Database\TRecord;
 
 /**
  * CctTransmissaoItem

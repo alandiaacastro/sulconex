@@ -1,9 +1,6 @@
 <?php
 
-namespace Adianti\Service\Siscomex;
 
-use Adianti\Model\Conhecimento;
-use Adianti\Model\CctTransmissaoItem;
 use DOMDocument;
 use DOMElement;
 use Exception;
