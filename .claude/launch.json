@@ -10,7 +10,7 @@
     {
       "name": "PHP Dev Server (porta 8080)",
       "runtimeExecutable": "C:/wamp64/bin/php/php8.2.29/php.exe",
-      "runtimeArgs": ["-S", "localhost:8080", "-t", "C:/wamp64/www/sulconex81"],
+      "runtimeArgs": ["-S", "localhost:8080", "-t", "C:/wamp64/www/sulconex81/.claude/worktrees/great-mestorf"],
       "port": 8080
     }
   ]
