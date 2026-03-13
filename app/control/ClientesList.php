@@ -34,7 +34,6 @@ class ClientesList extends TPage
 
         // ðŸ“¥ AÃ§Ãµes no cabeÃ§alho
        // $this->form->addHeaderAction('Importar XML (Arquivo)', new TAction([$this, 'onImportXml']), 'fa:file-import blue');
-        $this->form->addHeaderAction('Importar XML (Texto)', new TAction([$this, 'onImportXmlText']), 'fa:file-code blue');
         $this->form->addHeaderAction('Formato XML', new TAction([$this, 'onFormatoXml']), 'fa:file-code green');
         //$this->form->addHeaderAction('ðŸ”„ Atualizar', new TAction([$this, 'onReload']), 'fa:sync blue');
 
