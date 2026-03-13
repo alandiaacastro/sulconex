@@ -6,6 +6,82 @@ class AcompProcesso extends TRecord
     const PRIMARYKEY = 'id';
     const IDPOLICY = 'serial';
 
+    // ── Stage constants ──────────────────────────────────────────────
+    const STAGE_COLETA       = 'coleta';
+    const STAGE_TRANSITO_BR  = 'transito_br';
+    const STAGE_ADUANA       = 'aduana';
+    const STAGE_TRANSITO_INT = 'transito_int';
+    const STAGE_ARMAZENAGEM  = 'armazenagem';
+    const STAGE_ENTREGA      = 'entrega';
+
+    private static $stageLabels = [
+        'coleta'       => 'Coleta',
+        'transito_br'  => 'Trânsito BR',
+        'aduana'       => 'Aduana',
+        'transito_int' => 'Trânsito INT',
+        'armazenagem'  => 'Armazenagem',
+        'entrega'      => 'Entregue',
+    ];
+
+    private static $transitStages = [
+        'transito_br',
+        'aduana',
+        'transito_int',
+        'armazenagem',
+    ];
+
+    /**
+     * Normaliza um texto de status/evento para um código de estágio interno.
+     */
+    public static function normalizeStageCode(string $raw): string
+    {
+        $s = strtolower(trim($raw));
+        $s = preg_replace('/[áàãâä]/u', 'a', $s);
+        $s = preg_replace('/[éèêë]/u', 'e', $s);
+        $s = preg_replace('/[íìîï]/u', 'i', $s);
+        $s = preg_replace('/[óòõôö]/u', 'o', $s);
+        $s = preg_replace('/[úùûü]/u', 'u', $s);
+
+        // Já é um código interno?
+        if (isset(self::$stageLabels[$s])) {
+            return $s;
+        }
+
+        if (strpos($s, 'entrega') !== false || strpos($s, 'entreg') !== false) {
+            return self::STAGE_ENTREGA;
+        }
+        if (strpos($s, 'aduana') !== false || strpos($s, 'aguard') !== false || strpos($s, 'despacho') !== false) {
+            return self::STAGE_ADUANA;
+        }
+        if (strpos($s, 'armazen') !== false || strpos($s, 'patio') !== false) {
+            return self::STAGE_ARMAZENAGEM;
+        }
+        if (strpos($s, 'transito') !== false || strpos($s, 'transit') !== false) {
+            return self::STAGE_TRANSITO_BR;
+        }
+        if (strpos($s, 'coleta') !== false || strpos($s, 'retir') !== false) {
+            return self::STAGE_COLETA;
+        }
+
+        return '';
+    }
+
+    /**
+     * Retorna o rótulo legível de um código de estágio.
+     */
+    public static function stageLabel(string $stage): string
+    {
+        return self::$stageLabels[$stage] ?? ucfirst($stage);
+    }
+
+    /**
+     * Verifica se o estágio indica carga em trânsito (não coleta nem entrega final).
+     */
+    public static function isTransitStage(string $stage): bool
+    {
+        return in_array($stage, self::$transitStages, true);
+    }
+
     private static $schemaChecked = false;
 
     public function __construct($id = null, $callObjectLoad = true)
@@ -115,6 +191,9 @@ class AcompProcesso extends TRecord
             if (!self::tableHasColumn($conn, 'acomp_evento', 'localizacao')) {
                 $conn->exec("ALTER TABLE acomp_evento ADD COLUMN localizacao TEXT");
             }
+            if (!self::tableHasColumn($conn, 'acomp_evento', 'imagem')) {
+                $conn->exec("ALTER TABLE acomp_evento ADD COLUMN imagem TEXT");
+            }
         } catch (Exception $e) {
             // ignore (best-effort backfill)
         }
@@ -139,6 +218,10 @@ class AcompProcesso extends TRecord
         }
 
         if (!self::tableHasColumn($conn, 'acomp_evento', 'localizacao')) {
+            return false;
+        }
+
+        if (!self::tableHasColumn($conn, 'acomp_evento', 'imagem')) {
             return false;
         }
 
