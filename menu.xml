@@ -5,20 +5,20 @@
 
     <menuitem label="CRM" icon="fas:users fa-fw">
         <menu>
+            <menuitem label="Pipeline (Kanban)">
+                <icon>fas:th-large fa-fw</icon>
+                <action>OpportunityKanban</action>
+            </menuitem>
             <menuitem label="Oportunidades (Lista)">
                 <icon>fas:list fa-fw</icon>
                 <action>OpportunityList</action>
             </menuitem>
-            <menuitem label="Oportunidades (Kanban)">
-                <icon>fas:th-large fa-fw</icon>
-                <action>OpportunityKanban</action>
-            </menuitem>
-            <menuitem label="Negócios Perdidos">
-                <icon>fas:hand-holding-usd fa-fw</icon>
-                <action>LostDealList</action>
+            <menuitem label="Nova Oportunidade">
+                <icon>fas:plus-circle fa-fw</icon>
+                <action>OpportunityForm</action>
             </menuitem>
             <menuitem label="Proposta comercial">
-                <icon>fas:hand-holding-usd fa-fw</icon>
+                <icon>fas:file-contract fa-fw</icon>
                 <action>PropostaList</action>
             </menuitem>
         </menu>

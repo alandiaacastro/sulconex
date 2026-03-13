@@ -1,0 +1,370 @@
+/* ============================================================
+   OpportunityView — CRM Deal Detail Page
+   ============================================================ */
+
+/* ── Pipeline Stepper ── */
+.opp-pipeline {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.opp-step {
+    flex: 1;
+    position: relative;
+    padding: 10px 10px 10px 28px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    background: #e0e0e0;
+    text-align: center;
+    cursor: default;
+    transition: background 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.opp-step:first-child {
+    padding-left: 16px;
+    border-radius: 4px 0 0 4px;
+}
+
+/* chevron using pseudo-elements */
+.opp-step::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -14px;
+    width: 0;
+    height: 0;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 14px solid #e0e0e0;
+    z-index: 2;
+    transition: border-left-color 0.2s;
+}
+
+.opp-step::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 14px solid #fff;
+    z-index: 1;
+}
+
+.opp-step:first-child::before {
+    display: none;
+}
+
+.opp-step:last-child::after {
+    display: none;
+}
+
+/* Completed stage */
+.opp-step.done {
+    background: #1abc9c;
+    color: #fff;
+}
+.opp-step.done::after {
+    border-left-color: #1abc9c;
+}
+
+/* Active/current stage */
+.opp-step.active {
+    background: #3498db;
+    color: #fff;
+}
+.opp-step.active::after {
+    border-left-color: #3498db;
+}
+
+/* ── Info Cards ── */
+.opp-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.opp-info-item {
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    border-left: 3px solid #3498db;
+}
+
+.opp-info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.opp-info-value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Stage badge inside info */
+.opp-stage-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #3498db;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ── Body Layout ── */
+.opp-body {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ── Timeline ── */
+.opp-timeline {
+    position: relative;
+    padding-left: 10px;
+}
+
+.opp-timeline-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    margin: 10px 0 6px 36px;
+    background: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.opp-timeline-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.opp-timeline-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.opp-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 32px;
+    bottom: -10px;
+    width: 2px;
+    background: #e0e0e0;
+}
+
+.opp-timeline-item:last-child::before {
+    display: none;
+}
+
+.opp-timeline-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.opp-timeline-card .badge-stage {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.opp-timeline-time {
+    float: right;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.opp-timeline-desc {
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* ── Tabs ── */
+.opp-tabs .nav-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.opp-tabs .nav-link.active {
+    font-weight: 700;
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+    background: transparent;
+}
+
+/* ── Weekly Calendar ── */
+.opp-calendar {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12px;
+}
+
+.opp-cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.opp-cal-nav {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.opp-cal-nav button {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.opp-cal-nav button:hover { background: #f0f0f0; }
+
+.opp-cal-nav .btn-today {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+}
+
+.opp-cal-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.opp-cal-view-btns {
+    display: flex;
+    gap: 2px;
+}
+
+.opp-cal-view-btns button {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.opp-cal-view-btns button.active {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+}
+
+.opp-cal-grid {
+    display: grid;
+    grid-template-columns: 50px repeat(5, 1fr);
+    border-top: 1px solid #dee2e6;
+}
+
+.opp-cal-day-header {
+    text-align: center;
+    padding: 6px 4px;
+    border-left: 1px solid #dee2e6;
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 11px;
+    color: #555;
+}
+
+.opp-cal-time-header {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+.opp-cal-time {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+    font-size: 10px;
+    color: #999;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.opp-cal-cell {
+    border-left: 1px solid #dee2e6;
+    border-bottom: 1px solid #f0f0f0;
+    height: 30px;
+}
+
+.opp-cal-cell.today-col {
+    background: #fffde7;
+}
+
+/* ── Action Buttons ── */
+.opp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.opp-header h4 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.opp-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ── Add Activity Form ── */
+.opp-add-activity {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
