@@ -250,7 +250,8 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
         $pdf->SetFont('Helvetica', '', 8);
 
         $data_original1   = $object->data_transportador_assinatura;
-        $data_brasileira1 = date('d/m/Y', strtotime($data_original1));
+        $ts_data1 = !empty($data_original1) ? strtotime($data_original1) : false;
+        $data_brasileira1 = $ts_data1 ? date('d/m/Y', $ts_data1) : '';
         $pdf->Text(19, 280, self::toPdfText($data_brasileira1));
         $pdf->Text(119, 280, self::toPdfText($data_brasileira1));
         $pdf->Text(19, 244, self::toPdfText($data_brasileira1));
