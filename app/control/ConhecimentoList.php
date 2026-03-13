@@ -30,7 +30,7 @@ class ConhecimentoList extends TPage
 
         $this->form->addAction('Filtrar', new TAction([$this, 'onSearch']), 'fa:search blue');
         $this->form->addAction('Novo CRT', new TAction([$this, 'onNumerarCrt']), 'fa:plus green');
-        $this->form->addAction('Importar XML', new TAction([$this, 'onImportXml']), 'fa:file-import orange');
+
         $this->form->addAction('Recarregar', new TAction([$this, 'onReload']), 'fa:refresh');
 
         $this->form->setData(TSession::getValue(__CLASS__ . '_filter_data'));

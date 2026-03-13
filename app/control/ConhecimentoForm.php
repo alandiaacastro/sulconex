@@ -471,7 +471,7 @@ class ConhecimentoForm extends TPage
         
         // Botes de ao
         $this->form->addAction(' Salvar', new TAction([$this, 'onSave']), 'fa:save')->class = 'btn btn-primary';
-        $this->form->addAction(' Exportar XML', new TAction([$this, 'onExportXml']), 'fa:file-code orange');
+
         $this->form->addActionLink(' Voltar', new TAction(['ConhecimentoList', 'onReload']), 'fa:arrow-left green');
 
         // Registro de todos os campos no formulrio
