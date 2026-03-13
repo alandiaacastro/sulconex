@@ -390,7 +390,7 @@ class TypeCode128 implements TypeInterface
         // get A sequences (if any)
         $numseq = [];
         preg_match_all('/([\x00-\x1f])/', $code, $numseq, PREG_OFFSET_CAPTURE);
-        if (empty($numseq[1])) {
+        if (! empty($numseq[1])) {
             $end_offset = 0;
             foreach ($numseq[1] as $val) {
                 $offset = $val[1];

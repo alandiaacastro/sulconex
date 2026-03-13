@@ -36,8 +36,8 @@ class ColorHelper
         if (str_starts_with($color, '#') && strlen($color) === 7) {
             return [
                 hexdec(substr($color, 1, 2)),
-                hexdec(substr($color, 2, 2)),
                 hexdec(substr($color, 3, 2)),
+                hexdec(substr($color, 5, 2)),
             ];
         }
 

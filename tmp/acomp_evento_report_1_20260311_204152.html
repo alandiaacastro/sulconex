@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Relatorio de Rastreio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111;margin:0;padding:20px}
+.wrap{max-width:1200px;margin:0 auto}
+.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:12px}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}
+.kpi .item{flex:1;min-width:220px;border-left:4px solid #0ea5e9;background:#fff;padding:12px;border-radius:8px;border:1px solid #e5e7eb}
+.label{font-size:12px;color:#0c4a6e;text-transform:uppercase;font-weight:700}
+.value{font-size:20px;font-weight:700;margin-top:4px}
+#map{height:420px;border-radius:8px;border:1px solid #d1d5db}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;font-size:13px}
+th{background:#f9fafb}
+@media print{.noprint{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h2 style="margin:0 0 8px">Relatorio de Rastreio do Processo CHILE  BR774000290 - CRT BR774000190</h2>
+<div><b>Exportador:</b> BO PAPER | <b>Importador:</b> ANTONIO PUGA S.A.RUT: 80.764.900-0</div>
+<div><b>Status Atual:</b> TRANSITO CHILE</div>
+</div>
+
+<div class="kpi noprint">
+<div class="item"><div class="label">Previsao de Entrega</div><div class="value">11/03/2026</div></div>
+<div class="item"><div class="label">Ultima Atualizacao</div><div class="value">11/03/2026 20:15</div></div>
+</div>
+
+<div class="card"><div id="map"></div></div>
+
+<div class="card">
+<table>
+<thead><tr><th>Data</th><th>Status</th><th>Localizacao</th><th>Evento</th><th>Franquia</th></tr></thead>
+<tbody><tr><td>11/03/2026 20:15</td><td>TRANSITO CHILE</td><td>LA SERENA, CHILE </td><td>DESLOCAMENTO PARA DESCARGA CLIENTE </td><td>LIVRE</td></tr><tr><td>11/03/2026 11:30</td><td>TRANSITO CHILE</td><td>LOS ANDES,CHILE</td><td>INGRESSANDO ADUANA DE LOS ANDES</td><td>LIVRE</td></tr><tr><td>11/03/2026 09:33</td><td>TRANSITO ARGENTINA</td><td>MENDOZA,ARGENTINA </td><td>MENDOZA DIREÇAO USPALLATA PREVISÃO 10HS</td><td>LIVRE</td></tr><tr><td>10/03/2026 12:11</td><td>TRANSITO ARGENTINA</td><td>CORDOBA -ARGENTINA </td><td>TRANSITO PARA USPALLATA</td><td>LIVRE</td></tr><tr><td>09/03/2026 17:04</td><td>ADUANA ARGENTINA</td><td>PASO DE LOS LIBRES,ARGENTINA </td><td>SAIDA PASO DE LOS LIBRES </td><td>LIVRE</td></tr><tr><td>09/03/2026 16:04</td><td>ADUANA ARGENTINA</td><td>PASO DE LOS LIBRES,ARGENTINA </td><td>INGRESSO PASO DE LOS LIBRES </td><td>LIVRE</td></tr><tr><td>09/03/2026 11:04</td><td>ADUANA BRASIL</td><td>URUGUAIANA,RS</td><td>SAIDA PORTO SECO</td><td>LIVRE</td></tr><tr><td>09/03/2026 10:00</td><td>ADUANA BRASIL</td><td>URUGUAIANA,RS</td><td>MULTILOG</td><td>LIVRE</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  var routeCoords = [[-29.759997,-57.085609],[-29.711972,-57.086012],[-31.416668,-64.183334],[-32.889458,-68.845839],[-32.833692,-70.598273]] || [];
+  var map = L.map('map', {zoomControl:true, scrollWheelZoom:false});
+  var seedBounds = routeCoords.length ? L.latLngBounds(routeCoords) : L.latLngBounds([[-32.833692, -70.598273]]);
+  map.fitBounds(seedBounds, {padding:[20,20]});
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:18
+  }).addTo(map);
+
+  function toOsrmPath(points){return points.map(function(p){return p[1]+','+p[0];}).join(';');}
+  async function fetchRoadGeometry(points){
+    if(!Array.isArray(points) || points.length < 2){return points || [];}
+    var merged=[];
+    for(var i=0;i<points.length-1;i++){
+      var segment=[points[i], points[i+1]];
+      var url='https://router.project-osrm.org/route/v1/driving/' + toOsrmPath(segment) + '?overview=full&geometries=geojson';
+      var res=await fetch(url);
+      if(!res.ok){throw new Error('OSRM');}
+      var data=await res.json();
+      if(!data || data.code!=='Ok' || !data.routes || !data.routes[0]){throw new Error('OSRM');}
+      var coords=data.routes[0].geometry.coordinates.map(function(c){return [c[1],c[0]];});
+      if(i>0 && coords.length){coords.shift();}
+      merged=merged.concat(coords);
+    }
+    return merged;
+  }
+
+  function drawFallback(){
+    if(routeCoords.length>1){
+      L.polyline(routeCoords,{color:'#1f8b4c',weight:5,opacity:.9}).addTo(map);
+    }
+  }
+
+  (async function(){
+    try{
+      var road=await fetchRoadGeometry(routeCoords);
+      if(road.length>1){
+        L.polyline(road,{color:'#1f8b4c',weight:5,opacity:.9}).addTo(map);
+        map.fitBounds(L.latLngBounds(road), {padding:[20,20]});
+      } else {
+        drawFallback();
+      }
+    }catch(e){
+      drawFallback();
+    }
+  })();
+
+  var truckIcon=L.divIcon({
+    html:'<div style="width:34px;height:34px;border-radius:50%;background:#1f8b4c;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.35)"><i class="fas fa-truck" style="font-size:16px"></i></div>',
+    className:'',
+    iconSize:[34,34],
+    iconAnchor:[17,17]
+  });
+
+  L.marker([-32.833692, -70.598273], {icon:truckIcon}).addTo(map)
+    .bindPopup('TRANSITO CHILE - Los Andes/CL')
+    .openPopup();
+})();
+</script>
+</body>
+</html>

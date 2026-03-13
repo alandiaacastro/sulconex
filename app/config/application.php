@@ -1,11 +1,10 @@
 <?php
 return [
     'general' =>  [
-        
         'timezone' => 'America/Sao_Paulo',
         'language' => 'pt',
         'application' => 'template',
-        'title' => 'OMD TRUCK 8.1',
+        'title' => 'OMD TRUCK 8.4',
         'theme' => 'adminbs5',
         'seed' => 'odfu6asnodf8as',
         'rest_key' => '',
@@ -13,11 +12,6 @@ return [
         'public_view' => '0',
         'public_entry' => '',
         'debug' => '1',
-    
-    
-        'log_service' => 'file',   // <--- ADICIONE ASSIM
-        'log_level' => 'DEBUG',  // <--- ADICIONE ASSIM
-        'tmpdir' => 'tmp/',      // <--- ADICIONE ASSIM (opcional se jÃƒÂ¡ for o padrÃƒÂ£o)
         'strict_request' => '0',
         'multi_lang' => '1',
         'require_terms' => '0',
@@ -26,6 +20,9 @@ return [
           'pt' => 'Português',
           'en' => 'English',
           'es' => 'Español',
+          'fr' => 'Français',
+          'de' => 'Deutsch',
+          'it' => 'Italiano',
         ],
         'multi_database' => '0',
         'validate_strong_pass' => '1',
@@ -77,16 +74,21 @@ return [
             'has_wiki' => '1',
             'has_news' => '1',
             'has_menu_mode_switch' => '1',
-            'has_main_mode_switch' => '1'
+            'has_main_mode_switch' => '1',
+            'has_master_menu' => '1',
+            'always_collapse' => '0',
+            'allow_page_tabs' => '0',
+            'only_top_menu' => '0'
         ],
         'dialogs' => [
             'use_swal' => '1'
         ],
         'theme' => [
             'menu_dark_color' => 'rgb(29 45 83)',
+            'login_mode'  => 'light',
             'menu_mode'  => 'dark',
-            'main_mode'  => 'light'
+            'main_mode'  => 'light',
+            'box_layout' => '0'
         ]
     ]
 ];
-

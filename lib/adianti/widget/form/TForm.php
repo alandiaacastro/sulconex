@@ -15,7 +15,7 @@ use ReflectionClass;
 /**
  * Wrapper class to deal with forms
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage form
  * @author     Pablo Dall'Oglio
@@ -146,7 +146,7 @@ class TForm implements AdiantiFormInterface
      */
     public static function getFormByName($name)
     {
-        if (isset(self::$forms[$name]))
+        if (!is_null($name) && isset(self::$forms[$name]))
         {
             return self::$forms[$name];
         }
@@ -230,13 +230,14 @@ class TForm implements AdiantiFormInterface
     public function addField(AdiantiWidgetInterface $field)
     {
         $name = $field->getName();
-        if (isset($this->fields[$name]) AND substr($name,-2) !== '[]')
-        {
-            throw new Exception(AdiantiCoreTranslator::translate('You have already added a field called "^1" inside the form', $name));
-        }
         
-        if ($name)
+        if (!empty($name))
         {
+            if (isset($this->fields[$name]) AND substr($name,-2) !== '[]')
+            {
+                throw new Exception(AdiantiCoreTranslator::translate('You have already added a field called "^1" inside the form', $name));
+            }
+            
             $this->fields[$name] = $field;
             $field->setFormName($this->name);
             
@@ -417,7 +418,7 @@ class TForm implements AdiantiFormInterface
                             $value = [];
                             foreach ($field->getValue() as $field_value)
                             {
-                                if ($field_value)
+                                if ($field_value && isset($items[$field_value]))
                                 {
                                     $value[] = $items[$field_value];
                                 }

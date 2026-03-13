@@ -12,7 +12,7 @@ use Throwable;
 /**
  * Exception visualizer
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage util
  * @author     Pablo Dall'Oglio

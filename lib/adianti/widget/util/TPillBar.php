@@ -7,7 +7,7 @@ use Adianti\Control\TAction;
 /**
  * Pillbar
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage util
  * @author     Pablo Dall'Oglio
@@ -59,7 +59,7 @@ class TPillBar extends TElement
             $span_title = new TElement('span');
         }
         
-        $span_title->{'class'}     = 'nav-link btn-sm';
+        $span_title->{'class'}     = 'nav-link';
         $span_title->add( $title );
         
         $li->add( $span_title );
@@ -78,10 +78,20 @@ class TPillBar extends TElement
             foreach ($this->items as $key => $item)
             {
                unset($item->{'class'});
-               if ($n === $index)
+               $children = $item->getChildren();
+               
+               if (is_array($children) && $children[0] instanceof TElement)
                {
-                   $item->{'class'} = 'active';
+                   if ($n === $index)
+                   {
+                       $children[0]->{'class'} .= ' active';
+                   }
+                   else
+                   {
+                       $children[0]->{'class'} = str_replace('active', '', $children[0]->{'class'});
+                   }
                }
+
                $n ++; 
             }
         }
@@ -98,7 +108,11 @@ class TPillBar extends TElement
             {
                 if ($key == $title)
                 {
-                    $item->{'class'} .= ' active';
+                    $children = $item->getChildren();
+                    if (is_array($children) && $children[0] instanceof TElement)
+                    {
+                        $children[0]->{'class'} .= ' active';
+                    }
                     $class = '';
                 }
             }

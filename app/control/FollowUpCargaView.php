@@ -9,7 +9,6 @@ class FollowUpCargaView extends TPage
     {
         parent::__construct();
 
-        TPage::include_css('app/resources/css/followup_carga.css');
 
         $this->form = new BootstrapFormBuilder('form_followup_carga');
         $this->form->setFormTitle('Follow-up de Carga');

@@ -7,7 +7,7 @@
     --ad-font-size-plus: 1.05rem;
     --ad-font-size-less: 0.8rem;
     --ad-font-size-mini: 0.6rem;
-    --ad-font-size-menu: 1rem;
+    --ad-font-size-menu: 0.95rem;
     --ad-font-size-super: 1.25rem;
     --ad-menu-item-color: #4d93ff;
     --ad-menu-size: 300px;
@@ -17,6 +17,10 @@
     */
 }
 
+.offcanvas {
+    --bs-offcanvas-width: 500px;
+}
+
 [data-bs-theme=light] {
     --bs-dark-bg-subtle: #f4f6f9;
 }
@@ -24,7 +28,6 @@
 iframe
 {
    background:white;
-   border-radius: var(--bs-border-radius);
 }
 
 * {

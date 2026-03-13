@@ -16,6 +16,8 @@ class ClientesList extends TPage
     {
         parent::__construct();
 
+        Clientes::ensureSchema();
+
         // ðŸ”Ž FormulÃ¡rio de filtros
         $this->form = new BootstrapFormBuilder(self::$formName);
         $this->form->setFormTitle('ðŸ” Buscar Clientes');
@@ -46,6 +48,25 @@ class ClientesList extends TPage
         $this->datagrid->addColumn(new TDataGridColumn('cnpj', 'CNPJ', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('cidade', 'Cidade', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('telefone', 'Telefone', 'left'));
+
+        $col_tipo = new TDataGridColumn('tipo', 'Classificação', 'center');
+        $col_tipo->setTransformer(function($value) {
+            if (empty($value)) return '';
+            $labels = [
+                'EXPORTADOR'    => '<span class="badge badge-success">Exportador</span>',
+                'IMPORTADOR'    => '<span class="badge badge-primary">Importador</span>',
+                'CONSIGNATARIO' => '<span class="badge badge-warning">Consignatário</span>',
+                'NOTIFICAR'     => '<span class="badge badge-info">Notificar</span>',
+            ];
+            $parts = explode(',', $value);
+            $html = '';
+            foreach ($parts as $p) {
+                $p = trim($p);
+                $html .= ($labels[$p] ?? '<span class="badge badge-secondary">'.$p.'</span>') . ' ';
+            }
+            return $html;
+        });
+        $this->datagrid->addColumn($col_tipo);
 
         // âœï¸ AÃ§Ãµes do grid
         $actionEdit = new TDataGridAction(['ClientesForm', 'onEdit'], ['id' => '{id}']);
@@ -175,13 +196,13 @@ class ClientesList extends TPage
                 $object->inscricao_estadual  = strtoupper((string) $cliente->inscricao_estadual);
                 $object->atividade           = strtoupper((string) $cliente->atividade);
                 $object->emissao_crt         = strtoupper((string) $cliente->emissao_crt);
+                $object->tipo                = strtoupper((string) $cliente->tipo);
                 $object->store();
             }
 
             TTransaction::close();
 
-            new TMessage('info', 'Clientes importados com sucesso!');
-            TScript::create("window.location = '?class=ClientesList';");
+            new TMessage('info', 'Clientes importados com sucesso!', new TAction(['ClientesList', 'onReload']));
         } catch (Exception $e) {
             TTransaction::rollback();
             new TMessage('error', $e->getMessage());
@@ -198,13 +219,14 @@ class ClientesList extends TPage
         <email>CONTATO@EMPRESA.COM</email>
         <telefone>(11)99999-9999</telefone>
         <endereco>RUA EXEMPLO, 123</endereco>
-        <cidade>SÃƒO PAULO</cidade>
+        <cidade>SAO PAULO</cidade>
         <estado>SP</estado>
         <cep>01000-000</cep>
         <cnpj>00.000.000/0000-00</cnpj>
         <inscricao_estadual>123456789</inscricao_estadual>
         <atividade>TRANSPORTE</atividade>
         <emissao_crt></emissao_crt>
+        <tipo>EXPORTADOR,IMPORTADOR</tipo>
     </cliente>
 </clientes>
 XML;
@@ -240,9 +262,17 @@ XML;
                 throw new Exception('O campo XML está vazio.');
             }
 
-            $xml = simplexml_load_string($param['xml_text']);
+            // Adianti strip o primeiro '<' — restaurar se necessário
+            $xmlText = trim($param['xml_text']);
+            if ($xmlText !== '' && $xmlText[0] !== '<') {
+                $xmlText = '<' . $xmlText;
+            }
+
+            libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($xmlText);
+            libxml_clear_errors();
             if (!$xml) {
-                throw new Exception('XML inválido.');
+                throw new Exception('XML inválido. Verifique se o conteúdo está correto.');
             }
 
             foreach ($xml->cliente as $cliente) {
@@ -258,13 +288,13 @@ XML;
                 $object->inscricao_estadual  = strtoupper((string) $cliente->inscricao_estadual);
                 $object->atividade           = strtoupper((string) $cliente->atividade);
                 $object->emissao_crt         = strtoupper((string) $cliente->emissao_crt);
+                $object->tipo                = strtoupper((string) $cliente->tipo);
                 $object->store();
             }
 
             TTransaction::close();
 
-            new TMessage('info', 'Importação realizada com sucesso');
-            TScript::create("window.location = '?class=ClientesList';");
+            new TMessage('info', 'Importação realizada com sucesso', new TAction(['ClientesList', 'onReload']));
         } catch (Exception $e) {
             TTransaction::rollback();
             new TMessage('error', $e->getMessage());

@@ -21,15 +21,12 @@ class CctUploadXmlForm extends TPage
         parent::__construct();
 
         try {
-            $this->setTitle("Upload de XML para Siscomex");
-            $this->setDescription("Enviar arquivo XML MIC/DTA já assinado");
-
             // Container principal
             $container = new TPanelGroup("Upload de XML Pré-assinado");
 
             // Formulário
             $this->buildForm();
-            $container->addControl($this->form);
+            $container->add($this->form);
 
             // Informações
             $this->buildInfo();
@@ -57,7 +54,7 @@ class CctUploadXmlForm extends TPage
         $xml_file = new TFile('xml_file');
         $xml_file->setLabel("Arquivo XML (.xml)");
         $xml_file->setAllowedExtensions(array('xml'));
-        $xml_file->setRequired(true);
+        $xml_file->addValidation('Arquivo XML', new TRequiredValidator);
         $xml_file->setTip("Selecione o arquivo XML assinado digitalmente");
         $fieldlist->addField('xml_file', $xml_file);
 
@@ -70,29 +67,24 @@ class CctUploadXmlForm extends TPage
         // Campo: Ambiente
         $ambiente = new TCombo('ambiente');
         $ambiente->setLabel("Ambiente");
-        $ambiente->addOption('homolog', 'Homologação (testes)');
-        $ambiente->addOption('prod', 'Produção');
-        $ambiente->setDefaultValue('homolog');
+        $ambiente->addItems(['homolog' => 'Homologação (testes)', 'prod' => 'Produção']);
         $fieldlist->addField('ambiente', $ambiente);
 
         // Campo: Descrição/Observações
-        $descricao = new TTextArea('descricao');
+        $descricao = new TText('descricao');
         $descricao->setLabel("Observações");
-        $descricao->setHeight('100px');
         $descricao->setTip("Adicione informações sobre este envio (opcional)");
         $fieldlist->addField('descricao', $descricao);
 
         // Campo: Validar XML antes de enviar
-        $validar = new \Adianti\Widgets\Form\TCheckBox('validar_antes');
+        $validar = new TCheckButton('validar_antes');
         $validar->setLabel("Validar estrutura XML antes de enviar");
-        $validar->addCheckValue('1');
-        $validar->setValue('1');
+        $validar->setIndexValue('1');
         $fieldlist->addField('validar_antes', $validar);
 
         // TextArea: Conteúdo do XML (para edição/visualização)
-        $xml_content = new TTextArea('xml_content');
+        $xml_content = new TText('xml_content');
         $xml_content->setLabel("Conteúdo do XML");
-        $xml_content->setHeight('300px');
         $xml_content->setTip("Cole o conteúdo do XML aqui ou selecione um arquivo acima");
         $fieldlist->addField('xml_content', $xml_content);
     }
@@ -102,8 +94,7 @@ class CctUploadXmlForm extends TPage
      */
     private function buildInfo()
     {
-        $panel = new TPanel();
-        $panel->setTitle("Informações sobre Upload de XML");
+        $panel = new TPanelGroup("Informacoes sobre Upload de XML");
 
         $info = new TLabel("info_text");
         $info_html = <<<HTML
@@ -144,36 +135,41 @@ HTML;
      */
     private function buildActions()
     {
-        $panel = new TPanel();
+        $panel = new TPanelGroup('');
 
         // Botão: Validar XML
         $btn_validate = new TButton('btn_validate');
         $btn_validate->setLabel("Validar Estrutura");
         $btn_validate->setImage('fa:check-circle');
-        $btn_validate->setAction(new TControllerAction('CctUploadXmlForm', 'onValidate'));
-        $panel->addControl($btn_validate);
+        $btn_validate->setAction(new TAction([$this, 'onValidate']));
+        $panel->add($btn_validate);
 
         // Botão: Enviar
         $btn_send = new TButton('btn_send');
         $btn_send->setLabel("Enviar para Siscomex");
         $btn_send->setImage('fa:paper-plane');
-        $btn_send->setAction(new TControllerAction('CctUploadXmlForm', 'onSend'));
-        $btn_send->setStyle('primary');
-        $panel->addControl($btn_send);
+        $btn_send->setAction(new TAction([$this, 'onSend']));
+        $btn_send->setProperty('class', 'btn btn-primary');
+        $panel->add($btn_send);
 
         // Botão: Limpar
         $btn_clear = new TButton('btn_clear');
         $btn_clear->setLabel("Limpar");
         $btn_clear->setImage('fa:trash');
-        $btn_clear->setAction(new TControllerAction('CctUploadXmlForm', 'onClear'));
-        $panel->addControl($btn_clear);
+        $btn_clear->setAction(new TAction([$this, 'onClear']));
+        $panel->add($btn_clear);
 
         // Botão: Voltar
         $btn_back = new TButton('btn_back');
         $btn_back->setLabel("Voltar");
         $btn_back->setImage('fa:arrow-left');
-        $btn_back->setAction(new TControllerAction('CctTransmissaoList', 'onLoad'));
-        $panel->addControl($btn_back);
+        $btn_back->setAction(new TAction(['CctTransmissaoList', 'onLoad']));
+        $panel->add($btn_back);
+
+        $this->form->addField($btn_validate);
+        $this->form->addField($btn_send);
+        $this->form->addField($btn_clear);
+        $this->form->addField($btn_back);
 
         parent::add($panel);
     }
@@ -342,7 +338,7 @@ HTML;
                 "Verifique o histórico para acompanhar o status");
 
             // Voltar para lista
-            new \Adianti\Control\TControllerAction('CctTransmissaoList', 'onLoad')->execute();
+            TApplication::gotoPage('CctTransmissaoList', 'onLoad');
 
         } catch (\Exception $e) {
             if (TTransaction::isOpen()) {
@@ -375,3 +371,6 @@ HTML;
     }
 }
 ?>
+
+
+

@@ -4,7 +4,7 @@
     <title>{title}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="manifest" href="manifest.json?appver=810">
+    <link rel="manifest" href="manifest.json?appver=840">
     <link rel="shortcut icon" type="image/png" href="favicon.png"/>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -15,25 +15,32 @@
     {LIBRARIES}
     {HEAD}
     
-    <script src="app/lib/include/admin.js?appver=810" type="text/javascript"></script>
-    <link href="app/lib/include/admin.css?appver=810" rel="stylesheet" type="text/css" media="screen">
+    <script src="app/lib/include/admin.js?appver=840" type="text/javascript"></script>
+    <link href="app/lib/include/admin.css?appver=840" rel="stylesheet" type="text/css" media="screen">
     
-    <script src="app/templates/{template}/js/theme.js?appver=810"></script>
-    <link rel="stylesheet" href="app/templates/{template}/theme.css?appver=810">
+    <script src="app/templates/{template}/js/theme.js?appver=840"></script>
+    <link rel="stylesheet" href="app/templates/{template}/theme.css?appver=840">
     <link rel="stylesheet" href="app/templates/{template}/custom.css?appver={buildid}">
-    
+    <style>
+    html[data-menu-theme=light][data-bs-theme=light] {
+        background: var(--bs-light-bg-subtle);
+    }
+    html[data-menu-theme=dark], [data-bs-theme=dark] {
+        background: var(--bs-dark-bg-subtle);
+    }
+    </style>
     <script>
         $(function() {
             Adianti.start();
             Adianti.configure(parent.Adianti.getConfigureOptions());
             
             Template.configure(parent.Template.getConfigureOptions());
-            Template.start();
+            Template.startIframe();
         });
     </script>
 </head>
 
-<body>
+<body style="background:transparent;overflow:auto" class="content px-3 py-2">
     <div id="adianti_div_content"></div>
     <div id="adianti_online_content"></div>
     <div id="adianti_right_panel" class="right-panel"></div>

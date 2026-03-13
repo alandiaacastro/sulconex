@@ -2,7 +2,7 @@
 /**
  * SystemPermission
  *
- * @version    8.1
+ * @version    8.4
  * @package    model
  * @subpackage admin
  * @author     Pablo Dall'Oglio
@@ -11,12 +11,13 @@
  */
 class SystemPermission
 {
-    public static function checkPermission($class, $method = null)
+    public static function checkPermission($class, $method = '')
     {
         $ini = AdiantiApplicationConfig::get();
         
         $public_classes = !empty($ini['permission']['public_classes']) ? $ini['permission']['public_classes'] : [];
         $public_classes[] = 'LoginForm';
+        $public_classes[] = 'Adianti\Base\TStandardSeek';
         
         $programs = TSession::getValue('programs');
         $methods  = TSession::getValue('methods');

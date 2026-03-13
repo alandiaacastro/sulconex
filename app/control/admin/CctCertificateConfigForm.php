@@ -22,15 +22,12 @@ class CctCertificateConfigForm extends TPage
         parent::__construct();
 
         try {
-            $this->setTitle("Configuração de Certificado Digital");
-            $this->setDescription("Gerenciar certificado A1 para transmissão de MIC/DTA no Siscomex");
-
             // Container principal
             $container = new TPanelGroup("Certificado Digital A1");
 
             // Formulário
             $this->buildForm();
-            $container->addControl($this->form);
+            $container->add($this->form);
 
             // Painel de informações do certificado atual
             $this->buildCertificateInfo();
@@ -64,42 +61,39 @@ class CctCertificateConfigForm extends TPage
         // Campo: Senha do certificado
         $cert_password = new TPassword('cert_password');
         $cert_password->setLabel("Senha do Certificado");
-        $cert_password->setRequired(true);
+        $cert_password->addValidation('Senha do Certificado', new TRequiredValidator);
         $cert_password->setTip("Senha utilizada para proteger o arquivo .pfx");
         $fieldlist->addField('cert_password', $cert_password);
 
         // Campo: Confirmar senha
         $cert_password_confirm = new TPassword('cert_password_confirm');
         $cert_password_confirm->setLabel("Confirmar Senha");
-        $cert_password_confirm->setRequired(true);
+        $cert_password_confirm->addValidation('Confirmar Senha', new TRequiredValidator);
         $fieldlist->addField('cert_password_confirm', $cert_password_confirm);
 
         // Campo: Habilitar CCT
-        $cct_enabled = new TCheckBox('cct_enabled');
+        $cct_enabled = new TCheckButton('cct_enabled');
         $cct_enabled->setLabel("Habilitar integração CCT");
-        $cct_enabled->addCheckValue('1');
+        $cct_enabled->setIndexValue('1');
         $fieldlist->addField('cct_enabled', $cct_enabled);
 
         // Campo: Ambiente
-        $cct_env = new \Adianti\Widgets\Form\TCombo('cct_environment');
+        $cct_env = new TCombo('cct_environment');
         $cct_env->setLabel("Ambiente");
-        $cct_env->addOption('homolog', 'Homologação (testes)');
-        $cct_env->addOption('prod', 'Produção');
-        $cct_env->setDefaultValue('homolog');
+        $cct_env->addItems(['homolog' => 'Homologação (testes)', 'prod' => 'Produção']);
         $fieldlist->addField('cct_environment', $cct_env);
 
         // Campo: Verificar SSL
-        $ssl_verify = new TCheckBox('ssl_verify');
+        $ssl_verify = new TCheckButton('ssl_verify');
         $ssl_verify->setLabel("Verificar certificado SSL");
-        $ssl_verify->addCheckValue('1');
+        $ssl_verify->setIndexValue('1');
         $ssl_verify->setTip("Ativar para aumentar segurança em produção");
         $fieldlist->addField('ssl_verify', $ssl_verify);
 
         // TextArea: Informações do certificado atual
-        $cert_info = new TTextArea('cert_info');
+        $cert_info = new TText('cert_info');
         $cert_info->setLabel("Informações do Certificado Atual");
         $cert_info->setEditable(false);
-        $cert_info->setHeight('150px');
         $fieldlist->addField('cert_info', $cert_info);
 
         // Carregar informações se certificado existe
@@ -208,22 +202,22 @@ HTML;
         $btn_save->setLabel("Salvar Configurações");
         $btn_save->setImage('fa:save');
         $btn_save->setAction(new TControllerAction('CctCertificateConfigForm', 'onSave'));
-        $btn_save->setStyle('primary');
-        $panel->addControl($btn_save);
+        $btn_save->setProperty('class', 'btn btn-primary');
+        $panel->add($btn_save);
 
         // Botão: Testar Conexão
         $btn_test = new TButton('btn_test');
         $btn_test->setLabel("Testar Conexão Siscomex");
         $btn_test->setImage('fa:plug');
         $btn_test->setAction(new TControllerAction('CctCertificateConfigForm', 'onTestConnection'));
-        $panel->addControl($btn_test);
+        $panel->add($btn_test);
 
         // Botão: Voltar
         $btn_back = new TButton('btn_back');
         $btn_back->setLabel("Voltar");
         $btn_back->setImage('fa:arrow-left');
         $btn_back->setAction(new TControllerAction('SystemAdmin', 'onLoad'));
-        $panel->addControl($btn_back);
+        $panel->add($btn_back);
 
         parent::add($panel);
     }
@@ -421,3 +415,4 @@ HTML;
     }
 }
 ?>
+

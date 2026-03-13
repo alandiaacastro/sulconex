@@ -12,7 +12,7 @@ use Exception;
 /**
  * ComboBox Widget
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage form
  * @author     Pablo Dall'Oglio
@@ -117,6 +117,18 @@ class TCombo extends TField implements AdiantiWidgetInterface
         if (is_array($items))
         {
             $this->items = $items;
+        }
+    }
+    
+    /**
+     * Reverse items
+     */
+    public function reverse()
+    {
+        if (is_array($this->items))
+        {
+            // reverse order, keeping keys
+            $this->items = array_reverse($this->items, true);
         }
     }
     

@@ -19,7 +19,7 @@ use Exception;
 /**
  * DataGrid Widget: Allows to create datagrids with rows, columns and actions
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage datagrid
  * @author     Pablo Dall'Oglio
@@ -99,6 +99,7 @@ class TDataGrid extends TTable
         $this->forPrinting = false;
         $this->popovers = [];
         $this->rowcount = 0;
+        $this->metadata = [];
         $this->{'class'} = 'tdatagrid_table';
         $this->{'id'}    = 'tdatagrid_' . mt_rand(1000000000, 1999999999);
     }
@@ -675,13 +676,24 @@ class TDataGrid extends TTable
      * Add objects to the DataGrid
      * @param $objects An array of Objects
      */
-    public function addItems($objects)
+    public function addItems($objects, $with_data_key = false)
     {
         if ($objects)
         {
             foreach ($objects as $object)
             {
-                $this->addItem($object);
+                $row = $this->addItem($object);
+                
+                if ($with_data_key)
+                {
+                    $columns = $this->getColumns();
+                    $first_column = reset($columns);
+                    $attribute_name = $first_column->getName();
+                    if (isset($object->$attribute_name))
+                    {
+                        $row->{'data-key'} = $object->$attribute_name;
+                    }
+                }
             }
         }
     }
@@ -693,7 +705,7 @@ class TDataGrid extends TTable
      */
     private function createItemActions($row, $object)
     {
-        $first_url = null;
+        $first_action = null;
         
         if ($this->actions)
         {
@@ -711,8 +723,8 @@ class TDataGrid extends TTable
                 
                 if (empty($condition) OR call_user_func($condition, $object))
                 {
-                    $url       = $action->serialize(TRUE, TRUE);
-                    $first_url = isset($first_url) ? $first_url : $url;
+                    $url          = $action->serialize(TRUE, TRUE);
+                    $first_action = isset($first_action) ? $first_action : $action;
                     
                     // creates a link
                     $link = new TElement('a');
@@ -724,15 +736,14 @@ class TDataGrid extends TTable
                     {
                         $link->{'disabled'} = '1';
                     }
-                    
-                    if ($action->isPopover())
+                    else if ($action->isPopover())
                     {
                         unset($link->{'href'});
                         unset($link->{'generator'});
                         
                         $link->{'popaction'} = $action->serialize(false);
                         $link->{'poptrigger'} = 'click';
-                        $link->{'popover'} = 'true';
+                        $link->{'data-popover'} = 'true';
                     }
                     
                     // verify if the link will have an icon or a label
@@ -816,7 +827,7 @@ class TDataGrid extends TTable
                         if (empty($condition) OR call_user_func($condition, $object))
                         {
                             $url       = $action->serialize(TRUE, TRUE);
-                            $first_url = isset($first_url) ? $first_url : $url;
+                            $first_action = isset($first_action) ? $first_action : $action;
                             
                             if ($url !== '#disabled')
                             {
@@ -834,7 +845,7 @@ class TDataGrid extends TTable
             }
         }
         
-        return $first_url;
+        return $first_action;
     }
     
     /**
@@ -899,7 +910,7 @@ class TDataGrid extends TTable
                 $row->{'style'} = 'display: inline-table; width: 100%';
             }
             
-            if ($this->groupColumn)
+            if (!empty($this->groupColumn))
             {
                 if (empty($this->objectsGroup[$this->groupContent]))
                 {
@@ -915,7 +926,7 @@ class TDataGrid extends TTable
             
             if ($this->actionSide == 'left')
             {
-                $first_url = $this->createItemActions( $row, $object );
+                $first_action = $this->createItemActions( $row, $object );
             }
             
             $output_row = [];
@@ -945,13 +956,16 @@ class TDataGrid extends TTable
                         $this->columnValues[$name] = [$content];
                     }
                     
-                    if (isset($this->columnValuesGroup[$this->groupContent][$name]))
+                    if (!empty($this->groupColumn))
                     {
-                        $this->columnValuesGroup[$this->groupContent][$name][] = $content;
-                    }
-                    else
-                    {
-                        $this->columnValuesGroup[$this->groupContent][$name] = [$content];
+                        if (isset($this->columnValuesGroup[$this->groupContent][$name]))
+                        {
+                            $this->columnValuesGroup[$this->groupContent][$name][] = $content;
+                        }
+                        else
+                        {
+                            $this->columnValuesGroup[$this->groupContent][$name] = [$content];
+                        }
                     }
                     
                     $data = is_null($content) ? '' : $content;
@@ -990,7 +1004,7 @@ class TDataGrid extends TTable
                         
                         $row->add($cell);
                         $cell->add($div);
-                        $cell->{'class'} = 'tdatagrid_cell';
+                        $cell->{'class'} .= ' tdatagrid_cell';
                     }
                     else
                     {
@@ -1007,14 +1021,26 @@ class TDataGrid extends TTable
                             $used_hidden[$name] = true;
                         }
                         
-                        $cell->{'class'} = 'tdatagrid_cell';
+                        $cell->{'class'} .= ' tdatagrid_cell';
                         $cell->{'align'} = $align;
                         
-                        if (isset($first_url) && $this->defaultClick && empty($cell->{'href'}) && !empty($first_url) && ($first_url !== '#disabled'))
+                        if (isset($first_action) && $this->defaultClick && empty($cell->{'href'}) && !empty($first_action) && ($first_action->serialize(TRUE, TRUE) !== '#disabled'))
                         {
-                            $cell->{'href'}      = $first_url;
-                            $cell->{'generator'} = 'adianti';
-                            $cell->{'class'}     = 'tdatagrid_cell';
+                            if ($first_action->isPopover())
+                            {
+                                unset($link->{'href'});
+                                unset($link->{'generator'});
+                                
+                                $cell->{'popaction'} = $first_action->serialize(false);
+                                $cell->{'poptrigger'} = 'click';
+                                $cell->{'data-popover'} = 'true';
+                            }
+                            else
+                            {
+                                $cell->{'href'}      = $first_action->serialize(TRUE, TRUE);
+                                $cell->{'generator'} = 'adianti';
+                                $cell->{'class'}    .= ' tdatagrid_cell';
+                            }
                         }
                     }
                     
@@ -1184,6 +1210,20 @@ class TDataGrid extends TTable
     public function getItems()
     {
         return $this->objects;
+    }
+    
+    /**
+     * rebuild
+     */
+    public function rebuild()
+    {
+        $items = $this->getItems();
+        $this->clear();
+        
+        if ($items)
+        {
+            $this->addItems($items, true);
+        }
     }
     
     private function processGroupTotals($valueGroup)

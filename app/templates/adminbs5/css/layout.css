@@ -21,6 +21,10 @@
     background: var(--bs-dark-bg-subtle);
 }
 
+[data-menu-theme=light][data-bs-theme=light] .main {
+    background: var(--bs-light-bg-subtle);
+}
+
 .content {
     flex: 1;
     max-width: 100vw;
@@ -32,4 +36,11 @@
         max-width: auto;
         width: auto;
     }
+}
+
+body.boxed-layout .navbar-collapse.navbar,
+body.boxed-layout  #adianti_div_content,
+body.boxed-layout .footer>.container-fluid {
+    max-width: 1200px;
+    margin: auto;
 }

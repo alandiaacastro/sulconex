@@ -4,7 +4,7 @@
 }
 
 .card {
-    --bs-card-box-shadow: 0 0 5px 0 rgb(43 43 43 / 10%), 0 11px 6px -7px rgb(43 43 43 / 10%);
+    --bs-card-box-shadow: 0 0 5px 0 rgb(43 43 43 / 10%), 0 8px 6px -7px rgb(43 43 43 / 10%);
     --bs-card-cap-padding-y: 0.75rem;
     --bs-card-cap-padding-x: 1.25rem;
 }
@@ -31,6 +31,15 @@
     --bs-card-cap-bg: white;
 }
 
+.card.nopadding .card-body { 
+    padding:0 !important;
+    padding-top: 10px !important;
+}
+
+.card.nopadding .tab-pane {
+    padding:0 !important;
+}
+
 .card.noborder {
     border:0;
     box-shadow:none;
@@ -42,8 +51,4 @@
 
 .card-body.card-item-content > .tformrow {
     margin:0;
-}
-
-.right-panel .card-form {
-    border: none;
 }

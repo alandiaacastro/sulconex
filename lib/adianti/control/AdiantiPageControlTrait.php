@@ -7,7 +7,7 @@ use ReflectionClass;
 /**
  * AdiantiPageControlTrait
  *
- * @version    8.1
+ * @version    8.4
  * @package    control
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -47,6 +47,14 @@ trait AdiantiPageControlTrait
     {
         $this->setProperty('page-name', $name);
         $this->setProperty('page_name', $name);
+    }
+    
+    /**
+     * Set page type
+     */
+    public function setPageType($type)
+    {
+        $this->setProperty('page-type', $type);
     }
     
     /**

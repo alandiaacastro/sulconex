@@ -2,7 +2,7 @@
 /**
  * LoginForm
  *
- * @version    8.1
+ * @version    8.4
  * @package    control
  * @subpackage admin
  * @author     Pablo Dall'Oglio
@@ -201,6 +201,7 @@ class LoginForm extends TPage
                 ApplicationAuthenticationService::loadSessionVars($user, true);
                 ApplicationAuthenticationService::setUnit( $data->unit_id ?? null );
                 ApplicationAuthenticationService::setLang( $data->lang_id ?? null );
+                ApplicationAuthenticationService::onAfterLogin();
                 SystemAccessLogService::registerLogin();
                 SystemAccessNotificationLogService::registerLogin();
                 
@@ -396,6 +397,7 @@ class LoginForm extends TPage
      */
     public static function onLogout()
     {
+        ApplicationAuthenticationService::onBeforeLogout();
         SystemAccessLogService::registerLogout();
         TSession::freeSession();
         AdiantiCoreApplication::gotoPage('LoginForm', '');

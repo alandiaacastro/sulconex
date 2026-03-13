@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Adianti\Control\TPage;
 use Adianti\Control\TAction;
@@ -17,6 +17,9 @@ use Adianti\Widget\Container\TVBox;
 use Adianti\Widget\Base\TElement;
 use Adianti\Wrapper\BootstrapFormBuilder;
 use Adianti\Database\TTransaction;
+use Adianti\Database\TCriteria;
+use Adianti\Database\TFilter;
+use Adianti\Database\TRepository;
 use Adianti\Widget\Dialog\TMessage;
 use Adianti\Widget\Dialog\TToast;
 use Adianti\Widget\Util\TBreadCrumb;
@@ -41,7 +44,7 @@ class PropostaForm extends TPage
         // CRIACAO DO FORMULARIO
         // -------------------------------------------------------
         $this->form = new BootstrapFormBuilder(self::$formName);
-        $this->form->setFormTitle('<b>PROPOSTA DE FRETE INTERNACIONAL</b>');
+        $this->form->setFormTitle('Proposta de Frete Internacional');
         $this->form->setClientValidation(true);
         $this->form->setProperty('style', 'margin-bottom:0');
 
@@ -103,23 +106,15 @@ class PropostaForm extends TPage
         $Equipamento = new TEntry('Tipo_Equipamento');
         $Equipamento->setSize('100%');
 
+        $actionBuscarFrete = new TAction([$this, 'onBuscarFretesRota']);
+        $Local_Coleta->setExitAction($actionBuscarFrete);
+        $Aduana->setExitAction($actionBuscarFrete);
+        $Local_Entrega->setExitAction($actionBuscarFrete);
+
         // -------------------------------------------------------
         // CAMPOS - CUSTOS OPERACIONAIS (dinamicos)
         // -------------------------------------------------------
-        $lista_custos = [
-            'frete_origem'           => 'Frete Origem',
-            'frete_destino'          => 'Frete Destino',
-            'enlonamento'            => 'Enlonamento',
-            'estadia_multilog'       => 'Estadia Multilog',
-            'repres_multilog'        => 'Repres. Multilog',
-            'repres_uruguaiana'      => 'Repres. Uruguaiana',
-            'repres_libres'          => 'Repres. Libres',
-            'repres_uspallata'       => 'Repres. Uspallata',
-            'repres_chile'           => 'Repres. Chile',
-            'armazenagem_transbordo' => 'Armazenagem Transbordo',
-            'comissao_venda'         => 'Comissao de Venda',
-            'gerenciadora_risco'     => 'Gerenciadora de Risco',
-        ];
+        $lista_custos = self::getCostFieldsLabels();
 
         $actionCalcularCusto = new TAction([$this, 'ontotaldespesas']);
         $campos_custo_obj    = [];
@@ -451,8 +446,115 @@ class PropostaForm extends TPage
 
             /* LINHAS */
             .row { margin-bottom: 8px !important; }
+
+            /* GRAFICO DE CUSTOS */
+            #custo_percentual_chart {
+                background: #fff;
+                border: 1px solid #dce3ec;
+                border-radius: 8px;
+                padding: 14px;
+                margin-bottom: 6px;
+            }
+            .custo-chart-row {
+                margin-bottom: 9px;
+            }
+            .custo-chart-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                font-size: 12px;
+                color: #2d3748;
+                margin-bottom: 4px;
+            }
+            .custo-chart-track {
+                width: 100%;
+                height: 16px;
+                border-radius: 999px;
+                background: #edf2f7;
+                overflow: hidden;
+            }
+            .custo-chart-bar {
+                height: 100%;
+                border-radius: 999px;
+                background: linear-gradient(90deg, #2e6da4 0%, #5aa6e6 100%);
+                transition: width .3s ease;
+            }
+            .custo-chart-empty {
+                padding: 8px 2px;
+                color: #718096;
+                font-size: 13px;
+            }
         ');
         $container->add($estilos);
+
+        $campos_custo_js = json_encode(self::getCostFieldsLabels(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $scriptGrafico = new TElement('script');
+        $scriptGrafico->add("
+            (function () {
+                const COST_FIELDS = {$campos_custo_js};
+
+                function parseBrazilianNumber(value) {
+                    if (value === null || value === undefined) {
+                        return 0;
+                    }
+                    const normalized = String(value).trim().replace(/\\./g, '').replace(',', '.');
+                    const number = parseFloat(normalized);
+                    return isNaN(number) ? 0 : number;
+                }
+
+                function toBrl(value) {
+                    try {
+                        return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    } catch (e) {
+                        return value.toFixed(2);
+                    }
+                }
+
+                function updatePropostaCostChartFromForm() {
+                    const container = document.getElementById('custo_percentual_chart');
+                    if (!container) {
+                        return;
+                    }
+
+                    const itens = [];
+                    let total = 0;
+
+                    Object.keys(COST_FIELDS).forEach(function (field) {
+                        const input = document.querySelector('[name=\"' + field + '\"]');
+                        const value = parseBrazilianNumber(input ? input.value : 0);
+                        if (value > 0) {
+                            itens.push({ field: field, label: COST_FIELDS[field], value: value });
+                            total += value;
+                        }
+                    });
+
+                    if (total <= 0 || itens.length === 0) {
+                        container.innerHTML = \"<div class='custo-chart-empty'>Preencha os custos para visualizar o percentual de cada item na cotacao.</div>\";
+                        return;
+                    }
+
+                    itens.sort(function (a, b) { return b.value - a.value; });
+
+                    let html = '';
+                    itens.forEach(function (item) {
+                        const pct = (item.value / total) * 100;
+                        const pctText = pct.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+                        html += \"<div class='custo-chart-row'>\"
+                              + \"<div class='custo-chart-header'><span>\" + item.label + \"</span><span>\" + pctText + \" (R$ \" + toBrl(item.value) + \")</span></div>\"
+                              + \"<div class='custo-chart-track'><div class='custo-chart-bar' style='width:\" + Math.max(0, Math.min(100, pct)).toFixed(2) + \"%;'></div></div>\"
+                              + \"</div>\";
+                    });
+
+                    container.innerHTML = html;
+                }
+
+                window.updatePropostaCostChartFromForm = updatePropostaCostChartFromForm;
+                document.addEventListener('DOMContentLoaded', function () {
+                    setTimeout(updatePropostaCostChartFromForm, 80);
+                });
+            })();
+        ");
+        $container->add($scriptGrafico);
 
         parent::add($container);
     }
@@ -596,6 +698,8 @@ class PropostaForm extends TPage
     public function onEdit($param): void
     {
         try {
+            $param = is_array($param) ? $param : [];
+
             if (isset($param['key'])) {
                 TTransaction::open(self::$database);
                 $proposta = new Proposta($param['key']);
@@ -626,17 +730,197 @@ class PropostaForm extends TPage
 
                 $this->form->setData($dados);
                 TForm::sendData(self::$formName, $dados);
+                return;
             }
+
+            $dados = new stdClass();
+            $dados->Data_Cotacao = date('d/m/Y');
+            $dados->Data_Validade_Cotacao = date('d/m/Y', strtotime('+15 days'));
+            $dados->Situacao = 'Em Analise';
+
+            $empresa = trim((string) ($param['opportunity_company'] ?? ''));
+            $contato = trim((string) ($param['opportunity_contact'] ?? ''));
+            $email = trim((string) ($param['opportunity_email'] ?? ''));
+            $telefone = trim((string) ($param['opportunity_phone'] ?? ''));
+            $notas = trim((string) ($param['opportunity_notes'] ?? ''));
+            $opportunityId = trim((string) ($param['opportunity_id'] ?? ''));
+
+            if ($empresa !== '') {
+                $clienteId = self::findClienteIdByName($empresa);
+                if (!empty($clienteId)) {
+                    $dados->cliente_id = $clienteId;
+                }
+            }
+
+            $obs = [];
+            if ($opportunityId !== '') {
+                $obs[] = 'Origem CRM - Oportunidade #' . $opportunityId;
+            }
+            if ($empresa !== '') {
+                $obs[] = 'Empresa: ' . $empresa;
+            }
+            if ($contato !== '') {
+                $obs[] = 'Contato: ' . $contato;
+            }
+            if ($email !== '') {
+                $obs[] = 'E-mail: ' . $email;
+            }
+            if ($telefone !== '') {
+                $obs[] = 'Telefone: ' . $telefone;
+            }
+            if ($notas !== '') {
+                $obs[] = 'Notas: ' . $notas;
+            }
+
+            if (!empty($obs)) {
+                $dados->observacoes = implode("\r\n", $obs);
+            }
+
+            $this->form->clear(true);
+            $this->form->setData($dados);
+            TForm::sendData(self::$formName, $dados);
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             try { TTransaction::rollback(); } catch (Exception $ee) {}
         }
     }
 
+    public static function onBuscarFretesRota($param = null): void
+    {
+        $param = is_array($param) ? $param : [];
+
+        $origem = trim((string) ($param['Local_Coleta'] ?? ''));
+        $aduana = trim((string) ($param['Aduana_Fronteira'] ?? ''));
+        $destino = trim((string) ($param['Local_Entrega'] ?? ''));
+        $tipoVeiculo = trim((string) ($param['Tipo_Equipamento'] ?? ''));
+
+        $dados = new stdClass();
+        $calcParam = $param;
+
+        if ($origem !== '' && $aduana !== '') {
+            $valorOrigem = self::buscarValorFretePorTrecho($origem, $aduana, $tipoVeiculo);
+            if ($valorOrigem !== null) {
+                $dados->frete_origem = number_format($valorOrigem, 2, ',', '.');
+                $calcParam['frete_origem'] = $dados->frete_origem;
+            }
+        }
+
+        if ($aduana !== '' && $destino !== '') {
+            $valorDestino = self::buscarValorFretePorTrecho($aduana, $destino, $tipoVeiculo);
+            if ($valorDestino !== null) {
+                $dados->frete_destino = number_format($valorDestino, 2, ',', '.');
+                $calcParam['frete_destino'] = $dados->frete_destino;
+            }
+        }
+
+        if (!empty((array) $dados)) {
+            TForm::sendData(self::$formName, $dados);
+            self::ontotaldespesas($calcParam);
+        }
+    }
+
+    private static function buscarValorFretePorTrecho(string $origem, string $destino, string $tipoVeiculo = ''): ?float
+    {
+        try {
+            TTransaction::open(self::$database);
+
+            $origemNorm = self::normalizarTrechoFrete($origem);
+            $destinoNorm = self::normalizarTrechoFrete($destino);
+            $tipoNorm = self::normalizarTrechoFrete($tipoVeiculo);
+
+            $repo = new TRepository('TabelaFrete');
+
+            // 1) tenta com tipo do veiculo informado
+            if ($tipoNorm !== '') {
+                $criteriaTipo = new TCriteria();
+                $criteriaTipo->add(new TFilter('origem', '=', $origemNorm));
+                $criteriaTipo->add(new TFilter('destino', '=', $destinoNorm));
+                $criteriaTipo->add(new TFilter('tipo_veiculo', '=', $tipoNorm));
+                $criteriaTipo->setProperty('limit', 1);
+                $criteriaTipo->setProperty('order', 'id desc');
+
+                $itemsTipo = $repo->load($criteriaTipo);
+                if ($itemsTipo && isset($itemsTipo[0]->valor_frete)) {
+                    TTransaction::close();
+                    return (float) $itemsTipo[0]->valor_frete;
+                }
+            }
+
+            // 2) fallback: frete generico (tipo GERAL)
+            $criteriaGeral = new TCriteria();
+            $criteriaGeral->add(new TFilter('origem', '=', $origemNorm));
+            $criteriaGeral->add(new TFilter('destino', '=', $destinoNorm));
+            $criteriaGeral->add(new TFilter('tipo_veiculo', '=', 'GERAL'));
+            $criteriaGeral->setProperty('limit', 1);
+            $criteriaGeral->setProperty('order', 'id desc');
+
+            $itemsGeral = $repo->load($criteriaGeral);
+            if ($itemsGeral && isset($itemsGeral[0]->valor_frete)) {
+                TTransaction::close();
+                return (float) $itemsGeral[0]->valor_frete;
+            }
+
+            TTransaction::close();
+        } catch (Exception $e) {
+            try { TTransaction::rollback(); } catch (Exception $ee) {}
+        }
+
+        return null;
+    }
+    private static function normalizarTrechoFrete(string $value): string
+    {
+        $value = preg_replace('/\s+/', ' ', trim($value));
+        return mb_strtoupper((string) $value, 'UTF-8');
+    }
+    private static function findClienteIdByName(string $companyName): ?int
+    {
+        if (trim($companyName) === '') {
+            return null;
+        }
+
+        try {
+            TTransaction::open(self::$database);
+
+            $criteria = new TCriteria();
+            $criteria->add(new TFilter('nome', 'like', '%' . $companyName . '%'));
+            $criteria->setProperty('limit', 1);
+            $criteria->setProperty('order', 'id desc');
+
+            $repo = new TRepository('Clientes');
+            $items = $repo->load($criteria);
+
+            TTransaction::close();
+
+            if ($items && isset($items[0]->id)) {
+                return (int) $items[0]->id;
+            }
+        } catch (Exception $e) {
+            try { TTransaction::rollback(); } catch (Exception $ee) {}
+        }
+
+        return null;
+    }
     /**
      * Limpa o formulario
      */
 
+    private static function getCostFieldsLabels(): array
+    {
+        return [
+            'frete_origem'           => 'Frete Origem',
+            'frete_destino'          => 'Frete Destino',
+            'enlonamento'            => 'Enlonamento',
+            'estadia_multilog'       => 'Estadia Multilog',
+            'repres_multilog'        => 'Repres. Multilog',
+            'repres_uruguaiana'      => 'Repres. Uruguaiana',
+            'repres_libres'          => 'Repres. Libres',
+            'repres_uspallata'       => 'Repres. Uspallata',
+            'repres_chile'           => 'Repres. Chile',
+            'armazenagem_transbordo' => 'Armazenagem Transbordo',
+            'comissao_venda'         => 'Comissao de Venda',
+            'gerenciadora_risco'     => 'Gerenciadora de Risco',
+        ];
+    }
     private static function getNumericFields(): array
     {
         return [
@@ -775,6 +1059,20 @@ class PropostaForm extends TPage
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

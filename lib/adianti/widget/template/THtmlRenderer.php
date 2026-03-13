@@ -10,7 +10,7 @@ use ApplicationTranslator;
 /**
  * Html Renderer
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage template
  * @author     Pablo Dall'Oglio
@@ -223,7 +223,7 @@ class THtmlRenderer
             }
             
             $array_content = preg_split('/\n|\r\n?/', $content);
-            $sectionName = null;
+            $sectionName = '';
             
             // iterate line by line
             foreach ($array_content as $line)

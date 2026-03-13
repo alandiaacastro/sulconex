@@ -1,0 +1,73 @@
+<!--[main]-->
+<div class="stock-wrap">
+    <section class="stock-kpis">
+        <article class="stock-kpi stock-kpi--peso">
+            <div class="stock-kpi__icon"><i class="fas fa-weight-hanging"></i></div>
+            <h6>SALDO PESO (TON)</h6>
+            <strong>{$saldo_peso_ton}</strong>
+            <span>EM PATIO</span>
+        </article>
+
+        <article class="stock-kpi stock-kpi--bobinas">
+            <div class="stock-kpi__icon"><i class="fas fa-cubes"></i></div>
+            <h6>SALDO BOBINAS</h6>
+            <strong>{$saldo_bobinas}</strong>
+            <span>UNIDADES</span>
+        </article>
+
+        <article class="stock-kpi stock-kpi--clientes">
+            <div class="stock-kpi__icon"><i class="fas fa-user-friends"></i></div>
+            <h6>TOTAL CLIENTES</h6>
+            <strong>{$total_clientes}</strong>
+            <span>ATIVOS</span>
+        </article>
+
+        <article class="stock-alert">
+            <h6>PROTOCOLO DE SEGURANCA</h6>
+            <p>Cintas protegidas e registros fotograficos sao obrigatorios para todos os clientes.</p>
+        </article>
+    </section>
+
+    <section class="stock-table-card">
+        <div class="stock-toolbar">
+            <div class="stock-tabs">
+                <a href="{$url_todos}" class="{$filtro_todos_class}">TODOS</a>
+                <a href="{$url_entrada}" class="{$filtro_entrada_class}">ENTRADA</a>
+                <a href="{$url_saida}" class="{$filtro_saida_class}">SAIDA</a>
+            </div>
+
+            <div class="stock-actions">
+                <a class="stock-btn-lancar" href="{$url_lancar}">
+                    <i class="fas fa-plus-circle"></i>
+                    Lancar movimentacao
+                </a>
+
+                <form method="get" class="stock-search">
+                    <input type="hidden" name="class" value="EstoqueView">
+                    <input type="hidden" name="method" value="onReload">
+                    <input type="hidden" name="sentido" value="{$sentido_atual}">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="busca" value="{$busca}" placeholder="Filtrar por CRT, DANFE, exportador ou importador...">
+                </form>
+            </div>
+        </div>
+
+        <div class="stock-table-scroll">
+            <table class="stock-table">
+                <thead>
+                    <tr>
+                        <th>SENTIDO</th>
+                        <th>DOCUMENTACAO</th>
+                        <th>FLUXO DE CLIENTES</th>
+                        <th>LOGISTICA</th>
+                        <th>CARGA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {$rows|raw}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<!--[/main]-->

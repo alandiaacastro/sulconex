@@ -44,35 +44,35 @@
     border: 2px dashed #e9e9e9;
 }
 
-.container_timagecrroper {
+.container_timagecropper {
     position: relative;
 }
 
-.actions_timagecrroper div {
+.actions_timagecropper div {
     margin: auto;
 }
 
-.actions_timagecrroper div button i {
+.actions_timagecropper div button i {
     margin: auto;
 }
 
-.actions_timagecrroper div button:nth-child(1) {
+.actions_timagecropper div button:nth-child(1) {
     margin-right: 5px;
 }
 
-.actions_timagecrroper div button {
-    width: 30px;
-    height: 30px;
+.actions_timagecropper div button {
+    min-width: 40px;
+    height: 40px;
 }
 
-.actions_timagecrroper div > button, .actions_timagecrroper div > div {
+.actions_timagecropper div > button, .actions_timagecropper div > div {
     display: flex;
     margin-top: 2.5px;
     margin-bottom: 2.5px;
 }
 
-.actions_timagecrroper {
-    display: flex;
+.actions_timagecropper {
+    display: block;
     position: absolute;
     top: 0px;
     right: -75px;
@@ -109,13 +109,13 @@
 }
 
 @media (max-width: 540px) { 
-    .actions_timagecrroper div > div {
+    .actions_timagecropper div > div {
         margin: 0px 2.5px;
     }
-    .actions_timagecrroper div {
+    .actions_timagecropper div {
         display: flex;
     }
-    .actions_timagecrroper {
+    .actions_timagecropper {
         bottom: -70px;
         left: 0px;
         height: 70px;

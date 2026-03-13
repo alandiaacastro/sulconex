@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class AcompProcessoView extends TPage
 {
@@ -8,9 +8,6 @@ class AcompProcessoView extends TPage
     {
         parent::__construct();
 
-        // CSS externo nao e necessario para colar no corpo do Gmail (o template usa estilos inline)
-        // Mantemos a chamada para nao quebrar outros usos, mas o layout principal ja eh inline.
-        TPage::include_css('app/resources/css/acomp_processo_view.css');
 
         $this->html = new THtmlRenderer('app/resources/acomp_processo_view.html');
         $this->html->enableSection('main', $this->emptyData('Selecione um processo para visualizar.'));
@@ -56,65 +53,67 @@ class AcompProcessoView extends TPage
             $eventRows = [];
             $eventCount = count($eventos);
             $lastUpdate = '-';
+            $lastUpdateRaw = '';
 
             foreach ($eventos as $i => $evt) {
                 $raw = (string) ($evt->data_evento ?? '');
                 $ts = strtotime($raw);
-
-                $date = $ts ? date('d/m/Y', $ts) : '-';
-                $time = $ts ? date('H:i', $ts) : '-';
+                $data = $ts ? date('d/m/Y H:i', $ts) : '-';
 
                 if ($i === 0 && $ts) {
-                    $lastUpdate = $date . ' às ' . $time;
+                    $lastUpdate = $data;
+                    $lastUpdateRaw = date('Y-m-d H:i:s', $ts);
                 }
-                // AcompEventoForm usa: status_texto = Status (combo) e demora = Evento/Local
-                $localRaw = trim((string) ($evt->demora ?? ''));
-                $local = ($localRaw !== '') ? $localRaw : '-';
 
+                $evento = trim((string) ($evt->demora ?? ''));
                 $status = trim((string) ($evt->status_texto ?? ''));
-                $obs = trim((string) ($evt->franquia ?? ''));
+                $localizacao = trim((string) ($evt->localizacao ?? ''));
+                $franquia = trim((string) ($evt->franquia ?? ''));
 
-                // Se vier no formato "LOCAL -> STATUS", separa para preencher a tabela
-                $arrowPos = strpos($localRaw, '->');
-                if ($arrowPos !== false) {
-                    $left = trim(substr($localRaw, 0, $arrowPos));
-                    $right = trim(substr($localRaw, $arrowPos + 2));
-
-                    if ($left !== '') {
-                        $local = $left;
-                    }
-                    if ($status === '' && $right !== '') {
-                        $status = $right;
-                    }
-                }
-
-                $statusLabel = ($status !== '') ? $status : '-';
-                $badge = self::statusBadgeInline($statusLabel, $local);
+                $eventoLabel = $evento !== '' ? $evento : '-';
+                $statusLabel = $status !== '' ? AcompProcesso::stageLabel($status) : '-';
+                $localizacaoLabel = $localizacao !== '' ? $localizacao : '-';
+                $franquiaLabel = $franquia !== '' ? $franquia : '-';
+                $badge = self::statusBadgeInline($statusLabel);
 
                 $eventRows[] =
                     '<tr>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;font-size:9pt;font-weight:400;">' . sprintf('%02d', $i + 1) . '</td>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;">' . htmlspecialchars($date) . '</td>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;">' . htmlspecialchars($time) . '</td>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;font-size:9pt;font-weight:400;">' . $badge . '</td>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;font-size:9pt;font-weight:400;">' . htmlspecialchars($local ?: '-') . '</td>' .
-                        '<td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;font-size:9pt;font-weight:400;">' . htmlspecialchars($obs ?: '-') . '</td>' .
+                        '<td>' . htmlspecialchars($data) . '</td>' .
+                        '<td>' . $badge . '</td>' .
+                        '<td>' . htmlspecialchars($eventoLabel) . '</td>' .
+                        '<td>' . htmlspecialchars($localizacaoLabel) . '</td>' .
+                        '<td>' . htmlspecialchars($franquiaLabel) . '</td>' .
                     '</tr>';
             }
 
             if (empty($eventRows)) {
                 $eventRows[] =
                     '<tr>' .
-                        '<td colspan="6" style="padding:14px;color:#94a3b8;font-weight:700;">Sem movimentações cadastradas.</td>' .
+                        '<td colspan="5" class="text-center text-muted">Sem movimentacoes cadastradas.</td>' .
                     '</tr>';
             }
 
+            $msg = '';
+            $stage = AcompProcesso::normalizeStageCode((string) ($proc->etapa ?? ''));
+            if (AcompProcesso::isTransitStage($stage)) {
+                if ($lastUpdateRaw === '') {
+                    $msg = 'ALERTA 24H: carga em transito sem atualizacao registrada.';
+                } else {
+                    $ageHours = floor((time() - strtotime($lastUpdateRaw)) / 3600);
+                    if ($ageHours >= 24) {
+                        $msg = 'ALERTA 24H: ultima atualizacao ha ' . (int) $ageHours . 'h.';
+                    }
+                }
+            }
+
             $payload = [
-                'mensagem' => '',
+                'mensagem' => $msg,
+                'alert_style' => $msg ? '' : 'display:none;',
                 'numero_processo' => (string) ($proc->numero_processo ?: '-'),
                 'previsao_entrega' => self::fmtDate($proc->previsao_entrega),
                 'exportador' => (string) ($proc->exportador ?: '-'),
                 'importador' => (string) ($proc->importador ?: '-'),
+                'local_entrega' => (string) ($proc->local_entrega ?: '-'),
                 'crt' => (string) ($proc->crt ?: '-'),
                 'fatura' => (string) ($proc->fatura ?: '-'),
                 'event_count' => (string) $eventCount,
@@ -134,10 +133,12 @@ class AcompProcessoView extends TPage
     {
         return [
             'mensagem' => $msg,
+            'alert_style' => $msg ? '' : 'display:none;',
             'numero_processo' => '-',
             'previsao_entrega' => '-',
             'exportador' => '-',
             'importador' => '-',
+            'local_entrega' => '-',
             'crt' => '-',
             'fatura' => '-',
             'event_count' => '0',
@@ -146,42 +147,29 @@ class AcompProcessoView extends TPage
         ];
     }
 
-    private static function statusBadgeInline(string $status, string $local): string
+    private static function statusBadgeInline(string $status): string
     {
-        $class = self::pickStatusClass($status, $local);
+        $class = self::pickStatusClass($status);
 
-        $bg = '#eff6ff';
-        $border = '#93c5fd';
-        $color = '#1d4ed8';
+        $badgeClass = match ($class) {
+            'success' => 'bg-success',
+            'warn'    => 'bg-warning text-dark',
+            'error'   => 'bg-danger',
+            default   => 'bg-primary',
+        };
 
-        if ($class === 'success') {
-            $bg = '#ecfdf5';
-            $border = '#86efac';
-            $color = '#166534';
-        } elseif ($class === 'warn') {
-            $bg = '#fff7ed';
-            $border = '#fdba74';
-            $color = '#9a3412';
-        } elseif ($class === 'error') {
-            $bg = '#fef2f2';
-            $border = '#fecaca';
-            $color = '#b91c1c';
-        }
-
-        $label = htmlspecialchars($status);
-
-        return '<span style="display:inline-block;padding:6px 12px;border-radius:10px;border:1px solid ' . $border . ';background:' . $bg . ';color:' . $color . ';font-size:9pt;font-weight:400;white-space:nowrap;">' . $label . '</span>';
+        return '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($status) . '</span>';
     }
 
-    private static function pickStatusClass(string $status, string $local): string
+    private static function pickStatusClass(string $status): string
     {
-        $t = strtolower($status . ' ' . $local);
+        $t = strtolower($status);
 
         if (strpos($t, 'liber') !== false || strpos($t, 'entreg') !== false) {
             return 'success';
         }
 
-        if (strpos($t, 'canal') !== false || strpos($t, 'guarda') !== false) {
+        if (strpos($t, 'canal') !== false || strpos($t, 'guarda') !== false || strpos($t, 'aduana') !== false) {
             return 'warn';
         }
 
@@ -201,6 +189,3 @@ class AcompProcessoView extends TPage
         return $value ?: '-';
     }
 }
-
-
-

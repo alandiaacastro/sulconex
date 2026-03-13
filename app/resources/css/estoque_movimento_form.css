@@ -1,0 +1,58 @@
+.panel.panel-default {
+    border: 1px solid #cfd6df;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.panel-heading {
+    background: #f3f4f6 !important;
+    border-bottom: 1px solid #d5dbe5 !important;
+}
+
+.panel-title {
+    color: #1f2937 !important;
+    font-weight: 800 !important;
+    letter-spacing: .02em;
+}
+
+.panel-body {
+    background: #ffffff;
+}
+
+label {
+    font-size: 11px !important;
+    text-transform: uppercase;
+    color: #4b5563 !important;
+    font-weight: 800 !important;
+    letter-spacing: .03em;
+}
+
+input[type=text], input[type=number], select, textarea {
+    border: 1px solid #bfc7d3 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    font-weight: 700;
+}
+
+input[readonly], textarea[readonly] {
+    background: #f8fafc !important;
+    color: #1f2937 !important;
+}
+
+.tfieldlist, .tform {
+    margin-bottom: 8px;
+}
+
+h4 {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: .02em;
+    background: #eef2f7;
+    padding: 8px 10px;
+    border: 1px solid #d2dae5;
+}
+
+.btn {
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+}

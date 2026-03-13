@@ -13,6 +13,8 @@ class ClientesForm extends TPage
     {
         parent::__construct();
 
+        Clientes::ensureSchema();
+
         $this->form = new BootstrapFormBuilder(self::$formName);
         $this->form->setFormTitle('Cadastro de Clientes');
         $this->form->setFieldSizes('100%');
@@ -30,6 +32,7 @@ class ClientesForm extends TPage
         $inscricao_estadual = new TEntry('inscricao_estadual');
         $atividade          = new TEntry('atividade');
         $emissao_crt        = new TText('emissao_crt');
+        $tipo               = new TCheckGroup('tipo');
 
         // Configurações
         $id->setEditable(false);
@@ -49,6 +52,15 @@ class ClientesForm extends TPage
     'UY' => 'Uruguai',
 ]);
 
+        // Tipo/classificação
+        $tipo->addItems([
+            'EXPORTADOR'    => 'Exportador',
+            'IMPORTADOR'    => 'Importador',
+            'CONSIGNATARIO' => 'Consignatário',
+            'NOTIFICAR'     => 'Notificar',
+        ]);
+        $tipo->setLayout('horizontal');
+
         // Máscaras
         $cnpj->setMask('99.999.999/9999-99');
         $cep->setMask('99999-999');
@@ -66,6 +78,7 @@ class ClientesForm extends TPage
         $this->form->addFields([new TLabel('Inscrição Estadual')], [$inscricao_estadual]);
         $this->form->addFields([new TLabel('Atividade')], [$atividade]);
         $this->form->addFields([new TLabel('Emissão CRT')], [$emissao_crt]);
+        $this->form->addFields([new TLabel('Classificação')], [$tipo]);
 
         // Botões
         $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fa:save green');

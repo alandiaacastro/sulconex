@@ -12,7 +12,7 @@ use stdClass;
 /**
  * FullCalendar Widget
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage util
  * @author     Pablo Dall'Oglio
@@ -62,6 +62,7 @@ class TFullCalendar extends TElement
         $this->movable = TRUE;
         $this->full_height = FALSE;
         $this->options = [];
+        $this->metadata = [];
     }
     
     /**

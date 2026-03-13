@@ -471,6 +471,7 @@ class ConhecimentoForm extends TPage
         
         // Botes de ao
         $this->form->addAction(' Salvar', new TAction([$this, 'onSave']), 'fa:save')->class = 'btn btn-primary';
+        $this->form->addAction(' Exportar XML', new TAction([$this, 'onExportXml']), 'fa:file-code orange');
         $this->form->addActionLink(' Voltar', new TAction(['ConhecimentoList', 'onReload']), 'fa:arrow-left green');
 
         // Registro de todos os campos no formulrio
@@ -755,6 +756,36 @@ class ConhecimentoForm extends TPage
             new TMessage('error', 'Erro ao carregar dados do cliente: ' . $e->getMessage());
             TTransaction::log("Erro: " . $e->getMessage());
             TTransaction::rollback();
+        }
+    }
+
+    /**
+     * Exporta o CRT atual como arquivo XML para download.
+     */
+    public static function onExportXml($param)
+    {
+        try {
+            $id = $param['id'] ?? null;
+            if (empty($id)) {
+                new TMessage('warning', 'Salve o registro antes de exportar o XML.');
+                return;
+            }
+
+            TTransaction::open('sample');
+            $crt = new Conhecimento($id);
+            TTransaction::close();
+
+            if (empty($crt->id)) {
+                throw new Exception('Registro não encontrado.');
+            }
+
+            $path = CrtXmlExporter::exportToFile($crt);
+            TPage::openFile($path);
+        } catch (Exception $e) {
+            if (TTransaction::get()) {
+                TTransaction::rollback();
+            }
+            new TMessage('error', $e->getMessage());
         }
     }
 

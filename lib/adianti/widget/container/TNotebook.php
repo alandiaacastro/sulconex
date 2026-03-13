@@ -9,7 +9,7 @@ use Adianti\Widget\Container\TFrame;
 /**
  * Notebook
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage container
  * @author     Pablo Dall'Oglio

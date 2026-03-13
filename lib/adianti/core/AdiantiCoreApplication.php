@@ -15,7 +15,7 @@ use Adianti\Widget\Util\TExceptionView;
 /**
  * Basic structure to run a web application
  *
- * @version    8.1
+ * @version    8.4
  * @package    core
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -74,14 +74,17 @@ class AdiantiCoreApplication
         {
             if ($static)
             {
-                $rf = new ReflectionMethod($class, $method);
-                if ($rf-> isStatic ())
+                if (method_exists($class, $method))
                 {
-                    call_user_func(array($class, $method), $_REQUEST);
-                }
-                else
-                {
-                    call_user_func(array(new $class($_REQUEST), $method), $_REQUEST);
+                    $rf = new ReflectionMethod($class, $method);
+                    if ($rf-> isStatic ())
+                    {
+                        call_user_func(array($class, $method), $_REQUEST);
+                    }
+                    else
+                    {
+                        call_user_func(array(new $class($_REQUEST), $method), $_REQUEST);
+                    }
                 }
             }
             else
@@ -105,7 +108,7 @@ class AdiantiCoreApplication
                     }
                     else
                     {
-                        new TMessage('error', $e->getMessage());
+                        new TMessage('error', $e->getMessage() );
                         $content = ob_get_contents();
                     }
                     ob_end_clean();
@@ -120,7 +123,7 @@ class AdiantiCoreApplication
                     }
                     else
                     {
-                        new TMessage('error', $e->getMessage());
+                        new TMessage('error', $e->getMessage() . '<br>' . basename($e->getFile()).':'. $e->getLine() );
                         $content = ob_get_contents();
                     }
                     ob_end_clean();

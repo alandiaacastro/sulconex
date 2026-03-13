@@ -16,7 +16,7 @@ use Exception;
 /**
  * A group of RadioButton's
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage form
  * @author     Pablo Dall'Oglio
@@ -199,6 +199,19 @@ class TRadioGroup extends TField implements AdiantiWidgetInterface
                 $this->buttons[$key] = $button;
                 $this->labels[$key] = $obj;
             }
+        }
+    }
+    
+    /**
+     * Reverse items
+     */
+    public function reverse()
+    {
+        if (is_array($this->items))
+        {
+            // reverse order, keeping keys
+            $this->items = array_reverse($this->items, true);
+            $this->addItems($this->items);
         }
     }
     

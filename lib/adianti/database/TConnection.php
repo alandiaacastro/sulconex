@@ -8,7 +8,7 @@ use Exception;
 /**
  * Singleton manager for database connections
  *
- * @version    8.1
+ * @version    8.4
  * @package    database
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -238,6 +238,10 @@ class TConnection
             $conn-> setAttribute (PDO::ATTR_CASE, PDO::CASE_NATURAL);
         }
         
+        if (!empty($db['init']))
+        {
+            $conn-> query( $db['init'] );
+        }
         // return the PDO object
         return $conn;
     }

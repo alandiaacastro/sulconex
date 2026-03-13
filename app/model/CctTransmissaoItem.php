@@ -96,7 +96,7 @@ class CctTransmissaoItem extends TRecord
     /**
      * Retorna array com dados do item
      */
-    public function toArray()
+    public function toArray($filter_attributes = null)
     {
         return [
             'id' => $this->id,
@@ -107,3 +107,4 @@ class CctTransmissaoItem extends TRecord
     }
 }
 ?>
+

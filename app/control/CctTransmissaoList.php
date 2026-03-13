@@ -21,9 +21,6 @@ class CctTransmissaoList extends TPage
         parent::__construct();
 
         try {
-            $this->setTitle("Histórico de Transmissões MIC/DTA");
-            $this->setDescription("Acompanhamento de envios para Portal Único Siscomex");
-
             // Formulário de filtros
             $this->buildFilterForm();
             parent::add($this->form);
@@ -33,13 +30,13 @@ class CctTransmissaoList extends TPage
             parent::add($this->datagrid);
 
             // Botão Nova Transmissão
-            $panel = new TPanel();
+            $panel = new TPanelGroup('');
             $btn_novo = new TButton('btn_novo');
             $btn_novo->setLabel("Nova Transmissão");
             $btn_novo->setImage('fa:plus');
-            $btn_novo->setAction(new TControllerAction('CctTransmissaoForm', 'onLoad'));
-            $btn_novo->setStyle('primary');
-            $panel->addControl($btn_novo);
+            $btn_novo->setAction(new TAction(['CctTransmissaoForm', 'onLoad']));
+            $btn_novo->setProperty('class', 'btn btn-primary');
+            $panel->add($btn_novo);
             parent::add($panel);
 
             // Carregar dados
@@ -60,24 +57,26 @@ class CctTransmissaoList extends TPage
         $this->form->add($fieldlist);
 
         // Filtro: Data de
-        $data_de = new \Adianti\Widgets\Form\TDate('filter_data_de');
+        $data_de = new \Adianti\Widget\Form\TDate('filter_data_de');
         $data_de->setLabel("Data De");
         $fieldlist->addField('filter_data_de', $data_de);
 
         // Filtro: Data até
-        $data_ate = new \Adianti\Widgets\Form\TDate('filter_data_ate');
+        $data_ate = new \Adianti\Widget\Form\TDate('filter_data_ate');
         $data_ate->setLabel("Data Até");
         $fieldlist->addField('filter_data_ate', $data_ate);
 
         // Filtro: Status
         $status_combo = new TCombo('filter_status');
         $status_combo->setLabel("Status");
-        $status_combo->addOption('', '-- Todos --');
-        $status_combo->addOption(CctTransmissao::STATUS_PENDENTE, 'Pendente');
-        $status_combo->addOption(CctTransmissao::STATUS_ENVIADO, 'Enviado');
-        $status_combo->addOption(CctTransmissao::STATUS_ACEITO, 'Aceito');
-        $status_combo->addOption(CctTransmissao::STATUS_REJEITADO, 'Rejeitado');
-        $status_combo->addOption(CctTransmissao::STATUS_CANCELADO, 'Cancelado');
+        $status_combo->addItems([
+            '' => '-- Todos --',
+            CctTransmissao::STATUS_PENDENTE => 'Pendente',
+            CctTransmissao::STATUS_ENVIADO => 'Enviado',
+            CctTransmissao::STATUS_ACEITO => 'Aceito',
+            CctTransmissao::STATUS_REJEITADO => 'Rejeitado',
+            CctTransmissao::STATUS_CANCELADO => 'Cancelado'
+        ]);
         $fieldlist->addField('filter_status', $status_combo);
 
         // Filtro: Número CRT
@@ -89,13 +88,13 @@ class CctTransmissaoList extends TPage
         $btn_search = new TButton('btn_search');
         $btn_search->setLabel("Filtrar");
         $btn_search->setImage('fa:search');
-        $btn_search->setAction(new TControllerAction('CctTransmissaoList', 'onSearch'));
+        $btn_search->setAction(new TAction([$this, 'onSearch']));
         $fieldlist->addField('btn_search', $btn_search);
 
         $btn_clear = new TButton('btn_clear');
         $btn_clear->setLabel("Limpar Filtros");
         $btn_clear->setImage('fa:times');
-        $btn_clear->setAction(new TControllerAction('CctTransmissaoList', 'onClearFilters'));
+        $btn_clear->setAction(new TAction([$this, 'onClearFilters']));
         $fieldlist->addField('btn_clear', $btn_clear);
     }
 
@@ -114,9 +113,9 @@ class CctTransmissaoList extends TPage
 
         // Coluna: CRT Número
         $col_crt = new TDataGridColumn('conhecimento_id', 'CRT', '10%');
-        $col_crt->setFormatter(function($value) {
+        $col_crt->setTransformer(function($value) {
             try {
-                $conhecimento = new \Adianti\Model\Conhecimento($value);
+                $conhecimento = new Conhecimento($value);
                 return $conhecimento->numero;
             } catch (\Exception $e) {
                 return $value;
@@ -126,7 +125,7 @@ class CctTransmissaoList extends TPage
 
         // Coluna: Data Transmissão
         $col_data = new TDataGridColumn('data_transmissao', 'Data Transmissão', '15%');
-        $col_data->setFormatter(function($value) {
+        $col_data->setTransformer(function($value) {
             if ($value instanceof \DateTime) {
                 return $value->format('d/m/Y H:i:s');
             } elseif (!empty($value)) {
@@ -138,7 +137,7 @@ class CctTransmissaoList extends TPage
 
         // Coluna: Status
         $col_status = new TDataGridColumn('status', 'Status', '12%');
-        $col_status->setFormatter(function($value) {
+        $col_status->setTransformer(function($value) {
             $colors = array(
                 'pendente' => '#FF9800',    // Amber
                 'enviado' => '#2196F3',    // Blue
@@ -196,13 +195,7 @@ class CctTransmissaoList extends TPage
         $col_acoes->addAction($action_delete);
 
         $this->datagrid->addColumn($col_acoes);
-
-        // Paginação
-        $this->datagrid->addColumn(new TPaginatorColumn($this->pagesize));
-
-        // Configuração
-        $this->datagrid->setModel(CctTransmissao::class);
-        $this->datagrid->setRepository(new \Adianti\Database\TCriteria());
+        $this->datagrid->createModel();
     }
 
     /**
@@ -217,8 +210,14 @@ class CctTransmissaoList extends TPage
             $criteria = new \Adianti\Database\TCriteria();
             $criteria->setOrder('id', 'desc');
 
-            $this->datagrid->setRepository($criteria);
-            $this->datagrid->loadData();
+            $repository = new \Adianti\Database\TRepository('CctTransmissao');
+            $objects = $repository->load($criteria, false);
+            $this->datagrid->clear();
+            if ($objects) {
+                foreach ($objects as $object) {
+                    $this->datagrid->addItem($object);
+                }
+            }
 
             TTransaction::close();
 
@@ -273,8 +272,14 @@ class CctTransmissaoList extends TPage
 
             $criteria->setOrder('id', 'desc');
 
-            $this->datagrid->setRepository($criteria);
-            $this->datagrid->loadData();
+            $repository = new \Adianti\Database\TRepository('CctTransmissao');
+            $objects = $repository->load($criteria, false);
+            $this->datagrid->clear();
+            if ($objects) {
+                foreach ($objects as $object) {
+                    $this->datagrid->addItem($object);
+                }
+            }
 
             TTransaction::close();
 
@@ -306,13 +311,12 @@ class CctTransmissaoList extends TPage
             }
 
             // Mostrar XML em dialog
-            $dialog = new \Adianti\Dialogs\TDialog();
+            $dialog = new TDialog();
             $dialog->setTitle("XML Transmitido - Transmissão #{$id}");
 
-            $textarea = new \Adianti\Widgets\Form\TTextArea('xml_view');
+            $textarea = new TText('xml_view');
             $textarea->setValue($transmissao->xml_enviado);
             $textarea->setEditable(false);
-            $textarea->setHeight('500px');
             $dialog->add($textarea);
 
             $dialog->show();
@@ -338,13 +342,12 @@ class CctTransmissaoList extends TPage
             $resposta = $transmissao->resposta_siscomex ? json_decode($transmissao->resposta_siscomex, true) : array();
 
             // Mostrar resposta em dialog
-            $dialog = new \Adianti\Dialogs\TDialog();
+            $dialog = new TDialog();
             $dialog->setTitle("Resposta Siscomex - Transmissão #{$id}");
 
-            $textarea = new \Adianti\Widgets\Form\TTextArea('response_view');
+            $textarea = new TText('response_view');
             $textarea->setValue(json_encode($resposta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             $textarea->setEditable(false);
-            $textarea->setHeight('500px');
             $dialog->add($textarea);
 
             $dialog->show();
@@ -422,3 +425,7 @@ class CctTransmissaoList extends TPage
     }
 }
 ?>
+
+
+
+

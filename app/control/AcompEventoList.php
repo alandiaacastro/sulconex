@@ -26,11 +26,12 @@ class AcompEventoList extends TPage
         $this->datagrid = new BootstrapDatagridWrapper(new TDataGrid);
         $this->datagrid->style = 'width:100%';
 
-        $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '15%');
-        $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '12%');
-        $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '22%');
-        $col_localizacao = new TDataGridColumn('localizacao', 'Localizacao', 'left', '16%');
-        $col_franquia = new TDataGridColumn('franquia', 'Franquia', 'left', '15%');
+        $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '14%');
+        $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '11%');
+        $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '20%');
+        $col_localizacao = new TDataGridColumn('localizacao', 'Localizacao', 'left', '15%');
+        $col_franquia = new TDataGridColumn('franquia', 'Franquia', 'left', '12%');
+        $col_imagem = new TDataGridColumn('imagem', 'Evidencia', 'center', '13%');
 
         $col_data->setTransformer(function ($value) {
             $ts = strtotime((string) $value);
@@ -43,11 +44,23 @@ class AcompEventoList extends TPage
             return '<span class="badge rounded-pill status-badge" style="' . $style . '">' . htmlspecialchars($value) . '</span>';
         });
 
+        $col_imagem->setTransformer(function ($value) {
+            if (empty($value)) {
+                return '<span class="text-muted small">—</span>';
+            }
+            $path = 'app/images/acomp_evento/' . htmlspecialchars($value);
+            $url  = htmlspecialchars($value);
+            return '<a href="' . $path . '" target="_blank" title="Ver imagem">'
+                 . '<img src="' . $path . '" style="max-width:60px;max-height:45px;border-radius:4px;border:1px solid #ccc;cursor:pointer;" onerror="this.parentElement.innerHTML=\'<span class=\\\'text-danger small\\\'>N/D</span>\'">'
+                 . '</a>';
+        });
+
         $this->datagrid->addColumn($col_data);
         $this->datagrid->addColumn($col_demora);
         $this->datagrid->addColumn($col_status);
         $this->datagrid->addColumn($col_localizacao);
         $this->datagrid->addColumn($col_franquia);
+        $this->datagrid->addColumn($col_imagem);
 
         $act_edit = new TDataGridAction(['AcompEventoForm', 'onEdit']);
         $act_edit->setField('id');
@@ -60,6 +73,7 @@ class AcompEventoList extends TPage
         $this->datagrid->addAction($act_del, 'Excluir', 'fa:trash red');
 
         $this->datagrid->createModel();
+        $this->datagrid->disableDefaultClick();
 
         $this->pageNavigation = new TPageNavigation;
         $this->pageNavigation->setAction(new TAction([$this, 'onReload']));
@@ -288,6 +302,13 @@ class AcompEventoList extends TPage
         }
         if ($demora !== '') {
             $chunks[] = '<strong>Evento:</strong> ' . htmlspecialchars($demora);
+        }
+
+        if (!empty($evento->imagem)) {
+            $imgPath = 'app/images/acomp_evento/' . htmlspecialchars((string) $evento->imagem);
+            $chunks[] = '<a href="' . $imgPath . '" target="_blank">'
+                      . '<img src="' . $imgPath . '" style="max-width:120px;max-height:90px;margin-top:6px;border-radius:4px;border:1px solid #ccc;" onerror="this.style.display=\'none\'">'
+                      . '</a>';
         }
 
         return $chunks ? implode('<br>', $chunks) : '-';

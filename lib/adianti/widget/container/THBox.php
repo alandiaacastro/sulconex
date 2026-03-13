@@ -6,7 +6,7 @@ use Adianti\Widget\Base\TElement;
 /**
  * Horizontal Box
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage container
  * @author     Pablo Dall'Oglio

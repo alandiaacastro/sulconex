@@ -10,7 +10,7 @@ use Exception;
 /**
  * Template parser
  *
- * @version    8.1
+ * @version    8.4
  * @package    core
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -33,6 +33,12 @@ class AdiantiTemplateParser
         {
             $content = str_replace('<!--[IFADMIN]-->',  '<!--',  $content);
             $content = str_replace('<!--[/IFADMIN]-->', '-->',   $content);
+        }
+        
+        if (!empty($ini['template']['navbar']['only_top_menu']))
+        {
+            $content = str_replace('<!--[SIDEBAR]-->',  '<!--',  $content);
+            $content = str_replace('<!--[/SIDEBAR]-->', '-->',   $content);
         }
         
         $content   = str_replace('{LIBRARIES}', $libraries, $content);
@@ -61,6 +67,12 @@ class AdiantiTemplateParser
         {
             $content = str_replace('<!--[ISCREATOR]-->',  '<!--',  $content);
             $content = str_replace('<!--[/ISCREATOR]-->', '-->',   $content);
+        }
+        
+        if (empty($ini['general']['creator_url']) || (TSession::getValue('login') !== 'admin'))
+        {
+            $content = str_replace('<!--[ISCREATORADMIN]-->',  '<!--',  $content);
+            $content = str_replace('<!--[/ISCREATORADMIN]-->', '-->',   $content);
         }
         
         $core_options = [ 'timezone'    => $ini['general']['timezone'],

@@ -6,6 +6,7 @@ use Adianti\Database\TConnection;
 use Adianti\Log\TLogger;
 use Adianti\Log\TLoggerSTD;
 use Adianti\Log\TLoggerTXT;
+use Adianti\Log\TLoggerTPL;
 use Adianti\Log\AdiantiLoggerInterface;
 
 use PDO;
@@ -15,7 +16,7 @@ use Exception;
 /**
  * Manage Database transactions
  *
- * @version    8.1
+ * @version    8.4
  * @package    database
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -225,6 +226,17 @@ class TTransaction
     }
     
     /**
+     * Returns current transaction logger
+     */
+    public static function getLogger()
+    {
+        if (isset(self::$conn[self::$counter]))
+        {
+            return self::$logger[self::$counter];
+        }
+    }
+    
+    /**
      * Write a message in the LOG file, using the user strategy
      * @param $message Message to be logged
      */
@@ -299,5 +311,13 @@ class TTransaction
         {
             self::setLogger( new TLoggerSTD );
         }
+    }
+    
+    /**
+     * Enable transaction log
+     */
+    public static function adump()
+    {
+        self::setLogger( new TLoggerTPL );
     }
 }

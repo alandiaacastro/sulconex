@@ -147,15 +147,8 @@ class EnlastreList extends TPage
 
             // monta o form
             $form = new BootstrapFormBuilder('form_novo_enlastre');
-            $form->setFormTitle('<i class="fa fa-link"></i> <b>Gerar Novo Enlastre</b>');
+            $form->setFormTitle('Gerar Novo Enlastre');
             $form->setFieldSizes('100%');
-            $form->setProperty('style',
-                'max-width:700px;
-                 padding:15px;
-                 background:#fff;
-                 border-radius:8px;
-                 box-shadow:0 2px 6px rgba(0,0,0,0.08);'
-            );
 
             // campos
             $fields = [

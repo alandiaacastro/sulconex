@@ -204,7 +204,7 @@ class Dashboard extends TPage
                 <td>{$r['id']}</td>
                 <td><strong>{$num}</strong></td>
                 <td>{$dt}</td>
-                <td><span style='color:{$cor};font-weight:600;'>{$st}</span></td>
+                <td><span class='badge' style='background-color:{$cor}'>{$st}</span></td>
                 <td>{$rem}</td>
                 <td>
                     <a href='?class=ConhecimentoForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-primary py-0 px-1'>
@@ -267,81 +267,81 @@ class Dashboard extends TPage
         }
 
         $html = <<<HTML
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<style>
-  .dash-kpi { border-radius: 12px; padding: 18px 22px; color: #fff; box-shadow: 0 3px 10px rgba(0,0,0,.15); transition: transform .15s; }
-  .dash-kpi:hover { transform: translateY(-3px); }
-  .dash-kpi .kpi-title { font-size: .82rem; opacity: .85; text-transform: uppercase; letter-spacing: .05em; }
-  .dash-kpi .kpi-value { font-size: 2.1rem; font-weight: 700; line-height: 1.1; }
-  .dash-kpi .kpi-sub   { font-size: .78rem; opacity: .75; margin-top: 4px; }
-  .dash-kpi .kpi-icon  { font-size: 2.4rem; opacity: .3; float: right; margin-top: -8px; }
-  .dash-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); padding: 20px; margin-bottom: 20px; }
-  .dash-card h5 { font-size: .95rem; font-weight: 700; color: #344; margin-bottom: 14px; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; }
-  .table-dash { font-size: .82rem; }
-  .table-dash th { background: #f8f9fa; font-weight: 600; }
-  .section-title { font-size: 1.05rem; font-weight: 700; color: #2c4a6e; margin: 22px 0 12px; border-left: 4px solid #2c4a6e; padding-left: 10px; }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .chart-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .tables-grid-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width: 992px) {
-    .chart-grid { grid-template-columns: 1fr; }
-    .tables-grid, .tables-grid-3 { grid-template-columns: 1fr; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-</style>
-
 <!-- ── KPIs ─────────────────────────────────────────────────────────── -->
-<p class="section-title"><i class="bi bi-speedometer2"></i> Indicadores Operacionais</p>
-<div class="kpi-grid">
+<p class="border-start border-4 border-primary ps-2 fw-bold mb-3 mt-2"><i class="bi bi-speedometer2"></i> Indicadores Operacionais</p>
+<div class="row row-cols-2 row-cols-md-3 g-3 mb-4">
 
-  <div class="dash-kpi" style="background:linear-gradient(135deg,#1d3a6e,#2563eb)">
-    <i class="bi bi-file-earmark-text kpi-icon"></i>
-    <div class="kpi-title">CRTs no Mês</div>
-    <div class="kpi-value">$crts_mes</div>
-    <div class="kpi-sub">Hoje: <strong>$crts_hoje</strong></div>
+  <div class="col">
+    <div class="card h-100 bg-primary text-white border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-file-earmark-text fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">CRTs no Mês</div>
+        <div class="fs-2 fw-bold lh-1">$crts_mes</div>
+        <div class="small opacity-75 mt-1">Hoje: <strong>$crts_hoje</strong></div>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-kpi" style="background:linear-gradient(135deg,#065f46,#10b981)">
-    <i class="bi bi-arrow-repeat kpi-icon"></i>
-    <div class="kpi-title">CRTs Ativos</div>
-    <div class="kpi-value">$crts_ativos</div>
-    <div class="kpi-sub">Em andamento</div>
+  <div class="col">
+    <div class="card h-100 bg-success text-white border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-arrow-repeat fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">CRTs Ativos</div>
+        <div class="fs-2 fw-bold lh-1">$crts_ativos</div>
+        <div class="small opacity-75 mt-1">Em andamento</div>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-kpi" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
-    <i class="bi bi-cash-stack kpi-icon"></i>
-    <div class="kpi-title">Frete Mês</div>
-    <div class="kpi-value" style="font-size:1.4rem;">$frete_mes_fmt</div>
-    <div class="kpi-sub">Contratos emitidos</div>
+  <div class="col">
+    <div class="card h-100 bg-secondary text-white border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-cash-stack fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">Frete Mês</div>
+        <div class="fs-4 fw-bold lh-1">$frete_mes_fmt</div>
+        <div class="small opacity-75 mt-1">Contratos emitidos</div>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-kpi $contratos_pend_class" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">
-    <i class="bi bi-people kpi-icon"></i>
-    <div class="kpi-title">Saldo Motoristas</div>
-    <div class="kpi-value" style="font-size:1.35rem;">$saldo_motor_fmt</div>
-    <div class="kpi-sub">$contratos_nao_pagos contrato(s) pendente(s)</div>
+  <div class="col">
+    <div class="card h-100 bg-danger text-white border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-people fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">Saldo Motoristas</div>
+        <div class="fs-4 fw-bold lh-1">$saldo_motor_fmt</div>
+        <div class="small opacity-75 mt-1">$contratos_nao_pagos contrato(s) pendente(s)</div>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-kpi" style="background:linear-gradient(135deg,#92400e,#f59e0b)">
-    <i class="bi bi-receipt kpi-icon"></i>
-    <div class="kpi-title">Faturas em Aberto</div>
-    <div class="kpi-value">$faturas_abertas</div>
-    <div class="kpi-sub">Aguardando pagamento</div>
+  <div class="col">
+    <div class="card h-100 bg-warning text-dark border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-receipt fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">Faturas em Aberto</div>
+        <div class="fs-2 fw-bold lh-1">$faturas_abertas</div>
+        <div class="small opacity-75 mt-1">Aguardando pagamento</div>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-kpi $alerta_venc_class" style="background:linear-gradient(135deg,#be185d,#f472b6)">
-    <i class="bi bi-alarm kpi-icon"></i>
-    <div class="kpi-title">Faturas Vencendo</div>
-    <div class="kpi-value">$faturas_vencendo</div>
-    <div class="kpi-sub">Próximos 7 dias</div>
+  <div class="col">
+    <div class="card h-100 bg-danger text-white border-0 shadow-sm">
+      <div class="card-body">
+        <i class="bi bi-alarm fs-1 opacity-25 float-end mt-n1"></i>
+        <div class="text-uppercase small opacity-75">Faturas Vencendo</div>
+        <div class="fs-2 fw-bold lh-1">$faturas_vencendo</div>
+        <div class="small opacity-75 mt-1">Próximos 7 dias</div>
+      </div>
+    </div>
   </div>
 
 </div>
 
 <!-- ── Ações Rápidas ─────────────────────────────────────────────────── -->
-<p class="section-title"><i class="bi bi-lightning-charge"></i> Ações Rápidas</p>
-<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+<p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-lightning-charge"></i> Ações Rápidas</p>
+<div class="d-flex flex-wrap gap-2 mb-4">
   <a href="?class=ConhecimentoList" class="btn btn-primary btn-sm">
     <i class="bi bi-file-earmark-plus me-1"></i> Novo CRT
   </a>
@@ -366,69 +366,95 @@ class Dashboard extends TPage
 </div>
 
 <!-- ── Gráficos ──────────────────────────────────────────────────────── -->
-<p class="section-title"><i class="bi bi-bar-chart-line"></i> Análise Gráfica</p>
-<div class="chart-grid">
+<p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-bar-chart-line"></i> Análise Gráfica</p>
+<div class="row g-3 mb-4">
 
-  <div class="dash-card" style="grid-column: span 2;">
-    <h5><i class="bi bi-graph-up me-1"></i> CRTs Emitidos — Últimos 30 dias</h5>
-    <canvas id="chartDiario" height="80"></canvas>
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header fw-bold"><i class="bi bi-graph-up me-1"></i> CRTs Emitidos — Últimos 30 dias</div>
+      <div class="card-body">
+        <canvas id="chartDiario" height="80"></canvas>
+      </div>
+    </div>
   </div>
 
-  <div class="dash-card">
-    <h5><i class="bi bi-pie-chart me-1"></i> Distribuição por Status</h5>
-    <canvas id="chartStatus" height="200"></canvas>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header fw-bold"><i class="bi bi-pie-chart me-1"></i> Distribuição por Status</div>
+      <div class="card-body">
+        <canvas id="chartStatus" height="200"></canvas>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<div class="dash-card">
-  <h5><i class="bi bi-currency-dollar me-1"></i> Frete Total por Mês (últimos 6 meses)</h5>
-  <canvas id="chartFreteMensal" height="60"></canvas>
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-bold"><i class="bi bi-currency-dollar me-1"></i> Frete Total por Mês (últimos 6 meses)</div>
+  <div class="card-body">
+    <canvas id="chartFreteMensal" height="60"></canvas>
+  </div>
 </div>
 
 <!-- ── Tabelas ───────────────────────────────────────────────────────── -->
-<p class="section-title"><i class="bi bi-table"></i> Monitoramento Operacional</p>
-<div class="tables-grid">
+<p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-table"></i> Monitoramento Operacional</p>
+<div class="row g-3 mb-4">
 
-  <div class="dash-card">
-    <h5><i class="bi bi-file-text me-1"></i> Últimos CRTs</h5>
-    <div style="overflow-x:auto">
-      <table class="table table-sm table-hover table-dash">
-        <thead>
-          <tr><th>ID</th><th>Número</th><th>Data</th><th>Status</th><th>Remetente</th><th></th></tr>
-        </thead>
-        <tbody>$rows_crts</tbody>
-      </table>
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-bold"><i class="bi bi-file-text me-1"></i> Últimos CRTs</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>ID</th><th>Número</th><th>Data</th><th>Status</th><th>Remetente</th><th></th></tr>
+            </thead>
+            <tbody>$rows_crts</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer p-1">
+        <a href="?class=ConhecimentoList" class="btn btn-sm btn-outline-primary w-100">Ver todos os CRTs →</a>
+      </div>
     </div>
-    <a href="?class=ConhecimentoList" class="btn btn-sm btn-outline-primary w-100 mt-1">Ver todos os CRTs →</a>
   </div>
 
-  <div class="dash-card">
-    <h5><i class="bi bi-exclamation-triangle text-warning me-1"></i> Faturas Vencendo em 7 dias</h5>
-    <div style="overflow-x:auto">
-      <table class="table table-sm table-hover table-dash">
-        <thead>
-          <tr><th>Fatura</th><th>CRT</th><th>Cliente</th><th>Vencimento</th><th>Valor</th><th></th></tr>
-        </thead>
-        <tbody>$rows_faturas</tbody>
-      </table>
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-bold"><i class="bi bi-exclamation-triangle text-warning me-1"></i> Faturas Vencendo em 7 dias</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>Fatura</th><th>CRT</th><th>Cliente</th><th>Vencimento</th><th>Valor</th><th></th></tr>
+            </thead>
+            <tbody>$rows_faturas</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer p-1">
+        <a href="?class=FaturaList" class="btn btn-sm btn-outline-warning w-100">Ver todas as faturas →</a>
+      </div>
     </div>
-    <a href="?class=FaturaList" class="btn btn-sm btn-outline-warning w-100 mt-1">Ver todas as faturas →</a>
   </div>
 
 </div>
 
-<div class="dash-card">
-  <h5><i class="bi bi-truck me-1"></i> Contratos de Frete Pendentes de Pagamento</h5>
-  <div style="overflow-x:auto">
-    <table class="table table-sm table-hover table-dash">
-      <thead>
-        <tr><th>ID</th><th>CRT</th><th>Motorista</th><th>Emissão</th><th>Vencimento</th><th class="text-end">Saldo</th><th></th></tr>
-      </thead>
-      <tbody>$rows_contratos</tbody>
-    </table>
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-bold"><i class="bi bi-truck me-1"></i> Contratos de Frete Pendentes de Pagamento</div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>ID</th><th>CRT</th><th>Motorista</th><th>Emissão</th><th>Vencimento</th><th class="text-end">Saldo</th><th></th></tr>
+        </thead>
+        <tbody>$rows_contratos</tbody>
+      </table>
+    </div>
   </div>
-  <a href="?class=ContratoList" class="btn btn-sm btn-outline-success w-100 mt-1">Ver todos os contratos →</a>
+  <div class="card-footer p-1">
+    <a href="?class=ContratoList" class="btn btn-sm btn-outline-success w-100">Ver todos os contratos →</a>
+  </div>
 </div>
 
 <!-- ── Scripts ───────────────────────────────────────────────────────── -->

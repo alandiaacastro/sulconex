@@ -19,6 +19,7 @@ class AcompEvento extends TRecord
         parent::addAttribute('status_texto');
         parent::addAttribute('franquia');
         parent::addAttribute('ordem');
+        parent::addAttribute('imagem');
         parent::addAttribute('created_at');
     }
 

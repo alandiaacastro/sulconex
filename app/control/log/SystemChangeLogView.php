@@ -2,7 +2,7 @@
 /**
  * SystemChangeLogView
  *
- * @version    8.1
+ * @version    8.4
  * @package    control
  * @subpackage log
  * @author     Pablo Dall'Oglio
@@ -38,7 +38,7 @@ class SystemChangeLogView extends TStandardList
         parent::setLimit(20);
 
         $this->form = new BootstrapFormBuilder('form_table_logger');
-        $this->form->setFormTitle('Table change log');
+        $this->form->setFormTitle(_t('Change Log'));
         
         // cria os campos do formulário
         $tablename   = new TEntry('tablename');

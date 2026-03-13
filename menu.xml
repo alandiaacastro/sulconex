@@ -24,15 +24,6 @@
         </menu>
     </menuitem>
 
-    <menuitem label="Simulações" icon="fas:cube">
-        <menu>
-            <menuitem label="Simulador 3D">
-                <icon>fas:cubes fa-fw</icon>
-                <action>PackingViewerPage</action>
-            </menuitem>
-        </menu>
-    </menuitem>
-
     <menuitem label='_t{Administration}'>
         <icon>fas:sliders fa-fw</icon>
         <menu>
@@ -132,13 +123,21 @@
                 <icon>fas:book fa-fw</icon>
                 <action>ConhecimentoList</action>
             </menuitem>
-<menuitem label="Acompanhamento Manual (processo)">
+<menuitem label="TRACKING PROCESSOS">
                 <icon>fas:clipboard-list fa-fw</icon>
                 <action>AcompProcessoKanban</action>
             </menuitem>
             <menuitem label="Enlastres">
                 <icon>fas:book fa-fw</icon>
                 <action>EnlastreList</action>
+            </menuitem>
+            <menuitem label="Controle de Estoque">
+                <icon>fas:warehouse fa-fw</icon>
+                <action>EstoqueView</action>
+            </menuitem>
+            <menuitem label="Lancar Movimentacao Estoque">
+                <icon>fas:dolly fa-fw</icon>
+                <action>EstoqueMovimentoForm</action>
             </menuitem>
             <menuitem label="Contratos">
                 <icon>fas:book fa-fw</icon>
@@ -155,6 +154,10 @@
             <menuitem label="Tabela de Fretes">
                 <icon>fas:route fa-fw</icon>
                 <action>TabelaFreteList</action>
+            </menuitem>
+            <menuitem label="Simulador 3D">
+                <icon>fas:cubes fa-fw</icon>
+                <action>PackingViewerPage</action>
             </menuitem>
         </menu>
     </menuitem>

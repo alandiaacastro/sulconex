@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Adianti\Control\TPage;
 use Adianti\Database\TTransaction;
@@ -9,12 +9,12 @@ class CotacaoPdfDoc extends FPDF
     public function Footer(): void
     {
         $this->SetY(-14);
-        $this->SetFillColor(15, 23, 42);
-        $this->SetTextColor(255, 255, 255);
-        $this->SetFont('Arial', 'B', 9);
+        $this->SetDrawColor(0, 0, 0);
+        $this->SetTextColor(0, 0, 0);
+        $this->SetFont('Helvetica', 'B', 9);
         $w = 40;
         $x = ($this->GetPageWidth() - $w) / 2;
-        $this->Rect($x, $this->GetY(), $w, 8, 'F');
+        $this->Rect($x, $this->GetY(), $w, 8, 'D');
         $this->SetXY($x, $this->GetY() + 1.5);
         $this->Cell($w, 5, $this->toLatin1('Página ' . $this->PageNo()), 0, 0, 'C');
     }
@@ -116,15 +116,15 @@ class CotacaoPDFView extends TPage
         }
 
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(self::PAGE_MARGIN, 16);
         $pdf->Cell(0, 5, self::toLatin1('À'), 0, 1, 'L');
 
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetFont('Helvetica', 'B', 10);
         $pdf->SetX(self::PAGE_MARGIN);
         $pdf->Cell(0, 5, self::toLatin1($d['cliente_nome']), 0, 1, 'L');
 
-        $pdf->SetFont('Arial', '', 8.5);
+        $pdf->SetFont('Helvetica', '', 8.5);
         $pdf->SetTextColor(60, 60, 60);
         $pdf->SetX(self::PAGE_MARGIN);
         $pdf->MultiCell(120, 4.2, self::toLatin1('Agradecemos a oportunidade e apresentamos abaixo nossa oferta com base nos dados informados:'), 0, 'L');
@@ -194,11 +194,11 @@ class CotacaoPDFView extends TPage
         $valueY = 6.2;
 
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('Helvetica', '', 8);
         $pdf->SetXY($x + $padX, $y + $titleY);
         $pdf->Cell($w - ($padX * 2), 3.6, self::toLatin1($title), 0, 0, 'L');
 
-        $pdf->SetFont('Arial', 'B', 8.4);
+        $pdf->SetFont('Helvetica', 'B', 8.4);
         $pdf->SetXY($x + $padX, $y + $valueY);
 
         $val = trim((string) $value);
@@ -229,7 +229,7 @@ class CotacaoPDFView extends TPage
         $pdf->Line($x + $w1, $y, $x + $w1, $y + $h);
         $pdf->Line($x + $w1 + $w2, $y, $x + $w1 + $w2, $y + $h);
 
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('Helvetica', '', 8);
         $pdf->SetTextColor(0, 0, 0);
 
         $pdf->SetXY($x + 2, $y + 2.2);
@@ -242,7 +242,7 @@ class CotacaoPDFView extends TPage
         $pdf->Cell($w3 - 4, 4, self::toLatin1('Taxa de dólar mínima'), 0, 0, 'L');
 
         // valores
-        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->SetFont('Helvetica', 'B', 8.5);
         $pdf->SetTextColor(220, 0, 0);
         $pdf->SetXY($x + 2, $y + 7.4);
         $pdf->Cell($w1 - 4, 4.5, self::toLatin1($d['pagamento']), 0, 0, 'L');
@@ -262,7 +262,7 @@ class CotacaoPDFView extends TPage
         $x = self::PAGE_MARGIN;
         $w = $pdf->GetPageWidth() - (self::PAGE_MARGIN * 2);
 
-        $this->sectionBar($pdf, $pdf->GetY(), 'COMPOSI��O DOS CUSTOS');
+        $this->sectionBar($pdf, $pdf->GetY(), 'FRETE POR UNIDADE');
         $pdf->Ln(7);
 
         $descW = 120;
@@ -271,18 +271,18 @@ class CotacaoPDFView extends TPage
 
         $y = $pdf->GetY();
         $pdf->SetDrawColor(40, 40, 40);
-        $pdf->SetFont('Arial', '', 8.5);
+        $pdf->SetFont('Helvetica', '', 8.5);
         $pdf->SetTextColor(0, 0, 0);
 
         $pdf->SetX($x);
         $pdf->Cell($descW, 8, self::toLatin1('FRETE ROTA INTERNACIONAL FTL - FULL TRUCKLOAD'), 1, 0, 'L');
 
-        $pdf->SetFont('Arial', 'B', 9.2);
+        $pdf->SetFont('Helvetica', 'B', 9.2);
         $pdf->Cell($brlW, 8, self::toLatin1('R$ ' . number_format((float) $d['valor_brl'], 2, ',', '.')), 1, 0, 'R');
         $pdf->Cell($usdW, 8, self::toLatin1('USD ' . number_format((float) $d['valor_usd'], 2, ',', '.')), 1, 1, 'R');
 
         $pdf->Ln(6);
-        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetFont('Helvetica', 'B', 10);
         $pdf->Cell(0, 5, self::toLatin1('FATURAMENTO EM MOEDA NACIONAL'), 0, 1, 'L');
         $pdf->Ln(2);
     }
@@ -297,7 +297,7 @@ class CotacaoPDFView extends TPage
         $colW = $w / 5;
 
         $pdf->SetDrawColor(40, 40, 40);
-        $pdf->SetFont('Arial', '', 8.2);
+        $pdf->SetFont('Helvetica', '', 8.2);
         $pdf->SetTextColor(0, 0, 0);
 
         $headers = ['embarque', 'aduana de fronteira', 'aduana de destino', 'descarga', 'valor estadia'];
@@ -309,7 +309,7 @@ class CotacaoPDFView extends TPage
         }
         $pdf->Ln(7);
 
-        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->SetFont('Helvetica', 'B', 9);
         $pdf->SetX($x);
         foreach ($values as $v) {
             $pdf->Cell($colW, 7, self::toLatin1($v), 1, 0, 'C');
@@ -322,16 +322,16 @@ class CotacaoPDFView extends TPage
         $this->sectionBar($pdf, $pdf->GetY(), 'CONDIÇÕES GERAIS PARA EMBARQUES/ CONDICIONES GENERALES PARA EMBARQUES');
         $pdf->Ln(7);
 
-        $pdf->SetFont('Arial', '', 7.6);
+        $pdf->SetFont('Helvetica', '', 7.6);
         $pdf->SetTextColor(0, 0, 0);
 
         $itens = [
-            'a) Taxa do dólar da data da emissão do CRT, a qual nunca poderá ser inferior a taxa mínima especificada na cotação./ La tasa del dólar de la fecha de emisión del CRT, la cual nunca podrá ser inferior a la tasa mínima especificada en la cotización.',
+            'a) Taxa do dólar da data da emissão do CRT, a qual nunca poderá ser inferior à taxa mínima especificada na cotação./ La tasa del dólar de la fecha de emisión del CRT, la cual nunca podrá ser inferior a la tasa mínima especificada en la cotización.',
             'b) Carga e Descarga: por conta do importador e/ou exportador./ Carga y Descarga: por cuenta del importador y/o exportador;',
-            'c) Não estáo incluídas despesas com Aduanas, SENASA, MULTILOG./ No están incluidos los gastos con Aduanas, SENASA, MULTILOG;',
-            'd) Seguro RCTR-VI incluso, cobrindo perdas por acidentes durante o transporte e desaparecimento da carga com o veículo transportador, comprovados por vistoria de nossa companhia seguradora. A responsabilidade do transportador está limitada ao valor constante da FATURA COMERCIAL que acompanha a mercadoria em caso de ressarcimento de sinistro. Demais coberturas estarāo a cargo do embarcador/destinatário conforme INCOTERM que norteia a operação. Avarias devem ser apontadas ainda sobre rodas na descarga para cobertura./ Seguro RCTR-VI cubriendo siniestros originados por accidentes en viaje, debido a pérdidas y daños sufridos por los bienes o mercancias, incluyendo el desaparecimiento de la carga simultaneamente con el vehículo transportador, comprobados mediante inspección de nuestra compañia aseguradora.',
-            'e) Infrações, mesmo que aplicadas a nós, por preenchimento incorreto ou imperfeições em nota fiscal de exportação ou importação, são responsabilidade do cliente./ Infracciones, aunque se nos apliquen, por el llenado incorrecto o imperfeccion en la factura de exportación o importación, serán responsabilidad del cliente.',
-            'f) Havendo necessidade, o transbordo de carga é facultado a nossa companhia, por motivo estratégico ou para aliviar ao contratante./ Si es necesario, la transferencia de carga está facultada a nuestra compañia, por motivo estratégico o para aliviar al contratante.',
+            'c) Não estão incluídas despesas com Aduanas, SENASA, MULTILOG./ No están incluidos los gastos con Aduanas, SENASA, MULTILOG;',
+            'd) Seguro RCTR-VI incluso, cobrindo perdas por acidentes durante o transporte e desaparecimento da carga com o veículo transportador, comprovados por vistoria de nossa companhia seguradora. A responsabilidade do transportador está limitada ao valor constante da FATURA COMERCIAL que acompanha a mercadoria em caso de ressarcimento de sinistro. Demais coberturas estarão a cargo do embarcador/destinatário conforme INCOTERM que norteia a operação. Avarias devem ser apontadas ainda sobre rodas na descarga para cobertura./ Seguro RCTR-VI cubriendo siniestros originados por accidentes en viaje, debido a pérdidas y daños sufridos por los bienes o mercancías, incluyendo el desaparecimiento de la carga simultáneamente con el vehículo transportador, comprobados mediante inspección de nuestra compañía aseguradora.',
+            'e) Infrações, mesmo que aplicadas a nós, por preenchimento incorreto ou imperfeições em nota fiscal de exportação ou importação, são responsabilidade do cliente./ Infracciones, aunque se nos apliquen, por el llenado incorrecto o imperfección en la factura de exportación o importación, serán responsabilidad del cliente.',
+            'f) Havendo necessidade, o transbordo de carga é facultado a nossa companhia, por motivo estratégico ou para aliviar ao contratante./ Si es necesario, la transferencia de carga está facultada a nuestra compañía, por motivo estratégico o para aliviar al contratante.',
             'g) Programação de embarque: por escrito, com 48h de antecedência, por e-mail./ Programación de embarque: por escrito, con 48 horas de anticipación al correo electrónico.',
         ];
 
@@ -345,11 +345,11 @@ class CotacaoPDFView extends TPage
         $x = self::PAGE_MARGIN;
         $w = $pdf->GetPageWidth() - (self::PAGE_MARGIN * 2);
 
-        $pdf->SetFillColor(0, 0, 153);
-        $pdf->Rect($x, $y, $w, 6.5, 'F');
+        $pdf->SetDrawColor(0, 0, 0);
+        $pdf->Rect($x, $y, $w, 6.5, 'D');
 
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Helvetica', '', 8);
         $pdf->SetXY($x, $y + 1.8);
         $pdf->Cell($w, 3, self::toLatin1($title), 0, 0, 'C');
     }
@@ -450,6 +450,10 @@ class CotacaoPDFView extends TPage
         return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $text);
     }
 }
+
+
+
+
 
 
 

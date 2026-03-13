@@ -18,6 +18,7 @@ class AcompEventoForm extends TPage
         $localizacao = new TEntry('localizacao');
         $status_texto = new TCombo('status_texto');
         $franquia = new TCombo('franquia');
+        $imagem = new TFile('imagem');
 
         $id->setEditable(false);
         $id->setSize('100%');
@@ -28,6 +29,8 @@ class AcompEventoForm extends TPage
         $status_texto->setDefaultOption('Selecione');
         $franquia->setSize('100%');
         $franquia->setDefaultOption('Selecione');
+        $imagem->setAllowedExtensions(['jpg', 'jpeg', 'png', 'gif', 'webp']);
+        $imagem->setSize('100%');
 
         $franquia->addItems([
             'LIVRE' => 'LIVRE',
@@ -60,6 +63,7 @@ class AcompEventoForm extends TPage
         $this->form->addFields([new TLabel('Status')], [$status_texto], [new TLabel('Franquia')], [$franquia]);
         $this->form->addFields([new TLabel('Localizacao (cidade)')], [$localizacao]);
         $this->form->addFields([new TLabel('Evento')], [$demora]);
+        $this->form->addFields([new TLabel('Imagem (foto/comprovante)')], [$imagem]);
 
         $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fa:save green');
         $this->form->addActionLink('Voltar aos status', new TAction(['AcompEventoList', 'onReload'], ['processo_id' => $param['processo_id'] ?? '']), 'fa:arrow-left blue');
@@ -92,6 +96,23 @@ class AcompEventoForm extends TPage
             }
 
             $obj->data_evento = self::toDbDateTime((string) $obj->data_evento);
+
+            $imgFile = $this->form->getField('imagem')->getValue();
+            if ($imgFile) {
+                $source = 'tmp/' . $imgFile;
+                $targetDir = 'app/images/acomp_evento/';
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                if (file_exists($source)) {
+                    rename($source, $targetDir . $imgFile);
+                    $obj->imagem = $imgFile;
+                }
+            } elseif (!empty($obj->id)) {
+                $existing = new AcompEvento($obj->id);
+                $obj->imagem = $existing->imagem;
+            }
+
             $obj->store();
 
             $this->form->setData($obj);
@@ -117,6 +138,12 @@ class AcompEventoForm extends TPage
             $obj = new AcompEvento($param['key']);
             $obj->data_evento = self::toViewDateTime((string) $obj->data_evento);
             $this->form->setData($obj);
+
+            if (!empty($obj->imagem) && file_exists('app/images/acomp_evento/' . $obj->imagem)) {
+                $preview = new TImage('app/images/acomp_evento/' . $obj->imagem);
+                $preview->style = 'max-width:300px; max-height:200px; margin:8px 0; display:block; border-radius:4px;';
+                $this->form->addContent([$preview]);
+            }
 
             TTransaction::close();
         } catch (Exception $e) {

@@ -2,7 +2,7 @@
 /**
  * SystemRequestLogView
  *
- * @version    8.1
+ * @version    8.4
  * @package    control
  * @subpackage log
  * @author     Pablo Dall'Oglio

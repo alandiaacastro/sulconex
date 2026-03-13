@@ -20,8 +20,8 @@ use stdClass;
  * @package    widget
  * @subpackage util
  * @author     Pablo Dall'Oglio
- * @author     Artur Comunello
- * @author     Lucas Tomasi
+ * @author     Artur Comunello (up to version 7.0)
+ * @author     Lucas Tomasi  (up to version 7.5)
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
  * @license    https://adiantiframework.com.br/license
  */

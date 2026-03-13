@@ -33,7 +33,7 @@ use Exception;
 /**
  * Bootstrap form builder for Adianti Framework
  *
- * @version    8.1
+ * @version    8.4
  * @package    wrapper
  * @author     Pablo Dall'Oglio
  * @copyright  Copyright (c) 2006 Adianti Solutions Ltd. (http://www.adianti.com.br)
@@ -70,7 +70,7 @@ class BootstrapFormBuilder implements AdiantiFormInterface
     public function __construct($name = 'my_form')
     {
         $this->decorated         = new TForm($name);
-        $this->tabcurrent        = NULL;
+        $this->tabcurrent        = '';
         $this->current_page      = 0;
         $this->header_actions    = array();
         $this->actions           = array();
@@ -352,13 +352,23 @@ class BootstrapFormBuilder implements AdiantiFormInterface
     {
         if ($this->csrf_validation)
         {
-    		if (!hash_equals($_POST['csrf_token'], TSession::getValue('csrf_token_'.$this->name.'_before')))
-    		{
-    			throw new Exception(AdiantiCoreTranslator::translate('CSRF Error'));
-    		}
+            self::validateCSRFToken($this->name);
         }
         
         return $this->decorated->validate();
+    }
+    
+    /**
+     * Validate CSRF Token
+     */
+    public static function validateCSRFToken($name, $static = false, $code = 0)
+    {
+        $session_var = $static ? 'csrf_token_'.$name : 'csrf_token_'.$name.'_before';
+        
+        if (!hash_equals($_POST['csrf_token'], TSession::getValue($session_var)))
+        {
+            throw new Exception(AdiantiCoreTranslator::translate('CSRF Error'), $code);
+        }
     }
     
     /**
@@ -725,7 +735,7 @@ class BootstrapFormBuilder implements AdiantiFormInterface
         $panel->add($this->decorated);
         $this->decorated->add($body);
         
-        if ($this->tabcurrent !== null)
+        if (!empty($this->tabcurrent))
         {
             $tabs = new TElement('ul');
             $tabs->{'class'} = 'nav nav-tabs';

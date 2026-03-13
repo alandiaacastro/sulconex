@@ -24,19 +24,16 @@ class CctTransmissaoForm extends TPage
         parent::__construct();
 
         try {
-            $this->setTitle("Transmissão MIC/DTA - Siscomex");
-            $this->setDescription("Enviar Manifestos Internacionais de Carga para o Portal Único Siscomex");
-
             // Container principal
             $container = new TPanelGroup("Transmissão de MIC/DTA");
 
             // Formulário
             $this->buildForm();
-            $container->addControl($this->form);
+            $container->add($this->form);
 
             // Datagrid de items
             $this->buildDatagrid();
-            $container->addControl($this->datagrid);
+            $container->add($this->datagrid);
 
             // Botões de ação
             $this->buildActions();
@@ -59,7 +56,7 @@ class CctTransmissaoForm extends TPage
         $this->form->add($fieldlist);
 
         // Seleção de CRT
-        $crt_field = new \Adianti\Widgets\Form\TDBCombo(
+        $crt_field = new TDBCombo(
             'conhecimento_id',
             'default',
             Conhecimento::class,
@@ -67,15 +64,16 @@ class CctTransmissaoForm extends TPage
             '{numero} - {descricao_mercadoria}'
         );
         $crt_field->setLabel("Conhecimento (CRT)");
-        $crt_field->setRequired(true);
+        $crt_field->addValidation('Conhecimento', new TRequiredValidator);
         $fieldlist->addField('conhecimento_id', $crt_field);
 
         // Botão para carregar dados do CRT
         $load_button = new TButton('load_crt');
         $load_button->setLabel("Carregar Dados do CRT");
         $load_button->setImage('fa:arrow-down');
-        $load_button->setAction(new TControllerAction('CctTransmissaoForm', 'onLoadCRT'));
+        $load_button->setAction(new TAction([$this, 'onLoadCRT']));
         $fieldlist->addField('load_btn', $load_button);
+        $this->form->addField($load_button);
 
         // Informações do CRT (read-only)
         $this->buildCRTInfo($fieldlist);
@@ -125,7 +123,7 @@ class CctTransmissaoForm extends TPage
         $peso = new TEntry('peso_bruto_kg');
         $peso->setLabel("Peso Bruto (kg)");
         $peso->setEditable(false);
-        $peso->setNumericMask(true, 2);
+        $peso->setNumericMask(2, ',', '.');
         $peso->setProperty('style', 'background-color: #f5f5f5;');
         $fieldlist->addField('peso_bruto_kg', $peso);
     }
@@ -136,20 +134,19 @@ class CctTransmissaoForm extends TPage
     private function buildDatagrid()
     {
         $this->datagrid = new TDataGrid();
-        $this->datagrid->setHeight('300px');
 
         // Coluna: Chave NF-e
         $col_chave = new TDataGridColumn('chave_acesso_nfe', 'Chave de Acesso (NF-e)', '40%');
-        $col_chave->setEditableField(new \Adianti\Widgets\Form\TEntry('chave_acesso_nfe', 44));
-        $col_chave->setFormatter(function($value) {
+        $col_chave->setEditableField(new TEntry('chave_acesso_nfe'));
+        $col_chave->setTransformer(function($value) {
             return chunk_split($value, 4, ' ');
         });
         $this->datagrid->addColumn($col_chave);
 
         // Coluna: Valor do Frete
         $col_frete = new TDataGridColumn('valor_frete', 'Valor do Frete (R$)', '30%');
-        $col_frete->setEditableField(new \Adianti\Widgets\Form\TNumericSpinner('valor_frete', 0, 999999.99, 0.01));
-        $col_frete->setFormatter(function($value) {
+        $col_frete->setEditableField(new TNumeric('valor_frete', 2, ',', '.'));
+        $col_frete->setTransformer(function($value) {
             return 'R$ ' . number_format($value, 2, ',', '.');
         });
         $this->datagrid->addColumn($col_frete);
@@ -168,13 +165,12 @@ class CctTransmissaoForm extends TPage
         $col_acoes->addAction($action_delete);
         $this->datagrid->addColumn($col_acoes);
 
-        // Datagrid configuração
-        $this->datagrid->setModel(CctTransmissaoItem::class);
-        $this->datagrid->setRepository(false);
+        // Datagrid configuracao
         $this->datagrid->allowOnlyNew(true);
+        $this->datagrid->createModel();
 
         // Container para datagrid
-        $datagrid_panel = new TPanel();
+        $datagrid_panel = new TPanelGroup('');
         $datagrid_panel->setTitle("Informações das NF-es a transmitir");
         $datagrid_panel->add($this->datagrid);
     }
@@ -184,36 +180,41 @@ class CctTransmissaoForm extends TPage
      */
     private function buildActions()
     {
-        $panel = new TPanel();
+        $panel = new TPanelGroup('');
 
         // Botão: Adicionar NF-e
         $btn_add = new TButton('add_item');
         $btn_add->setLabel("Adicionar NF-e");
         $btn_add->setImage('fa:plus');
-        $btn_add->setAction(new TControllerAction('CctTransmissaoForm', 'onAddItem'));
-        $panel->addControl($btn_add);
+        $btn_add->setAction(new TAction([$this, 'onAddItem']));
+        $panel->add($btn_add);
 
         // Botão: Preview XML
         $btn_preview = new TButton('preview_xml');
         $btn_preview->setLabel("Preview XML");
         $btn_preview->setImage('fa:file-code');
-        $btn_preview->setAction(new TControllerAction('CctTransmissaoForm', 'onPreviewXML'));
-        $panel->addControl($btn_preview);
+        $btn_preview->setAction(new TAction([$this, 'onPreviewXML']));
+        $panel->add($btn_preview);
 
         // Botão: Transmitir
         $btn_send = new TButton('btn_transmit');
         $btn_send->setLabel("Transmitir MIC/DTA");
         $btn_send->setImage('fa:paper-plane');
-        $btn_send->setAction(new TControllerAction('CctTransmissaoForm', 'onTransmit'));
-        $btn_send->setStyle('primary');
-        $panel->addControl($btn_send);
+        $btn_send->setAction(new TAction([$this, 'onTransmit']));
+        $btn_send->setProperty('class', 'btn btn-primary');
+        $panel->add($btn_send);
 
         // Botão: Voltar
         $btn_back = new TButton('btn_back');
         $btn_back->setLabel("Voltar");
         $btn_back->setImage('fa:arrow-left');
-        $btn_back->setAction(new TControllerAction('CctTransmissaoList', 'onLoad'));
-        $panel->addControl($btn_back);
+        $btn_back->setAction(new TAction(['CctTransmissaoList', 'onLoad']));
+        $panel->add($btn_back);
+
+        $this->form->addField($btn_add);
+        $this->form->addField($btn_preview);
+        $this->form->addField($btn_send);
+        $this->form->addField($btn_back);
 
         parent::add($panel);
     }
@@ -351,10 +352,9 @@ class CctTransmissaoForm extends TPage
             $dialog->setTitle("Preview do XML MIC/DTA");
             $dialog->add(new TLabel("XML gerado:"));
 
-            $textarea = new \Adianti\Widgets\Form\TTextArea('xml_preview');
+            $textarea = new TText('xml_preview');
             $textarea->setValue($xml);
             $textarea->setEditable(false);
-            $textarea->setHeight('400px');
             $dialog->add($textarea);
 
             $dialog->show();
@@ -400,8 +400,8 @@ class CctTransmissaoForm extends TPage
                 new TMessage('info', $msg);
 
                 // Voltar para lista
-                \Adianti\Registry\TRegistry::setValue('cct_transmit_success', true);
-                new \Adianti\Control\TControllerAction('CctTransmissaoList', 'onLoad')->execute();
+                TRegistry::setValue('cct_transmit_success', true);
+                TApplication::gotoPage('CctTransmissaoList', 'onLoad');
             } else {
                 $erros = implode("\n", $result->erros);
                 new TMessage('error', "Erro na transmissão:\n" . $erros);
@@ -416,3 +416,5 @@ class CctTransmissaoForm extends TPage
     }
 }
 ?>
+
+

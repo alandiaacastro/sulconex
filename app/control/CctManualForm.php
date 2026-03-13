@@ -21,19 +21,16 @@ class CctManualForm extends TPage
         parent::__construct();
 
         try {
-            $this->setTitle("Emissão Manual de MIC/DTA");
-            $this->setDescription("Criar e transmitir manifesto sem CRT existente");
-
             // Container principal
             $container = new TPanelGroup("Emissão Manual de MIC/DTA");
 
             // Formulário
             $this->buildForm();
-            $container->addControl($this->form);
+            $container->add($this->form);
 
             // Datagrid de items
             $this->buildDatagrid();
-            $container->addControl($this->datagrid);
+            $container->add($this->datagrid);
 
             // Botões de ação
             $this->buildActions();
@@ -74,12 +71,12 @@ class CctManualForm extends TPage
         $transp_cnpj = new TEntry('transp_cnpj');
         $transp_cnpj->setLabel("CNPJ do Transportador");
         $transp_cnpj->setMask('999.999.999/9999-99');
-        $transp_cnpj->setRequired(true);
+        $transp_cnpj->addValidation('CNPJ do Transportador', new TRequiredValidator);
         $fieldlist->addField('transp_cnpj', $transp_cnpj);
 
         $transp_nome = new TEntry('transp_nome');
         $transp_nome->setLabel("Razão Social");
-        $transp_nome->setRequired(true);
+        $transp_nome->addValidation('Razão Social', new TRequiredValidator);
         $fieldlist->addField('transp_nome', $transp_nome);
 
         $transp_permissao = new TEntry('transp_permissao');
@@ -92,12 +89,12 @@ class CctManualForm extends TPage
         $exp_cnpj = new TEntry('exp_cnpj');
         $exp_cnpj->setLabel("CNPJ");
         $exp_cnpj->setMask('999.999.999/9999-99');
-        $exp_cnpj->setRequired(true);
+        $exp_cnpj->addValidation('CNPJ', new TRequiredValidator);
         $fieldlist->addField('exp_cnpj', $exp_cnpj);
 
         $exp_nome = new TEntry('exp_nome');
         $exp_nome->setLabel("Nome / Razão Social");
-        $exp_nome->setRequired(true);
+        $exp_nome->addValidation('Nome / Razão Social', new TRequiredValidator);
         $fieldlist->addField('exp_nome', $exp_nome);
 
         $exp_endereco = new TEntry('exp_endereco');
@@ -128,7 +125,7 @@ class CctManualForm extends TPage
 
         $imp_nome = new TEntry('imp_nome');
         $imp_nome->setLabel("Nome / Razão Social");
-        $imp_nome->setRequired(true);
+        $imp_nome->addValidation('Nome / Razão Social', new TRequiredValidator);
         $fieldlist->addField('imp_nome', $imp_nome);
 
         $imp_endereco = new TEntry('imp_endereco');
@@ -146,35 +143,34 @@ class CctManualForm extends TPage
         // ===== SEÇÃO: CARGA =====
         $this->addSectionLabel($fieldlist, "Dados da Carga");
 
-        $descricao = new TTextArea('descricao_carga');
+        $descricao = new TText('descricao_carga');
         $descricao->setLabel("Descrição da Mercadoria");
-        $descricao->setHeight('80px');
-        $descricao->setRequired(true);
+        $descricao->addValidation('Descrição da Mercadoria', new TRequiredValidator);
         $fieldlist->addField('descricao_carga', $descricao);
 
-        $peso_bruto = new TNumericSpinner('peso_bruto', 0, 999999.99, 0.01);
+        $peso_bruto = new TNumeric('peso_bruto', 2, ',', '.');
         $peso_bruto->setLabel("Peso Bruto (kg)");
-        $peso_bruto->setRequired(true);
+        $peso_bruto->addValidation('Peso Bruto', new TRequiredValidator);
         $fieldlist->addField('peso_bruto', $peso_bruto);
 
-        $peso_liquido = new TNumericSpinner('peso_liquido', 0, 999999.99, 0.01);
+        $peso_liquido = new TNumeric('peso_liquido', 2, ',', '.');
         $peso_liquido->setLabel("Peso Líquido (kg)");
         $fieldlist->addField('peso_liquido', $peso_liquido);
 
-        $volume = new TNumericSpinner('volume', 0, 99999.99, 0.01);
+        $volume = new TNumeric('volume', 2, ',', '.');
         $volume->setLabel("Volume (m³)");
         $fieldlist->addField('volume', $volume);
 
         $quantidade_vol = new TEntry('quantidade_vol');
         $quantidade_vol->setLabel("Quantidade de Volumes");
-        $quantidade_vol->setNumericMask(true, 0);
+        $quantidade_vol->setNumericMask(0, '', '.');
         $fieldlist->addField('quantidade_vol', $quantidade_vol);
 
         $especie = new TEntry('especie_vol');
         $especie->setLabel("Espécie (Caixa, Saco, Pallet, etc)");
         $fieldlist->addField('especie_vol', $especie);
 
-        $valor_mercadoria = new TNumericSpinner('valor_mercadoria', 0, 9999999.99, 0.01);
+        $valor_mercadoria = new TNumeric('valor_mercadoria', 2, ',', '.');
         $valor_mercadoria->setLabel("Valor da Mercadoria (USD)");
         $fieldlist->addField('valor_mercadoria', $valor_mercadoria);
 
@@ -183,7 +179,7 @@ class CctManualForm extends TPage
 
         $placa_trator = new TEntry('placa_trator');
         $placa_trator->setLabel("Placa do Trator");
-        $placa_trator->setRequired(true);
+        $placa_trator->addValidation('Placa do Trator', new TRequiredValidator);
         $placa_trator->setMask('AAA-9999');
         $fieldlist->addField('placa_trator', $placa_trator);
 
@@ -202,28 +198,30 @@ class CctManualForm extends TPage
         $motor_cpf = new TEntry('motor_cpf');
         $motor_cpf->setLabel("CPF");
         $motor_cpf->setMask('999.999.999-99');
-        $motor_cpf->setRequired(true);
+        $motor_cpf->addValidation('CPF', new TRequiredValidator);
         $fieldlist->addField('motor_cpf', $motor_cpf);
 
         $motor_nome = new TEntry('motor_nome');
         $motor_nome->setLabel("Nome Completo");
-        $motor_nome->setRequired(true);
+        $motor_nome->addValidation('Nome Completo', new TRequiredValidator);
         $fieldlist->addField('motor_nome', $motor_nome);
 
         $motor_cnh = new TEntry('motor_cnh');
         $motor_cnh->setLabel("Número da CNH");
-        $motor_cnh->setRequired(true);
+        $motor_cnh->addValidation('Número da CNH', new TRequiredValidator);
         $fieldlist->addField('motor_cnh', $motor_cnh);
 
         $motor_categoria = new TCombo('motor_categoria');
         $motor_categoria->setLabel("Categoria da CNH");
-        $motor_categoria->addOption('', '-- Selecione --');
-        $motor_categoria->addOption('A', 'A - Motocicleta');
-        $motor_categoria->addOption('B', 'B - Veículos leves');
-        $motor_categoria->addOption('C', 'C - Veículos médios');
-        $motor_categoria->addOption('D', 'D - Veículos pesados');
-        $motor_categoria->addOption('E', 'E - Combinações de veículos');
-        $motor_categoria->setRequired(true);
+        $motor_categoria->addItems([
+            '' => '-- Selecione --',
+            'A' => 'A - Motocicleta',
+            'B' => 'B - Veículos leves',
+            'C' => 'C - Veículos médios',
+            'D' => 'D - Veículos pesados',
+            'E' => 'E - Combinações de veículos'
+        ]);
+        $motor_categoria->addValidation('Categoria da CNH', new TRequiredValidator);
         $fieldlist->addField('motor_categoria', $motor_categoria);
     }
 
@@ -252,10 +250,11 @@ class CctManualForm extends TPage
             'SP' => 'São Paulo', 'SE' => 'Sergipe', 'TO' => 'Tocantins'
         );
 
-        $combo->addOption('', '-- Selecione --');
+        $items = ['' => '-- Selecione --'];
         foreach ($states as $code => $name) {
-            $combo->addOption($code, $name . " ({$code})");
+            $items[$code] = $name . " ({$code})";
         }
+        $combo->addItems($items);
     }
 
     /**
@@ -264,18 +263,17 @@ class CctManualForm extends TPage
     private function buildDatagrid()
     {
         $this->datagrid = new TDataGrid();
-        $this->datagrid->setHeight('250px');
 
         // Coluna: Chave NF-e
         $col_chave = new TDataGridColumn('chave_nfe', 'Chave de Acesso (NF-e)', '45%');
-        $col_chave->setFormatter(function($value) {
+        $col_chave->setTransformer(function($value) {
             return chunk_split($value, 4, ' ');
         });
         $this->datagrid->addColumn($col_chave);
 
         // Coluna: Valor do Frete
         $col_frete = new TDataGridColumn('valor_frete', 'Valor do Frete (R$)', '30%');
-        $col_frete->setFormatter(function($value) {
+        $col_frete->setTransformer(function($value) {
             return 'R$ ' . number_format($value, 2, ',', '.');
         });
         $this->datagrid->addColumn($col_frete);
@@ -286,11 +284,10 @@ class CctManualForm extends TPage
         $action_delete->setLabel("Remover");
         $action_delete->setImage('fa:trash');
         $action_delete->setField('id');
-        $col_acoes->addAction($action_delete);
+        $this->datagrid->addAction($action_delete);
         $this->datagrid->addColumn($col_acoes);
 
-        $this->datagrid->setRepository(false);
-        $this->datagrid->allowOnlyNew(true);
+        $this->datagrid->createModel();
     }
 
     /**
@@ -298,36 +295,41 @@ class CctManualForm extends TPage
      */
     private function buildActions()
     {
-        $panel = new TPanel();
+        $panel = new TPanelGroup('');
 
         // Botão: Adicionar NF-e
         $btn_add = new TButton('add_nfe');
         $btn_add->setLabel("Adicionar NF-e");
         $btn_add->setImage('fa:plus');
-        $btn_add->setAction(new TControllerAction('CctManualForm', 'onAddNFe'));
-        $panel->addControl($btn_add);
+        $btn_add->setAction(new TAction([$this, 'onAddNFe']));
+        $panel->add($btn_add);
 
         // Botão: Preview XML
         $btn_preview = new TButton('preview_xml');
         $btn_preview->setLabel("Preview XML");
         $btn_preview->setImage('fa:file-code');
-        $btn_preview->setAction(new TControllerAction('CctManualForm', 'onPreviewXML'));
-        $panel->addControl($btn_preview);
+        $btn_preview->setAction(new TAction([$this, 'onPreviewXML']));
+        $panel->add($btn_preview);
 
         // Botão: Transmitir
         $btn_send = new TButton('btn_transmit');
         $btn_send->setLabel("Transmitir MIC/DTA");
         $btn_send->setImage('fa:paper-plane');
-        $btn_send->setAction(new TControllerAction('CctManualForm', 'onTransmit'));
-        $btn_send->setStyle('primary');
-        $panel->addControl($btn_send);
+        $btn_send->setAction(new TAction([$this, 'onTransmit']));
+        $btn_send->setProperty('class', 'btn btn-primary');
+        $panel->add($btn_send);
 
         // Botão: Voltar
         $btn_back = new TButton('btn_back');
         $btn_back->setLabel("Voltar");
         $btn_back->setImage('fa:arrow-left');
-        $btn_back->setAction(new TControllerAction('CctTransmissaoList', 'onLoad'));
-        $panel->addControl($btn_back);
+        $btn_back->setAction(new TAction(['CctTransmissaoList', 'onLoad']));
+        $panel->add($btn_back);
+
+        $this->form->addField($btn_add);
+        $this->form->addField($btn_preview);
+        $this->form->addField($btn_send);
+        $this->form->addField($btn_back);
 
         parent::add($panel);
     }
@@ -419,3 +421,8 @@ class CctManualForm extends TPage
     }
 }
 ?>
+
+
+
+
+

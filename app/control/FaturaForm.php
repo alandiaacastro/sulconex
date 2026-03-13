@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class FaturaForm extends TPage
 {
     protected $form;
@@ -11,10 +11,10 @@ class FaturaForm extends TPage
     {
         parent::__construct();
 
-        // Cria o formulário principal
+        // Cria o formulario principal
         $this->form = new TForm(self::$form_name);
 
-        // === CAMPOS DO FORMULÁRIO ===
+        // === CAMPOS DO FORMULARIO ===
         $id               = new TEntry('id');
         $numero_crt       = new TDBUniqueSearch('conhecimento_id', 'sample', 'Conhecimento', 'id', 'numero');
         $fatura_cliente   = new TEntry('fatura_cliente');
@@ -49,16 +49,16 @@ class FaturaForm extends TPage
         $pagamento        = new TDate('pagamento');
         $texto_observacao = new TText('texto_observacao');
 
-        // === CONFIGURAÇÕES DE CAMPOS ===
+        // === CONFIGURACOES DE CAMPOS ===
         $id->setEditable(false);
-        $remetente->setEditable(false);
-        $destinatario->setEditable(false);
-        $origem->setEditable(false);
-        $destino->setEditable(false);
-        $valor_extenso->setEditable(false);
-        $cliente_cnpj->setEditable(false);
-        $cliente_ie->setEditable(false);
-        $cliente_endereco->setEditable(false);
+        $remetente->setProperty('readonly', '1');
+        $destinatario->setProperty('readonly', '1');
+        $origem->setProperty('readonly', '1');
+        $destino->setProperty('readonly', '1');
+        $valor_extenso->setProperty('readonly', '1');
+        $cliente_cnpj->setProperty('readonly', '1');
+        $cliente_ie->setProperty('readonly', '1');
+        $cliente_endereco->setProperty('readonly', '1');
 
         $data_emissao->setMask('dd/mm/yyyy');
         $data_emissao->setDatabaseMask('yyyy-mm-dd');
@@ -73,16 +73,28 @@ class FaturaForm extends TPage
         $numero_crt->setMinLength(0);
         $numero_crt->setMask('{numero}');
 
-        // === AÇÕES DINÂMICAS ===
+        $all_fields = [
+            $id, $numero_crt, $fatura_cliente, $pessoa_id, $cliente_cnpj, $cliente_ie, $cliente_endereco,
+            $data_emissao, $prazo_dias, $data_vencimento, $taxa, $nota_fiscal, $origem, $destino,
+            $remetente, $destinatario, $peso_bruto, $produto, $descricao1, $valor1, $descricao2,
+            $valor2, $descricao3, $valor3, $valor_extenso, $valor_fatura, $pagamento, $texto_observacao
+        ];
+        foreach ($all_fields as $field) {
+            if (method_exists($field, 'setSize')) {
+                $field->setSize('100%');
+            }
+        }
+
+        // === ACOES DINAMICAS ===
         $pessoa_id->setChangeAction(new TAction([__CLASS__, 'onSelectCliente']));
         $numero_crt->setChangeAction(new TAction([__CLASS__, 'onExitCRT']));
         $prazo_dias->setExitAction(new TAction([__CLASS__, 'onCalculaVencimento']));
-        
+
         $valor1->setExitAction(new TAction([__CLASS__, 'onUpdateTotal']));
         $valor2->setExitAction(new TAction([__CLASS__, 'onUpdateTotal']));
         $valor3->setExitAction(new TAction([__CLASS__, 'onUpdateTotal']));
 
-        // === CRIAÇÃO DE ABAS (NOTEBOOK) ===
+        // === CRIACAO DE ABAS (NOTEBOOK) ===
         $notebook = new TNotebook;
 
         // --- ABA 1: DADOS GERAIS ---
@@ -93,51 +105,65 @@ class FaturaForm extends TPage
         $form_gerais->setFieldSizes('100%');
         $page1_vbox->add($form_gerais);
 
-        $form_gerais->addFields([new TLabel('ID')], [$id], [new TLabel('CRT')], [$numero_crt]);
-        $form_gerais->addFields([new TLabel('Fatura Cliente')], [$fatura_cliente]);
-        $form_gerais->addFields([new TLabel('Cliente (*)', 'red')], [$pessoa_id]);
-        $form_gerais->addFields([new TLabel('CNPJ')], [$cliente_cnpj], [new TLabel('IE')], [$cliente_ie]);
-        $form_gerais->addFields([new TLabel('Endereço')], [$cliente_endereco]);
-        $form_gerais->addFields([new TLabel('Emissão (*)', 'red')], [$data_emissao], [new TLabel('Prazo (Dias)')], [$prazo_dias]);
-        $form_gerais->addFields([new TLabel('Vencimento')], [$data_vencimento], [new TLabel('Taxa')], [$taxa]);
-        $form_gerais->addFields([new TLabel('Nota Fiscal')], [$nota_fiscal]);
+        $row = $form_gerais->addFields([new TLabel('ID')], [$id], [new TLabel('CRT')], [$numero_crt]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Fatura Cliente')], [$fatura_cliente]);
+        $row->layout = ['col-sm-2', 'col-sm-10'];
+        $row = $form_gerais->addFields([new TLabel('Cliente (*)', 'red')], [$pessoa_id]);
+        $row->layout = ['col-sm-2', 'col-sm-10'];
+        $row = $form_gerais->addFields([new TLabel('CNPJ')], [$cliente_cnpj], [new TLabel('IE')], [$cliente_ie]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Endereco')], [$cliente_endereco]);
+        $row->layout = ['col-sm-2', 'col-sm-10'];
+        $row = $form_gerais->addFields([new TLabel('Emissao (*)', 'red')], [$data_emissao], [new TLabel('Prazo (Dias)')], [$prazo_dias]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Vencimento')], [$data_vencimento], [new TLabel('Taxa')], [$taxa]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Nota Fiscal')], [$nota_fiscal]);
+        $row->layout = ['col-sm-2', 'col-sm-10'];
         $form_gerais->addContent(['<h4>Dados do CRT</h4><hr>']);
-        $form_gerais->addFields([new TLabel('Origem')], [$origem], [new TLabel('Destino')], [$destino]);
-        $form_gerais->addFields([new TLabel('Remetente')], [$remetente], [new TLabel('Destinatário')], [$destinatario]);
-        $form_gerais->addFields([new TLabel('Produto')], [$produto], [new TLabel('Peso Bruto')], [$peso_bruto]);
+        $row = $form_gerais->addFields([new TLabel('Origem')], [$origem], [new TLabel('Destino')], [$destino]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Remetente')], [$remetente], [new TLabel('Destinatario')], [$destinatario]);
+        $row->layout = ['col-sm-2', 'col-sm-4', 'col-sm-2', 'col-sm-4'];
+        $row = $form_gerais->addFields([new TLabel('Produto')], [$produto], [new TLabel('Peso Bruto')], [$peso_bruto]);
+        $row->layout = ['col-sm-6', 'col-sm-3', 'col-sm-3', 'col-sm-0'];
 
-        // --- ABA 2: VALORES E OBSERVAÇÕES ---
+        // --- ABA 2: VALORES E OBSERVACOES ---
         $page2_vbox = new TVBox;
         $page2_vbox->style = 'width: 100%';
-        $notebook->appendPage('Valores e Observações', $page2_vbox);
+        $notebook->appendPage('Valores e Observacoes', $page2_vbox);
 
         $panel_itens = new TPanelGroup('Itens da Fatura');
         $table_itens = new TTable;
         $table_itens->style = 'width:100%';
         $table_itens->addSection('thead');
         $row_head = $table_itens->addRow();
-        $row_head->addCell(new TLabel('<b>Descrição</b>'))->style = 'width:75%';
-        $row_head->addCell(new TLabel('<b>Valor R$</b>'))->style = 'width:25%';
+        $row_head->addCell(new TLabel('<b>Descricao</b>'))->style = 'width:75%';
+        $row_head->addCell(new TLabel('<b>Valor</b>'))->style = 'width:25%';
         $table_itens->addRowSet($descricao1, $valor1);
         $table_itens->addRowSet($descricao2, $valor2);
         $table_itens->addRowSet($descricao3, $valor3);
         $panel_itens->add($table_itens);
         $page2_vbox->add($panel_itens);
 
-        $panel_totais = new TPanelGroup('Totais e Observações');
+        $panel_totais = new TPanelGroup('Totais e Observacoes');
         $form_totais = new BootstrapFormBuilder('form_totais_interno');
         $form_totais->setFieldSizes('100%');
-        $form_totais->addFields([new TLabel('Valor por Extenso')], [$valor_extenso]);
-        $form_totais->addFields([new TLabel('Valor Total Fatura')], [$valor_fatura]);
-        $form_totais->addFields([new TLabel('Data Pagamento')], [$pagamento]);
-        $form_totais->addFields([new TLabel('Observações')], [$texto_observacao]);
+        $row = $form_totais->addFields([new TLabel('Valor por Extenso')], [$valor_extenso]);
+        $row->layout = ['col-sm-3', 'col-sm-9'];
+        $row = $form_totais->addFields([new TLabel('Valor Total Fatura')], [$valor_fatura]);
+        $row->layout = ['col-sm-3', 'col-sm-9'];
+        $row = $form_totais->addFields([new TLabel('Data Pagamento')], [$pagamento]);
+        $row->layout = ['col-sm-3', 'col-sm-9'];
+        $row = $form_totais->addFields([new TLabel('Observacoes')], [$texto_observacao]);
+        $row->layout = ['col-sm-3', 'col-sm-9'];
         $panel_totais->add($form_totais);
         $page2_vbox->add($panel_totais);
 
-        // === BOTÕES ===
+        // === BOTOES ===
         $btn_save  = TButton::create('save', [$this, 'onSave'], 'Salvar', 'fa:save green');
         $btn_clear = TButton::create('clear', [$this, 'onClear'], 'Limpar', 'fa:eraser red');
-        // AQUI ESTÁ A CORREÇÃO
         $btn_list  = new TActionLink('Listagem', new TAction(['FaturaList', 'onReload']), null, null, null, 'fa:table blue');
         $btn_list->class = 'btn btn-default';
 
@@ -152,7 +178,7 @@ class FaturaForm extends TPage
         $panel_main->addFooter($buttons_box);
         $this->form->add($panel_main);
 
-        // Registra todos os campos no formulário principal
+        // Registra todos os campos no formulario principal
         $this->form->setFields([
             $id, $numero_crt, $fatura_cliente, $pessoa_id, $cliente_cnpj, $cliente_ie, $cliente_endereco,
             $data_emissao, $prazo_dias, $data_vencimento, $taxa, $nota_fiscal,
@@ -166,6 +192,7 @@ class FaturaForm extends TPage
         $container = new TVBox;
         $container->style = 'width: 100%';
         $container->add(new TXMLBreadCrumb('menu.xml', 'FaturaList'));
+
         $container->add($this->form);
         parent::add($container);
     }
@@ -180,10 +207,45 @@ class FaturaForm extends TPage
             $this->form->validate();
             $fatura = $this->form->getData('Fatura');
 
-            if (!empty($fatura->emissao) && !empty($fatura->vencimento)) {
-                if (TDate::convertToMask($fatura->emissao, 'dd/mm/yyyy', 'yyyy-mm-dd') > TDate::convertToMask($fatura->vencimento, 'dd/mm/yyyy', 'yyyy-mm-dd')) {
-                    throw new Exception('A Data de Emissão não pode ser maior que a Data de Vencimento.');
+            if (!empty($fatura->conhecimento_id)) {
+                $conhecimento = new Conhecimento($fatura->conhecimento_id);
+                if (!empty($conhecimento->id)) {
+                    $fatura->numero_crt = $conhecimento->numero ?? $fatura->numero_crt;
+                    $fatura->ORIGEM = $conhecimento->local_emissao ?? $fatura->ORIGEM;
+                    $fatura->DESTINO = $conhecimento->local_entrega ?? $fatura->DESTINO;
+                    $fatura->REMETENTE = $conhecimento->remetente->nome ?? $fatura->REMETENTE;
+                    $fatura->DESTINATARIO = $conhecimento->destinatario->nome ?? $fatura->DESTINATARIO;
+                    $fatura->PESO_BRUTO = $conhecimento->peso_bruto_kg ?? $fatura->PESO_BRUTO;
+                    $fatura->PRODUTO = $conhecimento->prod ?? $fatura->PRODUTO;
                 }
+            }
+
+            if (!empty($fatura->emissao) && !empty($fatura->vencimento)) {
+                $emissaoTs = strtotime($fatura->emissao);
+                $vencTs = strtotime($fatura->vencimento);
+                if ($emissaoTs && $vencTs && $emissaoTs > $vencTs) {
+                    throw new Exception('A Data de Emissao nao pode ser maior que a Data de Vencimento.');
+                }
+            }
+
+            $valor1 = self::toFloat($fatura->valor1 ?? 0);
+            $valor2 = self::toFloat($fatura->valor2 ?? 0);
+            $valor3 = self::toFloat($fatura->valor3 ?? 0);
+            $total = $valor1 + $valor2 + $valor3;
+
+            if ($fatura->valor_fatura === null || $fatura->valor_fatura === '') {
+                $fatura->valor_fatura = $total;
+            }
+
+            if ($fatura->valor_extenso === null || $fatura->valor_extenso === '') {
+                $formatter = new NumberFormatter('pt_BR', NumberFormatter::SPELLOUT);
+                $reais = floor($total);
+                $centavos = round(($total - $reais) * 100);
+                $extenso = ucfirst($formatter->format($reais)) . ' reais';
+                if ($centavos > 0) {
+                    $extenso .= ' e ' . $formatter->format($centavos) . ' centavos';
+                }
+                $fatura->valor_extenso = $extenso;
             }
 
             $fatura->store();
@@ -197,7 +259,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Limpa o formulário
+     * Limpa o formulario
      */
     public function onClear($param)
     {
@@ -205,7 +267,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Carrega o formulário para edição
+     * Carrega o formulario para edicao
      */
     public function onEdit($param)
     {
@@ -214,6 +276,15 @@ class FaturaForm extends TPage
                 TTransaction::open('sample');
                 $fatura = new Fatura($param['key']);
                 $this->form->setData($fatura);
+
+                if (!empty($fatura->pessoa_id)) {
+                    $cliente = new Clientes($fatura->pessoa_id);
+                    $data_to_send = new stdClass;
+                    $data_to_send->cliente_cnpj = $cliente->cnpj ?? '';
+                    $data_to_send->cliente_ie = $cliente->inscricao_estadual ?? '';
+                    $data_to_send->cliente_endereco = $cliente->endereco ?? '';
+                    TForm::sendData(self::$form_name, $data_to_send);
+                }
                 TTransaction::close();
             }
         } catch (Exception $e) {
@@ -223,8 +294,8 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Ação estática ao selecionar um cliente.
-     * Preenche os dados de CNPJ, IE e Endereço.
+     * Acao estatica ao selecionar um cliente.
+     * Preenche os dados de CNPJ, IE e Endereco.
      */
     public static function onSelectCliente($param)
     {
@@ -248,8 +319,8 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Ação estática ao sair do campo CRT.
-     * Busca os dados do conhecimento e preenche o formulário.
+     * Acao estatica ao sair do campo CRT.
+     * Busca os dados do conhecimento e preenche o formulario.
      */
     public static function onExitCRT($param)
     {
@@ -270,7 +341,7 @@ class FaturaForm extends TPage
                     TForm::sendData(self::$form_name, $data_to_send);
                     self::onSelectCliente(['pessoa_id' => $conhecimento->remetente_id]);
                 } else {
-                    new TMessage('info', 'Nenhum Conhecimento encontrado com este número.');
+                    new TMessage('info', 'Nenhum Conhecimento encontrado com este numero.');
                 }
 
                 TTransaction::close();
@@ -282,7 +353,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Ação estática para calcular a data de vencimento a partir do prazo.
+     * Acao estatica para calcular a data de vencimento a partir do prazo.
      */
     public static function onCalculaVencimento($param)
     {
@@ -294,7 +365,7 @@ class FaturaForm extends TPage
                 $prazo_dias = (int) $param['prazo'];
                 $data_vencimento = new DateTime($data_emissao);
                 $data_vencimento->add(new DateInterval("P{$prazo_dias}D"));
-                
+
                 $obj = new stdClass;
                 $obj->vencimento = $data_vencimento->format('d/m/Y');
                 TForm::sendData(self::$form_name, $obj);
@@ -307,7 +378,7 @@ class FaturaForm extends TPage
     }
 
     /**
-     * Ação estática para atualizar o total e o valor por extenso.
+     * Acao estatica para atualizar o total e o valor por extenso.
      */
     public static function onUpdateTotal($param)
     {
@@ -332,8 +403,20 @@ class FaturaForm extends TPage
 
         TForm::sendData(self::$form_name, $data);
     }
-}
 
+    private static function toFloat($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+        $clean = str_replace('.', '', (string) $value);
+        $clean = str_replace(',', '.', $clean);
+        return (float) $clean;
+    }
+}
 
 
 

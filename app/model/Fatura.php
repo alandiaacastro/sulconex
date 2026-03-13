@@ -31,6 +31,7 @@ class Fatura extends TRecord
         parent::addAttribute('prazo');
         parent::addAttribute('taxa');
         parent::addAttribute('nota_fiscal');
+        parent::addAttribute('chave_acesso_nfe');
         parent::addAttribute('texto_observacao');
         parent::addAttribute('descricao1');
         parent::addAttribute('valor1');

@@ -13,7 +13,7 @@ use Exception;
 /**
  * Entry Widget
  *
- * @version    8.1
+ * @version    8.4
  * @package    widget
  * @subpackage form
  * @author     Pablo Dall'Oglio
@@ -143,8 +143,7 @@ class TEntry extends TField implements AdiantiWidgetInterface
         $dec_pattern = $decimalsSeparator == '.' ? '\\.' : $decimalsSeparator;
         $tho_pattern = $thousandSeparator == '.' ? '\\.' : $thousandSeparator;
         
-        //$this->tag->{'pattern'}   = '^\\$?(([1-9](\\d*|\\d{0,2}('.$tho_pattern.'\\d{3})*))|0)('.$dec_pattern.'\\d{1,2})?$';
-        $this->tag->{'pattern'}   = '^([-+,0-9.]+)\\$?(([1-9](\\d*|\\d{0,'.$decimals.'}('.$tho_pattern.'\\d{3})*))|0)('.$dec_pattern.'\\d{1,'.$decimals.'})?$';
+        $this->tag->{'pattern'}   = '^([\-\+,\-0-9.]+)\\$?(([1-9](\\d*|\\d{0,'.$decimals.'}('.$tho_pattern.'\\d{3})*))|0)('.$dec_pattern.'\\d{1,'.$decimals.'})?$';
         $this->tag->{'inputmode'} = 'numeric';
         $this->tag->{'data-nmask'}  = $decimals.$decimalsSeparator.$thousandSeparator;
     }
@@ -457,6 +456,12 @@ class TEntry extends TField implements AdiantiWidgetInterface
             $this->tag->show();
         }
         
+        // verify if the widget is non-editable
+        if (!parent::getEditable())
+        {
+            parent::disableField($this->formName, $this->id);
+        }
+        
         if (isset($this->completion))
         {
             $options = [ 'minChars' => $this->minLength ];
@@ -480,12 +485,6 @@ class TEntry extends TField implements AdiantiWidgetInterface
         if ($this->exitOnEnterOn)
         {
             TScript::create( "tentry_exit_on_enter( '{$this->id}' ); ");
-        }
-        
-        // verify if the widget is non-editable
-        if (!parent::getEditable())
-        {
-            parent::disableField($this->formName, $this->id);
         }
     }
 }

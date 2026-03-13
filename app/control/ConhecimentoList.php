@@ -30,6 +30,7 @@ class ConhecimentoList extends TPage
 
         $this->form->addAction('Filtrar', new TAction([$this, 'onSearch']), 'fa:search blue');
         $this->form->addAction('Novo CRT', new TAction([$this, 'onNumerarCrt']), 'fa:plus green');
+        $this->form->addAction('Importar XML', new TAction([$this, 'onImportXml']), 'fa:file-import orange');
         $this->form->addAction('Recarregar', new TAction([$this, 'onReload']), 'fa:refresh');
 
         $this->form->setData(TSession::getValue(__CLASS__ . '_filter_data'));
@@ -297,6 +298,330 @@ class ConhecimentoList extends TPage
     public static function closeWindow()
     {
         TWindow::closeWindow('form_novo_crt');
+    }
+
+    // ---------------------------------------------------------------
+    // Importação de CRT via XML
+    // ---------------------------------------------------------------
+
+    public static function onImportXml($param = null)
+    {
+        $modelo = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<CartaPorteInternacional>
+  <InformacoesGerais>
+    <Numero></Numero>
+    <DataEmissao></DataEmissao>
+    <Permisso></Permisso>
+    <FaturaCRT></FaturaCRT>
+    <CopiarCRT>N</CopiarCRT>
+    <Assinatura></Assinatura>
+  </InformacoesGerais>
+  <Remetente>
+    <Nome></Nome>
+    <Endereco></Endereco>
+    <Cnpj></Cnpj>
+    <Email></Email>
+    <Telefone></Telefone>
+    <Cidade></Cidade>
+    <Estado></Estado>
+    <Cep></Cep>
+    <InscricaoEstadual></InscricaoEstadual>
+    <Atividade></Atividade>
+    <EmissaoCrt></EmissaoCrt>
+    <Tipo>EXPORTADOR</Tipo>
+  </Remetente>
+  <Destinatario>
+    <Nome></Nome>
+    <Endereco></Endereco>
+    <Cnpj></Cnpj>
+    <Email></Email>
+    <Telefone></Telefone>
+    <Cidade></Cidade>
+    <Estado></Estado>
+    <Cep></Cep>
+    <InscricaoEstadual></InscricaoEstadual>
+    <Atividade></Atividade>
+    <EmissaoCrt></EmissaoCrt>
+    <Tipo>IMPORTADOR</Tipo>
+  </Destinatario>
+  <Consignatario>
+    <Nome></Nome>
+    <Endereco></Endereco>
+    <Cnpj></Cnpj>
+    <Email></Email>
+    <Telefone></Telefone>
+    <Cidade></Cidade>
+    <Estado></Estado>
+    <Cep></Cep>
+    <InscricaoEstadual></InscricaoEstadual>
+    <Atividade></Atividade>
+    <EmissaoCrt></EmissaoCrt>
+    <Tipo>CONSIGNATARIO</Tipo>
+  </Consignatario>
+  <Notificar>
+    <Nome></Nome>
+    <Endereco></Endereco>
+    <Cnpj></Cnpj>
+    <Email></Email>
+    <Telefone></Telefone>
+    <Cidade></Cidade>
+    <Estado></Estado>
+    <Cep></Cep>
+    <InscricaoEstadual></InscricaoEstadual>
+    <Atividade></Atividade>
+    <EmissaoCrt></EmissaoCrt>
+    <Tipo>NOTIFICAR</Tipo>
+  </Notificar>
+  <Locais>
+    <Emissao></Emissao>
+    <Responsabilidade></Responsabilidade>
+    <Entrega></Entrega>
+  </Locais>
+  <Carga>
+    <Descricao></Descricao>
+    <PesoBrutoKg></PesoBrutoKg>
+    <PesoLiquidoKg></PesoLiquidoKg>
+    <VolumeM3></VolumeM3>
+    <QuantidadeVolumes></QuantidadeVolumes>
+    <EspecieVolume></EspecieVolume>
+    <Incoterm></Incoterm>
+    <Incoterm16></Incoterm16>
+    <MoedaMercadoria></MoedaMercadoria>
+    <ValorMercadoria></ValorMercadoria>
+    <ValorDeclarado></ValorDeclarado>
+    <ValorReembolso></ValorReembolso>
+  </Carga>
+  <Frete>
+    <Moeda></Moeda>
+    <ValorExterno></ValorExterno>
+  </Frete>
+  <Custos>
+    <Moeda></Moeda>
+    <Item1>
+      <Descricao></Descricao>
+      <CustoRemetente></CustoRemetente>
+      <CustoDestinatario></CustoDestinatario>
+    </Item1>
+    <Item2>
+      <Descricao></Descricao>
+      <CustoRemetente></CustoRemetente>
+      <CustoDestinatario></CustoDestinatario>
+    </Item2>
+    <Item3>
+      <Descricao></Descricao>
+      <CustoRemetente></CustoRemetente>
+      <CustoDestinatario></CustoDestinatario>
+    </Item3>
+    <TotalRemetente></TotalRemetente>
+    <TotalDestinatario></TotalDestinatario>
+  </Custos>
+  <Observacoes>
+    <Observacoes></Observacoes>
+    <InstrucoesAlfandega></InstrucoesAlfandega>
+    <DocumentosAnexos></DocumentosAnexos>
+  </Observacoes>
+</CartaPorteInternacional>
+XML;
+
+        $win = TWindow::create('form_import_xml', 1, 1, 700, 560);
+        $win->setTitle('Importar CRT via XML');
+
+        $form = new BootstrapFormBuilder('form_import_xml');
+        $form->setFormTitle('Cole o XML abaixo e clique em Importar');
+        $form->style = 'padding:10px';
+
+        $xml_content = new TText('xml_content');
+        $xml_content->setSize('100%', 380);
+        $xml_content->setValue($modelo);
+        $xml_content->setProperty('style', 'font-family:monospace;font-size:12px;resize:vertical;');
+
+        $form->addFields([$xml_content]);
+        $form->addAction('Importar', new TAction([__CLASS__, 'processImportXml']), 'fa:upload green');
+        $form->addAction('Cancelar', new TAction([__CLASS__, 'closeImportWindow']), 'fa:times red');
+
+        $win->add($form);
+        $win->show();
+    }
+
+    public static function closeImportWindow()
+    {
+        TWindow::closeWindow('form_import_xml');
+    }
+
+    public static function processImportXml($param)
+    {
+        try {
+            $xmlContent = trim($param['xml_content'] ?? '');
+            if (empty($xmlContent)) {
+                throw new Exception('Nenhum conteúdo XML informado.');
+            }
+
+            libxml_use_internal_errors(true);
+            $dom = new DOMDocument();
+            if (!$dom->loadXML($xmlContent)) {
+                $erros = libxml_get_errors();
+                libxml_clear_errors();
+                $msg = 'XML inválido';
+                if (!empty($erros)) {
+                    $msg .= ': ' . trim($erros[0]->message);
+                }
+                throw new Exception($msg);
+            }
+            libxml_clear_errors();
+
+            $root = $dom->documentElement;
+            if ($root->tagName !== 'CartaPorteInternacional') {
+                throw new Exception('Formato inválido: elemento raiz esperado é <CartaPorteInternacional>.');
+            }
+
+            $xp = new DOMXPath($dom);
+
+            $g = function (string $query) use ($xp): string {
+                $nodes = $xp->query($query);
+                return ($nodes && $nodes->length > 0) ? trim($nodes->item(0)->nodeValue) : '';
+            };
+
+            TTransaction::open('sample');
+            TTransaction::get()->exec('PRAGMA foreign_keys = ON');
+
+            Clientes::ensureSchema();
+
+            // ---------- Helper: encontra cliente por CNPJ ou cria novo ----------
+            $findOrCreateClient = function (string $section, string $tipoDefault) use ($g): ?int {
+                $nome = $g("//{$section}/Nome");
+                if (empty($nome)) return null;
+
+                $cnpj = $g("//{$section}/Cnpj");
+
+                // Tentar encontrar por CNPJ se informado
+                if (!empty($cnpj)) {
+                    $repo = new TRepository('Clientes');
+                    $crit = new TCriteria;
+                    $crit->add(new TFilter('cnpj', '=', $cnpj));
+                    $found = $repo->load($crit);
+                    if (!empty($found)) {
+                        return (int) $found[0]->id;
+                    }
+                }
+
+                // Não encontrou: criar novo cliente
+                $cli = new Clientes;
+                $cli->nome               = strtoupper($nome);
+                $cli->endereco           = strtoupper($g("//{$section}/Endereco"));
+                $cli->cnpj               = $cnpj;
+                $cli->email              = $g("//{$section}/Email");
+                $cli->telefone           = $g("//{$section}/Telefone");
+                $cli->cidade             = strtoupper($g("//{$section}/Cidade"));
+                $cli->estado             = strtoupper($g("//{$section}/Estado"));
+                $cli->cep                = $g("//{$section}/Cep");
+                $cli->inscricao_estadual = $g("//{$section}/InscricaoEstadual");
+                $cli->atividade          = strtoupper($g("//{$section}/Atividade"));
+                $cli->emissao_crt        = $g("//{$section}/EmissaoCrt");
+                $cli->tipo               = strtoupper($g("//{$section}/Tipo")) ?: $tipoDefault;
+                $cli->store();
+                return (int) $cli->id;
+            };
+
+            $remetente_id    = $findOrCreateClient('Remetente',    'EXPORTADOR');
+            $destinatario_id = $findOrCreateClient('Destinatario', 'IMPORTADOR');
+            $consig_id       = $findOrCreateClient('Consignatario','CONSIGNATARIO');
+            $notif_id        = $findOrCreateClient('Notificar',    'NOTIFICAR');
+
+            $crt = new Conhecimento;
+            $crt->numero               = $g('//InformacoesGerais/Numero');
+            $crt->fatura_crt           = $g('//InformacoesGerais/FaturaCRT');
+            $crt->permisso             = $g('//InformacoesGerais/Permisso');
+            $crt->assinatura_nome      = $g('//InformacoesGerais/Assinatura');
+            $crt->copiacrt             = $g('//InformacoesGerais/CopiarCRT') === 'S' ? '1' : null;
+
+            $dataEmissao = $g('//InformacoesGerais/DataEmissao');
+            if ($dataEmissao) {
+                $ts = strtotime($dataEmissao);
+                $crt->data_transportador_assinatura = $ts ? date('Y-m-d', $ts) : null;
+            }
+
+            // Vincular clientes
+            $crt->remetente_id          = $remetente_id;
+            $crt->destinatario_id       = $destinatario_id;
+            $crt->consignatario_id      = $consig_id;
+            $crt->notificar_id          = $notif_id;
+
+            $crt->nome_remetente          = $g('//Remetente/Nome');
+            $crt->endereco_remetente      = $g('//Remetente/Endereco');
+            $crt->nome_destinatario       = $g('//Destinatario/Nome');
+            $crt->endereco_destinatario   = $g('//Destinatario/Endereco');
+            $crt->nome_consignatario      = $g('//Consignatario/Nome');
+            $crt->endereco_consignatario  = $g('//Consignatario/Endereco');
+            $crt->notificar_nome          = $g('//Notificar/Nome');
+            $crt->notificar_endereco      = $g('//Notificar/Endereco');
+
+            $crt->local_emissao           = $g('//Locais/Emissao');
+            $crt->local_responsabilidade  = $g('//Locais/Responsabilidade');
+            $crt->local_entrega           = $g('//Locais/Entrega');
+
+            $crt->descricao_mercadoria    = $g('//Carga/Descricao');
+            $crt->peso_bruto_kg           = $g('//Carga/PesoBrutoKg');
+            $crt->peso_liq_kg             = $g('//Carga/PesoLiquidoKg');
+            $crt->volume_m3               = $g('//Carga/VolumeM3');
+            $crt->quantidade_volumes      = $g('//Carga/QuantidadeVolumes');
+            $crt->especie_vol             = $g('//Carga/EspecieVolume');
+            $crt->incoterm                = $g('//Carga/Incoterm');
+            $crt->incoterm16              = $g('//Carga/Incoterm16');
+            $crt->moeda_valor_mercadorias = $g('//Carga/MoedaMercadoria');
+            $crt->valor_mercadorias       = $g('//Carga/ValorMercadoria');
+            $crt->valor_declarado         = $g('//Carga/ValorDeclarado');
+            $crt->valor_reembolso         = $g('//Carga/ValorReembolso');
+
+            $crt->moeda_frete_externo     = $g('//Frete/Moeda');
+            $crt->valor_frete_externo     = $g('//Frete/ValorExterno');
+
+            $crt->gastosmoeda             = $g('//Custos/Moeda');
+            for ($i = 1; $i <= 3; $i++) {
+                $crt->{"textogasto{$i}"}    = $g("//Custos/Item{$i}/Descricao");
+                $crt->{"custoremetente{$i}"} = $g("//Custos/Item{$i}/CustoRemetente");
+                $crt->{"custodestino{$i}"}   = $g("//Custos/Item{$i}/CustoDestinatario");
+            }
+            $crt->total_custo_remetente    = $g('//Custos/TotalRemetente');
+            $crt->total_custo_destinatario = $g('//Custos/TotalDestinatario');
+
+            $crt->observacoes             = $g('//Observacoes/Observacoes');
+            $crt->instrucoes_alfandega    = $g('//Observacoes/InstrucoesAlfandega');
+            $crt->documentos_anexos       = $g('//Observacoes/DocumentosAnexos');
+
+            $crt->status_crt_id = 1; // status padrão: primeiro status
+
+            // Tentar vincular permisso_id pelo campo permisso
+            if (!empty($crt->permisso)) {
+                $repo = new TRepository('Permisso');
+                $criteria = new TCriteria;
+                $criteria->add(new TFilter('permisso', '=', $crt->permisso));
+                $results = $repo->load($criteria);
+                if (!empty($results)) {
+                    $crt->permisso_id = $results[0]->id;
+                }
+            }
+
+            $crt->store();
+            $newId = $crt->id;
+
+            TTransaction::close();
+            TWindow::closeWindow('form_import_xml');
+
+            $clientMsg = array_filter([$remetente_id ? "Remetente ID:{$remetente_id}" : null,
+                                       $destinatario_id ? "Destinatário ID:{$destinatario_id}" : null,
+                                       $consig_id ? "Consignatário ID:{$consig_id}" : null]);
+            $extra = $clientMsg ? ' | Clientes: ' . implode(', ', $clientMsg) : '';
+
+            new TMessage('info', "CRT importado com sucesso! ID: {$newId}{$extra}",
+                new TAction(['ConhecimentoForm', 'onEdit'], ['key' => $newId]));
+
+        } catch (Exception $e) {
+            if (TTransaction::get()) {
+                TTransaction::rollback();
+            }
+            new TMessage('error', 'Erro ao importar XML: ' . $e->getMessage());
+        }
     }
 }
 
