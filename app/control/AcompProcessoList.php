@@ -341,6 +341,26 @@ class AcompProcessoList extends TPage
             AcompProcesso::STAGE_ENTREGA,
         ];
 
+        $stageIcons = [
+            AcompProcesso::STAGE_COLETA          => 'fa-truck',
+            AcompProcesso::STAGE_TRANSITO_BRASIL  => 'fa-road',
+            AcompProcesso::STAGE_ARMAZENAGEM      => 'fa-building',
+            AcompProcesso::STAGE_ADUANA_BRASIL    => 'fa-balance-scale',
+            AcompProcesso::STAGE_TRANSITO_EXT     => 'fa-plane',
+            AcompProcesso::STAGE_ADUANA_DESTINO   => 'fa-globe',
+            AcompProcesso::STAGE_ENTREGA          => 'fa-check-circle',
+        ];
+
+        $stageColors = [
+            AcompProcesso::STAGE_COLETA          => '#f59e0b',
+            AcompProcesso::STAGE_TRANSITO_BRASIL  => '#2563eb',
+            AcompProcesso::STAGE_ARMAZENAGEM      => '#10b981',
+            AcompProcesso::STAGE_ADUANA_BRASIL    => '#8b5cf6',
+            AcompProcesso::STAGE_TRANSITO_EXT     => '#14b8a6',
+            AcompProcesso::STAGE_ADUANA_DESTINO   => '#e11d48',
+            AcompProcesso::STAGE_ENTREGA          => '#22c55e',
+        ];
+
         $kanban = new TKanban;
         $kanban->setStageHeight('74vh');
         $kanban->setItemDropAction(new TAction([__CLASS__, 'onUpdateItemDrop']));
@@ -356,77 +376,215 @@ class AcompProcessoList extends TPage
         }
 
         foreach ($stageOrder as $stage) {
+            $icon  = $stageIcons[$stage] ?? 'fa-circle';
             $label = strtoupper(AcompProcesso::stageLabel($stage));
             $count = (int) ($stageCounts[$stage] ?? 0);
-            $kanban->addStage($stage, "{$label} ({$count})");
+            $title = '<i class="fa ' . $icon . '"></i>&nbsp;' . $label
+                   . '&nbsp;<span class="kanban-count-pill">' . $count . '</span>';
+            $kanban->addStage($stage, $title);
         }
 
         foreach ($processos as $obj) {
             $stage = self::resolveCurrentStage($obj);
-            $card = self::renderProcessCard($obj);
-            $kanban->addItem((int) $obj->id, $stage, '', $card, '#f59e0b');
+            $card  = self::renderProcessCard($obj, $stageOrder);
+            $color = $stageColors[$stage] ?? '#94a3b8';
+            $kanban->addItem((int) $obj->id, $stage, '', $card, $color);
         }
 
         return $kanban;
     }
 
-    public static function renderProcessCard($object): string
+    public static function renderProcessCard($object, array $stageOrder = []): string
     {
-        $id = (int) ($object->id ?? 0);
-        $numero = (string) ($object->numero_processo ?? '-');
+        if (empty($stageOrder)) {
+            $stageOrder = [
+                AcompProcesso::STAGE_COLETA,
+                AcompProcesso::STAGE_TRANSITO_BRASIL,
+                AcompProcesso::STAGE_ARMAZENAGEM,
+                AcompProcesso::STAGE_ADUANA_BRASIL,
+                AcompProcesso::STAGE_TRANSITO_EXT,
+                AcompProcesso::STAGE_ADUANA_DESTINO,
+                AcompProcesso::STAGE_ENTREGA,
+            ];
+        }
+
+        $id         = (int) ($object->id ?? 0);
+        $numero     = (string) ($object->numero_processo ?? '-');
         $exportador = (string) ($object->exportador ?? '-');
         $importador = (string) ($object->importador ?? '-');
-        $crt = (string) ($object->crt ?? '-');
+        $crt        = (string) ($object->crt ?? '-');
 
-        $stage = self::resolveCurrentStage($object);
+        $stage      = self::resolveCurrentStage($object);
         $stageClass = 'stage-' . preg_replace('/[^a-z0-9_]/', '', (string) $stage);
+        $stageLabel = AcompProcesso::stageLabel($stage);
 
-        $data = self::renderDataColeta($object);
+        $data    = self::renderDataColeta($object);
         $estoque = self::renderEstoquePositionByCrt($crt);
         $alert24 = self::build24hAlertInfo($id, $stage);
+        $progBar = self::buildProgressBar($stage, $stageOrder);
 
-        $viewUrl = 'index.php?class=AcompProcessoView&method=onShow&key=' . $id . '&id=' . $id;
-        $trackUrl = 'index.php?class=AcompEventoList&method=onReload&processo_id=' . $id . '&key=' . $id . '&id=' . $id;
-        $stockUrl = 'index.php?class=EstoqueView&method=onReload&crt=' . rawurlencode($crt) . '&busca=' . rawurlencode($crt) . '&sentido=todos';
-        $pickupUrl = 'index.php?class=AcompOrdemColetaReport&method=onGenerate&processo_id=' . $id;
+        $expTrunc = mb_strlen($exportador) > 26 ? mb_substr($exportador, 0, 26) . '…' : $exportador;
+        $impTrunc = mb_strlen($importador) > 26 ? mb_substr($importador, 0, 26) . '…' : $importador;
+
+        $viewUrl    = 'index.php?class=AcompProcessoView&method=onShow&key=' . $id . '&id=' . $id;
+        $trackUrl   = 'index.php?class=AcompEventoList&method=onReload&processo_id=' . $id . '&key=' . $id . '&id=' . $id;
+        $stockUrl   = 'index.php?class=EstoqueView&method=onReload&crt=' . rawurlencode($crt) . '&busca=' . rawurlencode($crt) . '&sentido=todos';
+        $pickupUrl  = 'index.php?class=AcompOrdemColetaReport&method=onGenerate&processo_id=' . $id;
 
         return '
             <div class="acomp-card ' . htmlspecialchars($stageClass) . '">
                 <div class="acomp-card-head">
-                    <div class="acomp-card-title">Processo #' . $id . ' - ' . htmlspecialchars($numero) . '</div>
+                    <span class="card-num">#' . $id . '</span>
+                    <span class="card-crt">' . htmlspecialchars($crt) . '</span>
                 </div>
-                <div class="acomp-card-grid">
-                    <div class="full"><span class="lbl">Exportador</span><span class="val">' . htmlspecialchars($exportador) . '</span></div>
-                    <div class="full"><span class="lbl">Importador</span><span class="val">' . htmlspecialchars($importador) . '</span></div>
-                    <div><span class="lbl">CRT</span><span class="val">' . htmlspecialchars($crt) . '</span></div>
-                    <div><span class="lbl">Data coleta</span><span class="val">' . htmlspecialchars($data) . '</span></div>
+                ' . $progBar . '
+                <div class="acomp-card-body">
+                    <div class="card-info-row">
+                        <span class="ci-lbl"><i class="fa fa-sign-out-alt fa-fw"></i></span>
+                        <span class="ci-val" title="' . htmlspecialchars($exportador) . '">' . htmlspecialchars($expTrunc) . '</span>
+                    </div>
+                    <div class="card-info-row">
+                        <span class="ci-lbl"><i class="fa fa-sign-in-alt fa-fw"></i></span>
+                        <span class="ci-val" title="' . htmlspecialchars($importador) . '">' . htmlspecialchars($impTrunc) . '</span>
+                    </div>
+                    <div class="card-info-row ci-small">
+                        <span class="ci-lbl"><i class="fa fa-calendar fa-fw"></i></span>
+                        <span class="ci-val">' . htmlspecialchars($data) . '</span>
+                    </div>
+                    <div class="acomp-card-stock">' . $estoque . '</div>
+                    ' . $alert24 . '
                 </div>
-                <div class="acomp-card-stock">' . $estoque . '</div>
-                ' . $alert24 . '
                 <div class="acomp-card-actions">
-                    <a href="' . htmlspecialchars($viewUrl) . '" class="btn-act btn-view" generator="adianti"><i class="fa fa-eye"></i> Visualizar</a>
-                    <a href="' . htmlspecialchars($trackUrl) . '" class="btn-act btn-track" generator="adianti"><i class="fa fa-crosshairs"></i> Rastreio</a>
-                    <a href="' . htmlspecialchars($stockUrl) . '" class="btn-act btn-stock" generator="adianti"><i class="fa fa-building"></i> Estoque</a>
-                    <a href="' . htmlspecialchars($pickupUrl) . '" class="btn-act btn-doc" generator="adianti"><i class="fa fa-file-alt"></i> Ordem coleta</a>
+                    <a href="' . htmlspecialchars($viewUrl) . '" class="btn-act btn-view" title="Visualizar processo" generator="adianti"><i class="fa fa-eye"></i></a>
+                    <a href="' . htmlspecialchars($trackUrl) . '" class="btn-act btn-track" title="Rastreio de eventos" generator="adianti"><i class="fa fa-crosshairs"></i> Rastreio</a>
+                    <a href="' . htmlspecialchars($stockUrl) . '" class="btn-act btn-stock" title="Controle de estoque" generator="adianti"><i class="fa fa-building"></i></a>
+                    <a href="' . htmlspecialchars($pickupUrl) . '" class="btn-act btn-doc" title="Ordem de coleta" generator="adianti"><i class="fa fa-file-alt"></i></a>
                 </div>
             </div>';
     }
 
+    private static function buildProgressBar(string $currentStage, array $stageOrder): string
+    {
+        $stageColors = [
+            AcompProcesso::STAGE_COLETA          => '#f59e0b',
+            AcompProcesso::STAGE_TRANSITO_BRASIL  => '#2563eb',
+            AcompProcesso::STAGE_ARMAZENAGEM      => '#10b981',
+            AcompProcesso::STAGE_ADUANA_BRASIL    => '#8b5cf6',
+            AcompProcesso::STAGE_TRANSITO_EXT     => '#14b8a6',
+            AcompProcesso::STAGE_ADUANA_DESTINO   => '#e11d48',
+            AcompProcesso::STAGE_ENTREGA          => '#22c55e',
+        ];
+
+        $currentIdx = array_search($currentStage, $stageOrder);
+        if ($currentIdx === false) {
+            $currentIdx = 0;
+        }
+
+        $html = '<div class="acomp-prog">';
+        $total = count($stageOrder);
+        foreach ($stageOrder as $idx => $stage) {
+            $color = $idx <= $currentIdx ? ($stageColors[$stage] ?? '#94a3b8') : '#dde3ec';
+            $cls   = 'prog-dot';
+            if ($idx < $currentIdx) {
+                $cls .= ' done';
+            } elseif ($idx === $currentIdx) {
+                $cls .= ' active';
+            }
+            $label = htmlspecialchars(AcompProcesso::stageLabel($stage));
+            $html .= '<div class="' . $cls . '" style="background:' . $color . '" title="' . $label . '"></div>';
+            if ($idx < $total - 1) {
+                $lineColor = $idx < $currentIdx ? ($stageColors[$stage] ?? '#94a3b8') : '#dde3ec';
+                $html .= '<div class="prog-line" style="background:' . $lineColor . '"></div>';
+            }
+        }
+        $html .= '</div>';
+        return $html;
+    }
+
     private static function getKanbanCss(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <style>
-  .kanban-stage { background:#eef2f7 !important; border:1px solid #dbe1ea; border-radius:10px; padding:8px !important; }
-  .kanban-stage-header { border-radius:8px; text-align:center; text-transform:uppercase; font-size:12px !important; font-weight:800 !important; padding:8px 12px !important; border:1px solid transparent; color:#fff !important; }
-  .kanban-stage:nth-child(1) .kanban-stage-header { background:#f2c318 !important; border-color:#e0b100 !important; color:#4a3a00 !important; }
-  .kanban-stage:nth-child(2) .kanban-stage-header { background:#1d9bf0 !important; border-color:#1889d4 !important; }
-  .kanban-stage:nth-child(3) .kanban-stage-header { background:#10b981 !important; border-color:#0ea371 !important; }
-  .kanban-stage:nth-child(4) .kanban-stage-header { background:#8b5cf6 !important; border-color:#7c4ee4 !important; }
-  .kanban-stage:nth-child(5) .kanban-stage-header { background:#14b8a6 !important; border-color:#0ea294 !important; }
-  .kanban-stage:nth-child(6) .kanban-stage-header { background:#e11d48 !important; border-color:#c8143d !important; }
-  .kanban-stage:nth-child(7) .kanban-stage-header { background:#22c55e !important; border-color:#1cab50 !important; }
-  .kanban-item { background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; margin-bottom:9px !important; }
-  .kanban-item > .kanban-item-content { padding:0 !important; background:transparent !important; }
+/* ── Kanban: column sizing ── */
+.kanban-stage {
+  min-width: 220px !important;
+  width: 220px !important;
+  flex-shrink: 0 !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+}
+
+/* ── Column header — TKanban renders .kanban-title (not .kanban-stage-header) ── */
+.kanban-stage .kanban-title {
+  display: block !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.4px !important;
+  padding: 9px 8px !important;
+  margin-bottom: 8px !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  line-height: 1.5 !important;
+}
+
+/* Stage header gradient colors (nth-child matches column order) */
+.kanban-stage:nth-child(1) .kanban-title { background: linear-gradient(135deg,#f59e0b,#f97316) !important; }
+.kanban-stage:nth-child(2) .kanban-title { background: linear-gradient(135deg,#1d4ed8,#2563eb) !important; }
+.kanban-stage:nth-child(3) .kanban-title { background: linear-gradient(135deg,#059669,#10b981) !important; }
+.kanban-stage:nth-child(4) .kanban-title { background: linear-gradient(135deg,#7c3aed,#8b5cf6) !important; }
+.kanban-stage:nth-child(5) .kanban-title { background: linear-gradient(135deg,#0f766e,#14b8a6) !important; }
+.kanban-stage:nth-child(6) .kanban-title { background: linear-gradient(135deg,#be123c,#e11d48) !important; }
+.kanban-stage:nth-child(7) .kanban-title { background: linear-gradient(135deg,#15803d,#22c55e) !important; }
+
+/* Count pill inside header */
+.kanban-count-pill {
+  display: inline-block;
+  background: rgba(255,255,255,0.25);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 1px 6px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* ── Kanban item wrappers ── */
+.kanban-item {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 8px !important;
+  min-height: unset !important;
+}
+.kanban-item > .kanban-item-content { padding: 0 !important; background: transparent !important; }
+.kanban-item > .kanban-item-title   { display: none !important; }
+
+/* ── Progress bar ── */
+.acomp-prog {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef2f7;
+}
+.prog-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+.prog-dot.active {
+  width: 11px; height: 11px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0,0,0,.15);
+}
+.prog-line {
+  flex: 1; height: 2px;
+  border-radius: 1px;
+}
 </style>
 HTML;
     }
