@@ -1,0 +1,282 @@
+.acomp-process-card-panel .panel-body {
+    background: #f3f4f6;
+}
+
+.acomp-kanban-board {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+}
+
+.acomp-kanban-col {
+    width: 420px;
+    min-width: 420px;
+    background: #eef2f7;
+    border: 1px solid #dbe1ea;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 240px);
+}
+
+.acomp-kanban-col-head {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 9px 10px;
+    border-bottom: 0;
+    background: transparent;
+    border-radius: 10px;
+    gap: 8px;
+}
+
+.acomp-kanban-col-head .title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.3px;
+    text-align: center;
+    text-transform: uppercase;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 7px 12px;
+    width: 100%;
+}
+
+.acomp-kanban-col-head .count {
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+
+.acomp-kanban-col-body {
+    padding: 4px 9px 9px;
+    overflow: auto;
+}
+
+.acomp-kanban-col:nth-child(1) .acomp-kanban-col-head .title {
+    border-color: #facc15;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.acomp-empty-stage {
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 8px;
+}
+
+.acomp-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    margin-bottom: 9px;
+    min-height: 300px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.acomp-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: -12px -12px 10px -12px;
+    padding: 9px 10px;
+    border-radius: 10px 10px 0 0;
+    background: #334155;
+}
+
+.acomp-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.acomp-stage-badge {
+    background: #f59e0b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.acomp-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    gap: 8px 12px;
+}
+
+.acomp-card-grid .lbl {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.acomp-card-grid .val {
+    display: block;
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.acomp-card-grid .full {
+    grid-column: 1 / -1;
+}
+
+.acomp-card-stock {
+    margin-top: 10px;
+}
+
+.acomp-card-stock .label {
+    font-size: 11px;
+}
+
+.acomp-card-steps {
+    margin-top: 10px;
+}
+
+.acomp-card-steps .steps-line {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(90px, 1fr));
+    gap: 6px;
+}
+
+.acomp-card-steps .step {
+    display: inline-block;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+    background: #f9fafb;
+}
+
+.acomp-card-steps .step.done {
+    color: #14532d;
+    border-color: #86efac;
+    background: #dcfce7;
+}
+
+.acomp-card-steps .step.current {
+    color: #78350f;
+    border-color: #fcd34d;
+    background: #fef3c7;
+}
+
+.acomp-card-actions {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.acomp-card-actions .btn-act {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 9px;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.acomp-card-actions .btn-view {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+.acomp-card-actions .btn-track {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.acomp-card-actions .btn-stock {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+.acomp-card-actions .btn-doc {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+.acomp-card.stage-coleta .acomp-card-head {
+    background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+}
+
+.acomp-card.stage-transito_brasil .acomp-card-head {
+    background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+.acomp-card.stage-armazenagem .acomp-card-head {
+    background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+}
+
+.acomp-card.stage-aduana_brasil .acomp-card-head {
+    background: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 100%);
+}
+
+.acomp-card.stage-transito_ext .acomp-card-head {
+    background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
+}
+
+.acomp-card.stage-aduana_destino .acomp-card-head {
+    background: linear-gradient(90deg, #be123c 0%, #e11d48 100%);
+}
+
+.acomp-card.stage-entrega .acomp-card-head {
+    background: linear-gradient(90deg, #15803d 0%, #22c55e 100%);
+}
+
+@media (max-width: 1100px) {
+    .acomp-kanban-col {
+        width: 360px;
+        min-width: 360px;
+    }
+
+    .acomp-card-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .acomp-kanban-col {
+        width: 320px;
+        min-width: 320px;
+    }
+
+    .acomp-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acomp-card-steps .steps-line {
+        grid-template-columns: repeat(3, minmax(90px, 1fr));
+    }
+}

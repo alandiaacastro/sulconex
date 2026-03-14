@@ -129,6 +129,11 @@ class EstoqueView extends TPage
         }
 
         $busca = trim((string) ($param['busca'] ?? ''));
+        $crtRaw = trim((string) ($param['crt'] ?? ''));
+        $crtNorm = $crtRaw !== '' ? EstoqueManifesto::normalizeCode($crtRaw) : '';
+        if ($busca === '' && $crtRaw !== '') {
+            $busca = $crtRaw;
+        }
 
         try {
             TTransaction::open('sample');
@@ -144,6 +149,10 @@ class EstoqueView extends TPage
             if ($busca !== '') {
                 $searchSql = "\n                    AND (\n                        UPPER(COALESCE(man.crt_codigo,'')) LIKE :term\n                        OR UPPER(COALESCE(dan.danfes,'')) LIKE :term\n                        OR UPPER(COALESCE(exp.nome,'')) LIKE :term\n                        OR UPPER(COALESCE(imp.nome,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.danfe,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.chave_nfe,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.motorista_nome,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.motorista_saida_nome,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.veiculo_cavalo,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.veiculo_carreta,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.veiculo_saida_cavalo,'')) LIKE :term\n                        OR UPPER(COALESCE(mov.veiculo_saida_carreta,'')) LIKE :term\n                    )\n                ";
                 $searchBind[':term'] = '%' . strtoupper($busca) . '%';
+            }
+            if ($crtNorm !== '') {
+                $searchSql .= "\n                    AND man.crt_normalizado = :crt_norm\n                ";
+                $searchBind[':crt_norm'] = $crtNorm;
             }
 
             $sentidoSql = $sentido !== 'todos' ? 'AND mov.sentido_calc = :sentido' : '';

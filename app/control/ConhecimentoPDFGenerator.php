@@ -46,6 +46,43 @@ class ConhecimentoPDFGenerator
         $out = preg_replace('/[^\x00-\xFF]/', '', $text);
         return $out ?? '';
     }
+
+    private function getImportadorNome($object): string
+    {
+        $nome = trim((string) ($object->nome_destinatario ?? ''));
+        if ($nome !== '') {
+            return $nome;
+        }
+
+        if (!empty($object->destinatario_id)) {
+            try {
+                $destinatario = $object->get_destinatario();
+                $nome = trim((string) ($destinatario->nome ?? ''));
+                if ($nome !== '') {
+                    return $nome;
+                }
+            } catch (Exception $e) {
+            }
+        }
+
+        $nome = trim((string) ($object->nome_consignatario ?? ''));
+        if ($nome !== '') {
+            return $nome;
+        }
+
+        if (!empty($object->consignatario_id)) {
+            try {
+                $consignatario = $object->get_consignatario();
+                $nome = trim((string) ($consignatario->nome ?? ''));
+                if ($nome !== '') {
+                    return $nome;
+                }
+            } catch (Exception $e) {
+            }
+        }
+
+        return '';
+    }
     /**
      * Construtor
      * @param mixed $key Chave para buscar o objeto Conhecimento
@@ -243,7 +280,7 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->MultiCell(55, 2, self::toPdfText('24 Nombre y fima del destinatário o su representante Nome e assinatura do destinatário ou seu representante'));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(106, 272, self::toPdfText((string)$object->nome_destinatario));
+        $pdf->Text(106, 272, self::toPdfText($this->getImportadorNome($object)));
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(6, 280, 0);
         $pdf->MultiCell(100, 2, self::toPdfText("Fecha/Data"));
@@ -356,7 +393,7 @@ Nome e assinatura do remetente ou seu representante"));
             $invalidChars      = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
             $numero            = str_replace($invalidChars, '_', strval($this->object->numero ?? ''));
             $fatura_crt        = str_replace($invalidChars, '_', strval($this->object->fatura_crt ?? ''));
-            $nome_destinatario = str_replace($invalidChars, '_', strval($this->object->nome_destinatario ?? ''));
+            $nome_destinatario = str_replace($invalidChars, '_', strval($this->getImportadorNome($this->object)));
             $local_emissao     = str_replace($invalidChars, '_', substr(strval($this->object->local_emissao ?? ''), 0, 4));
             $pais_destino      = str_replace($invalidChars, '_', strval($this->object->pais_destino ?? ''));
             

@@ -28,7 +28,7 @@ class AcompEventoList extends TPage
 
         $col_data = new TDataGridColumn('data_evento', 'Data', 'left', '14%');
         $col_demora = new TDataGridColumn('demora', 'Evento', 'left', '11%');
-        $col_status = new TDataGridColumn('status_texto', 'Status', 'left', '20%');
+        $col_status = new TDataGridColumn('status_texto', 'Etapa', 'left', '20%');
         $col_localizacao = new TDataGridColumn('localizacao', 'Localizacao', 'left', '15%');
         $col_franquia = new TDataGridColumn('franquia', 'Franquia', 'left', '12%');
         $col_imagem = new TDataGridColumn('imagem', 'Evidencia', 'center', '13%');
@@ -39,9 +39,9 @@ class AcompEventoList extends TPage
         });
 
         $col_status->setTransformer(function ($value) {
-            $value = (string) $value;
-            $style = $this->getStatusBadgeStyle($value);
-            return '<span class="badge rounded-pill status-badge" style="' . $style . '">' . htmlspecialchars($value) . '</span>';
+            $etapa = self::toEtapaLabel((string) $value);
+            $style = $this->getStatusBadgeStyle($etapa);
+            return '<span class="badge rounded-pill status-badge" style="' . $style . '">' . htmlspecialchars($etapa) . '</span>';
         });
 
         $col_imagem->setTransformer(function ($value) {
@@ -227,7 +227,7 @@ class AcompEventoList extends TPage
         foreach ($eventos as $idx => $evento) {
             $data = !empty($evento->data_evento) ?
                 date('d/m/Y H:i', strtotime((string) $evento->data_evento)) : '-';
-            $title = (string) ($evento->status_texto ?? 'Evento');
+            $title = self::toEtapaLabel((string) ($evento->status_texto ?? ''));
             $sub = self::formatEventSub($evento);
             $icon = $this->getEventIcon($title);
             $side = ($idx % 2 === 0) ? 'left' : 'right';
@@ -236,6 +236,65 @@ class AcompEventoList extends TPage
         }
 
         $this->timelineContainer->add($timeline);
+    }
+
+    private static function toEtapaLabel(string $raw): string
+    {
+        $stage = AcompProcesso::normalizeStageCode($raw);
+        if ($stage === '') {
+            return trim($raw) !== '' ? $raw : 'Etapa';
+        }
+        return AcompProcesso::stageLabel($stage);
+    }
+
+    private function getEventIconClass(string $status): string
+    {
+        $s = strtolower($status);
+        if (strpos($s, 'coleta') !== false) {
+            return 'fa fa-clipboard-list';
+        }
+        if (strpos($s, 'transito') !== false) {
+            return 'fa fa-truck';
+        }
+        if (strpos($s, 'aduana') !== false || strpos($s, 'fiscal') !== false) {
+            return 'fa fa-id-card';
+        }
+        if (strpos($s, 'armazen') !== false) {
+            return 'fa fa-warehouse';
+        }
+        if (strpos($s, 'entreg') !== false) {
+            return 'fa fa-map-marker-alt';
+        }
+        return 'fa fa-circle';
+    }
+
+    private function formatTimelineSummary($evento): string
+    {
+        $parts = [];
+
+        if (!empty($evento->localizacao)) {
+            $parts[] = trim((string) $evento->localizacao);
+        }
+        if (!empty($evento->demora)) {
+            $parts[] = trim((string) $evento->demora);
+        }
+
+        $txt = trim(implode(' | ', $parts));
+        if ($txt === '') {
+            $txt = 'Sem detalhes';
+        }
+
+        return $this->truncateText($txt, 72);
+    }
+
+    private function truncateText(string $value, int $limit): string
+    {
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+        if (strlen($value) <= $limit) {
+            return $value;
+        }
+
+        return rtrim(substr($value, 0, $limit - 3)) . '...';
     }
 
     private function getStatusBadgeStyle(string $status): string

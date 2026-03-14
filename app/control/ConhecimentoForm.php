@@ -401,7 +401,7 @@ class ConhecimentoForm extends TPage
         $panel_frete_volumes->add($table_frete_volumes);
 
         // Painel agrupado
-                $panel_obs = new TPanelGroup('Observacoes & Instrucoes');
+        $panel_obs = new TPanelGroup('18 INSTRUÇÕES 22 OBSERVACOES');
         $panel_obs->style = 'margin-top: 20px';
         $this->form->addContent([$panel_obs]);
 
@@ -409,21 +409,21 @@ class ConhecimentoForm extends TPage
         $container = new TElement('div');
         $container->{'class'} = 'row';
 
-        // Campo 1: Observacoes
-        $observacoes = new TText('observacoes');
-        $observacoes->setSize('100%', 80);
-        $col1 = new TElement('div');
-        $col1->{'class'} = 'col-sm-6';
-        $col1->add(new TLabel(' Observacoes'));
-        $col1->add($observacoes);
-
-        // Campo 2: Instrucoes Alfandega
+        // Campo 1: Instrucoes Alfandega
         $instrucoes_alfandega = new TText('instrucoes_alfandega');
         $instrucoes_alfandega->setSize('100%', 80);
+        $col1 = new TElement('div');
+        $col1->{'class'} = 'col-sm-6';
+        $col1->add(new TLabel(' Instrucoes Alfandega'));
+        $col1->add($instrucoes_alfandega);
+
+        // Campo 2: Observacoes
+        $observacoes = new TText('observacoes');
+        $observacoes->setSize('100%', 80);
         $col2 = new TElement('div');
         $col2->{'class'} = 'col-sm-6';
-        $col2->add(new TLabel(' Instrucoes Alfandega'));
-        $col2->add($instrucoes_alfandega);
+        $col2->add(new TLabel(' Observacoes'));
+        $col2->add($observacoes);
 
         // Adiciona as colunas ao container
         $container->add($col1);
@@ -490,7 +490,7 @@ class ConhecimentoForm extends TPage
             $total_custo_remetente, $total_custo_destinatario, $gastosmoeda,
             $textogasto1, $textogasto2, $textogasto3,
             $logotransporte,
-            $observacoes, $instrucoes_alfandega,
+            $instrucoes_alfandega, $observacoes,
             $documentos_anexos, $copiacrt, $assinatura_nome, $status_crt_id,
             $pagador_id // <<< CORREO APLICADA AQUI
         ]);

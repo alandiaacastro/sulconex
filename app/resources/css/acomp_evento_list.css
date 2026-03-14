@@ -53,11 +53,14 @@
     padding: 10px 0;
 }
 
+.order-timeline-wrap {
+    display: none;
+}
+
 #timeline-container .ttimeline {
     padding: 6px 2px;
 }
 
-/* Timeline Items */
 .ttimeline .timeline-item {
     padding: 12px 0;
     border-left: 3px solid #e5e7eb;

@@ -9,7 +9,7 @@ class AcompEventoForm extends TPage
         parent::__construct();
 
         $this->form = new BootstrapFormBuilder('form_acomp_evento');
-        $this->form->setFormTitle('Cadastro de Status do Processo');
+        $this->form->setFormTitle('Cadastro de Etapa do Processo');
 
         $id = new TEntry('id');
         $processo_id = new THidden('processo_id');
@@ -27,6 +27,7 @@ class AcompEventoForm extends TPage
         $localizacao->setSize('100%');
         $status_texto->setSize('100%');
         $status_texto->setDefaultOption('Selecione');
+        $status_texto->setEditable(false);
         $franquia->setSize('100%');
         $franquia->setDefaultOption('Selecione');
         $imagem->setAllowedExtensions(['jpg', 'jpeg', 'png', 'gif', 'webp']);
@@ -39,34 +40,23 @@ class AcompEventoForm extends TPage
             'ESTADIA' => 'ESTADIA',
         ]);
 
-        $status_texto->addItems([
-            'COLETA' => 'COLETA',
-            'TRANSITO BRASIL' => 'TRANSITO BRASIL',
-            'ADUANA BRASIL' => 'ADUANA BRASIL',
-            'ARMAZENAGEM' => 'ARMAZENAGEM',
-            'TRANSITO ARGENTINA' => 'TRANSITO ARGENTINA',
-            'ADUANA ARGENTINA' => 'ADUANA ARGENTINA',
-            'TRANSITO CHILE' => 'TRANSITO CHILE',
-            'ADUANA CHILE' => 'ADUANA CHILE',
-            'ENTREGA' => 'ENTREGA',
-        ]);
+        $status_texto->addItems(self::getEtapaItems());
 
         $data_evento->setValue(date('d/m/Y H:i'));
 
         $data_evento->addValidation('Data/Hora', new TRequiredValidator);
-        $status_texto->addValidation('Status', new TRequiredValidator);
         $localizacao->addValidation('Localizacao (cidade)', new TRequiredValidator);
 
         $this->form->addFields([$processo_id]);
         $this->form->addFields([new TLabel('ID')], [$id]);
         $this->form->addFields([new TLabel('Data e hora (dd/mm/aaaa hh:mm)')], [$data_evento]);
-        $this->form->addFields([new TLabel('Status')], [$status_texto], [new TLabel('Franquia')], [$franquia]);
+        $this->form->addFields([new TLabel('Etapa')], [$status_texto], [new TLabel('Franquia')], [$franquia]);
         $this->form->addFields([new TLabel('Localizacao (cidade)')], [$localizacao]);
         $this->form->addFields([new TLabel('Evento')], [$demora]);
         $this->form->addFields([new TLabel('Imagem (foto/comprovante)')], [$imagem]);
 
         $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fa:save green');
-        $this->form->addActionLink('Voltar aos status', new TAction(['AcompEventoList', 'onReload'], ['processo_id' => $param['processo_id'] ?? '']), 'fa:arrow-left blue');
+        $this->form->addActionLink('Voltar as etapas', new TAction(['AcompEventoList', 'onReload'], ['processo_id' => $param['processo_id'] ?? '']), 'fa:arrow-left blue');
 
         $box = new TVBox;
         $box->style = 'width:100%';
@@ -78,6 +68,15 @@ class AcompEventoForm extends TPage
         if (!empty($param['processo_id'])) {
             $obj = new stdClass;
             $obj->processo_id = $param['processo_id'];
+            try {
+                TTransaction::open('sample');
+                AcompProcesso::ensureTables();
+                $proc = new AcompProcesso((int) $param['processo_id']);
+                $obj->status_texto = self::stageCodeToOption((string) ($proc->etapa ?? ''));
+                TTransaction::close();
+            } catch (Exception $e) {
+                try { TTransaction::rollback(); } catch (Exception $ee) {}
+            }
             $this->form->setData($obj);
         }
     }
@@ -94,6 +93,14 @@ class AcompEventoForm extends TPage
             if (empty($obj->processo_id)) {
                 throw new Exception('Processo nao informado.');
             }
+
+            // Etapa sempre vem do Kanban (processo), sem edicao manual neste formulario
+            $proc = new AcompProcesso((int) $obj->processo_id);
+            $etapaSelecionada = self::stageCodeToOption((string) ($proc->etapa ?? ''));
+            if ($etapaSelecionada === '') {
+                throw new Exception('Etapa do processo nao definida no Kanban.');
+            }
+            $obj->status_texto = $etapaSelecionada;
 
             $obj->data_evento = self::toDbDateTime((string) $obj->data_evento);
 
@@ -115,10 +122,19 @@ class AcompEventoForm extends TPage
 
             $obj->store();
 
+            // Mantem Kanban sincronizado com a etapa selecionada no evento
+            $stageCode = AcompProcesso::normalizeStageCode((string) $obj->status_texto);
+            if ($stageCode !== '') {
+                $proc = new AcompProcesso($obj->processo_id);
+                $proc->etapa = $stageCode;
+                $proc->updated_at = date('Y-m-d H:i:s');
+                $proc->store();
+            }
+
             $this->form->setData($obj);
             TTransaction::close();
 
-            new TMessage('info', 'Status salvo com sucesso.', new TAction(['AcompEventoList', 'onReload'], ['processo_id' => $obj->processo_id]));
+            new TMessage('info', 'Etapa salva com sucesso.', new TAction(['AcompEventoList', 'onReload'], ['processo_id' => $obj->processo_id]));
         } catch (Exception $e) {
             TTransaction::rollback();
             new TMessage('error', $e->getMessage());
@@ -136,6 +152,10 @@ class AcompEventoForm extends TPage
             AcompProcesso::ensureTables();
 
             $obj = new AcompEvento($param['key']);
+            if (empty($obj->status_texto) && !empty($obj->processo_id)) {
+                $proc = new AcompProcesso((int) $obj->processo_id);
+                $obj->status_texto = self::stageCodeToOption((string) ($proc->etapa ?? ''));
+            }
             $obj->data_evento = self::toViewDateTime((string) $obj->data_evento);
             $this->form->setData($obj);
 
@@ -171,5 +191,34 @@ class AcompEventoForm extends TPage
     {
         $ts = strtotime($value);
         return $ts ? date('d/m/Y H:i', $ts) : $value;
+    }
+
+    private static function getEtapaItems(): array
+    {
+        return [
+            'COLETA' => 'COLETA',
+            'TRANSITO BRASIL' => 'TRANSITO BRASIL',
+            'ARMAZENAGEM' => 'ARMAZENAGEM',
+            'ADUANA BRASIL' => 'ADUANA BRASIL',
+            'TRANSITO EXT' => 'TRANSITO EXT',
+            'ADUANA DESTINO' => 'ADUANA DESTINO',
+            'ENTREGA' => 'ENTREGA',
+        ];
+    }
+
+    private static function stageCodeToOption(string $code): string
+    {
+        $stage = AcompProcesso::normalizeStageCode($code);
+        $map = [
+            AcompProcesso::STAGE_COLETA => 'COLETA',
+            AcompProcesso::STAGE_TRANSITO_BRASIL => 'TRANSITO BRASIL',
+            AcompProcesso::STAGE_ARMAZENAGEM => 'ARMAZENAGEM',
+            AcompProcesso::STAGE_ADUANA_BRASIL => 'ADUANA BRASIL',
+            AcompProcesso::STAGE_TRANSITO_EXT => 'TRANSITO EXT',
+            AcompProcesso::STAGE_ADUANA_DESTINO => 'ADUANA DESTINO',
+            AcompProcesso::STAGE_ENTREGA => 'ENTREGA',
+        ];
+
+        return $map[$stage] ?? '';
     }
 }

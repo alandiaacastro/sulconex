@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 class AcompProcesso extends TRecord
 {
@@ -6,58 +6,89 @@ class AcompProcesso extends TRecord
     const PRIMARYKEY = 'id';
     const IDPOLICY = 'serial';
 
-    // ── Stage constants ──────────────────────────────────────────────
-    const STAGE_COLETA       = 'coleta';
-    const STAGE_TRANSITO_BR  = 'transito_br';
-    const STAGE_ADUANA       = 'aduana';
-    const STAGE_TRANSITO_INT = 'transito_int';
-    const STAGE_ARMAZENAGEM  = 'armazenagem';
-    const STAGE_ENTREGA      = 'entrega';
+    // â”€â”€ Stage constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        const STAGE_COLETA          = 'coleta';
+    const STAGE_TRANSITO_BRASIL = 'transito_brasil';
+    const STAGE_ARMAZENAGEM     = 'armazenagem';
+    const STAGE_ADUANA_BRASIL   = 'aduana_brasil';
+    const STAGE_TRANSITO_EXT    = 'transito_ext';
+    const STAGE_ADUANA_DESTINO  = 'aduana_destino';
+    const STAGE_ENTREGA         = 'entrega';
+
+    // Compatibilidade com codigos antigos
+    const STAGE_TRANSITO_BR  = 'transito_brasil';
+    const STAGE_ADUANA       = 'aduana_brasil';
+    const STAGE_TRANSITO_INT = 'transito_ext';
 
     private static $stageLabels = [
-        'coleta'       => 'Coleta',
-        'transito_br'  => 'Trânsito BR',
-        'aduana'       => 'Aduana',
-        'transito_int' => 'Trânsito INT',
-        'armazenagem'  => 'Armazenagem',
-        'entrega'      => 'Entregue',
+        'coleta'          => 'Coleta',
+        'transito_brasil' => 'Transito Brasil',
+        'armazenagem'     => 'Armazenagem',
+        'aduana_brasil'   => 'Aduana Brasil',
+        'transito_ext'    => 'Transito Ext',
+        'aduana_destino'  => 'Aduana Destino',
+        'entrega'         => 'Entrega',
     ];
 
     private static $transitStages = [
-        'transito_br',
-        'aduana',
-        'transito_int',
+        'transito_brasil',
         'armazenagem',
+        'aduana_brasil',
+        'transito_ext',
+        'aduana_destino',
     ];
 
     /**
-     * Normaliza um texto de status/evento para um código de estágio interno.
+     * Normaliza um texto de status/evento para um cÃ³digo de estÃ¡gio interno.
      */
     public static function normalizeStageCode(string $raw): string
     {
         $s = strtolower(trim($raw));
-        $s = preg_replace('/[áàãâä]/u', 'a', $s);
-        $s = preg_replace('/[éèêë]/u', 'e', $s);
-        $s = preg_replace('/[íìîï]/u', 'i', $s);
-        $s = preg_replace('/[óòõôö]/u', 'o', $s);
-        $s = preg_replace('/[úùûü]/u', 'u', $s);
+        $s = preg_replace('/[Ã¡Ã Ã£Ã¢Ã¤]/u', 'a', $s);
+        $s = preg_replace('/[Ã©Ã¨ÃªÃ«]/u', 'e', $s);
+        $s = preg_replace('/[Ã­Ã¬Ã®Ã¯]/u', 'i', $s);
+        $s = preg_replace('/[Ã³Ã²ÃµÃ´Ã¶]/u', 'o', $s);
+        $s = preg_replace('/[ÃºÃ¹Ã»Ã¼]/u', 'u', $s);
 
-        // Já é um código interno?
+        // JÃ¡ Ã© um cÃ³digo interno?
         if (isset(self::$stageLabels[$s])) {
             return $s;
+        }
+
+        // Compatibilidade com codigos antigos persistidos
+        if ($s === 'transito_br') {
+            return self::STAGE_TRANSITO_BRASIL;
+        }
+        if ($s === 'aduana') {
+            return self::STAGE_ADUANA_BRASIL;
+        }
+        if ($s === 'transito_int') {
+            return self::STAGE_TRANSITO_EXT;
         }
 
         if (strpos($s, 'entrega') !== false || strpos($s, 'entreg') !== false) {
             return self::STAGE_ENTREGA;
         }
-        if (strpos($s, 'aduana') !== false || strpos($s, 'aguard') !== false || strpos($s, 'despacho') !== false) {
-            return self::STAGE_ADUANA;
+        if (strpos($s, 'aduana destino') !== false || strpos($s, 'destino') !== false) {
+            return self::STAGE_ADUANA_DESTINO;
+        }
+        if (strpos($s, 'aduana brasil') !== false || strpos($s, 'aduana br') !== false) {
+            return self::STAGE_ADUANA_BRASIL;
         }
         if (strpos($s, 'armazen') !== false || strpos($s, 'patio') !== false) {
             return self::STAGE_ARMAZENAGEM;
         }
+        if (strpos($s, 'transito ext') !== false || strpos($s, 'transito int') !== false) {
+            return self::STAGE_TRANSITO_EXT;
+        }
+        if (strpos($s, 'transito brasil') !== false || strpos($s, 'transito br') !== false) {
+            return self::STAGE_TRANSITO_BRASIL;
+        }
+        if (strpos($s, 'aduana') !== false || strpos($s, 'aguard') !== false || strpos($s, 'despacho') !== false) {
+            return self::STAGE_ADUANA_BRASIL;
+        }
         if (strpos($s, 'transito') !== false || strpos($s, 'transit') !== false) {
-            return self::STAGE_TRANSITO_BR;
+            return self::STAGE_TRANSITO_BRASIL;
         }
         if (strpos($s, 'coleta') !== false || strpos($s, 'retir') !== false) {
             return self::STAGE_COLETA;
@@ -67,7 +98,7 @@ class AcompProcesso extends TRecord
     }
 
     /**
-     * Retorna o rótulo legível de um código de estágio.
+     * Retorna o rÃ³tulo legÃ­vel de um cÃ³digo de estÃ¡gio.
      */
     public static function stageLabel(string $stage): string
     {
@@ -75,7 +106,7 @@ class AcompProcesso extends TRecord
     }
 
     /**
-     * Verifica se o estágio indica carga em trânsito (não coleta nem entrega final).
+     * Verifica se o estÃ¡gio indica carga em trÃ¢nsito (nÃ£o coleta nem entrega final).
      */
     public static function isTransitStage(string $stage): bool
     {
@@ -261,3 +292,4 @@ class AcompProcesso extends TRecord
         $object->updated_at = $now;
     }
 }
+
