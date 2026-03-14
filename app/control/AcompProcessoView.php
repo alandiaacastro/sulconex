@@ -54,6 +54,10 @@ class AcompProcessoView extends TPage
             $eventCount = count($eventos);
             $lastUpdate = '-';
             $lastUpdateRaw = '';
+            $currentStage = AcompProcesso::normalizeStageCode((string) ($proc->etapa ?? ''));
+            if ($currentStage === '') {
+                $currentStage = AcompProcesso::STAGE_COLETA;
+            }
 
             foreach ($eventos as $i => $evt) {
                 $raw = (string) ($evt->data_evento ?? '');
@@ -66,12 +70,15 @@ class AcompProcessoView extends TPage
                 }
 
                 $evento = trim((string) ($evt->demora ?? ''));
-                $status = trim((string) ($evt->status_texto ?? ''));
+                $eventStage = self::resolveStageFromEvent((string) ($evt->status_texto ?? ''), $currentStage);
+                if ($i === 0) {
+                    $currentStage = $eventStage;
+                }
                 $localizacao = trim((string) ($evt->localizacao ?? ''));
                 $franquia = trim((string) ($evt->franquia ?? ''));
 
                 $eventoLabel = $evento !== '' ? $evento : '-';
-                $statusLabel = $status !== '' ? AcompProcesso::stageLabel($status) : '-';
+                $statusLabel = AcompProcesso::stageLabel($eventStage);
                 $localizacaoLabel = $localizacao !== '' ? $localizacao : '-';
                 $franquiaLabel = $franquia !== '' ? $franquia : '-';
                 $badge = self::statusBadgeInline($statusLabel);
@@ -94,7 +101,7 @@ class AcompProcessoView extends TPage
             }
 
             $msg = '';
-            $stage = AcompProcesso::normalizeStageCode((string) ($proc->etapa ?? ''));
+            $stage = $currentStage;
             if (AcompProcesso::isTransitStage($stage)) {
                 if ($lastUpdateRaw === '') {
                     $msg = 'ALERTA 24H: carga em transito sem atualizacao registrada.';
@@ -116,6 +123,7 @@ class AcompProcessoView extends TPage
                 'local_entrega' => (string) ($proc->local_entrega ?: '-'),
                 'crt' => (string) ($proc->crt ?: '-'),
                 'fatura' => (string) ($proc->fatura ?: '-'),
+                'etapa_atual' => AcompProcesso::stageLabel($currentStage),
                 'event_count' => (string) $eventCount,
                 'event_rows' => implode('', $eventRows),
                 'last_update' => $lastUpdate,
@@ -141,10 +149,26 @@ class AcompProcessoView extends TPage
             'local_entrega' => '-',
             'crt' => '-',
             'fatura' => '-',
+            'etapa_atual' => '-',
             'event_count' => '0',
             'event_rows' => '',
             'last_update' => '-',
         ];
+    }
+
+    private static function resolveStageFromEvent(string $rawStatus, string $fallback): string
+    {
+        $stage = AcompProcesso::normalizeStageCode($rawStatus);
+        if ($stage !== '') {
+            return $stage;
+        }
+
+        $fallbackStage = AcompProcesso::normalizeStageCode($fallback);
+        if ($fallbackStage !== '') {
+            return $fallbackStage;
+        }
+
+        return AcompProcesso::STAGE_COLETA;
     }
 
     private static function statusBadgeInline(string $status): string

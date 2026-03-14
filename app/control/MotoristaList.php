@@ -13,7 +13,7 @@ class MotoristaList extends TPage
 
         // Formulário de busca
         $this->form = new BootstrapFormBuilder('form_search_Motorista');
-        $this->form->setFormTitle('ðŸ§‘â€âœˆï¸ Lista de Motoristas');
+        $this->form->setFormTitle('Motorista');
 
         $nome = new TEntry('nome');
         $cpf  = new TEntry('cpf');
@@ -60,7 +60,7 @@ class MotoristaList extends TPage
         $this->pageNavigation->setWidth($this->datagrid->getWidth());
 
         // Painel
-        $panel = new TPanelGroup('ðŸ§‘â€âœˆï¸ Lista de Motoristas');
+        $panel = new TPanelGroup('Motorista');
         $panel->add($this->form);
         $panel->add($this->datagrid);
         $panel->addFooter($this->pageNavigation);
@@ -344,6 +344,7 @@ XML;
 }
 
 ?>
+
 
 
 

@@ -3,8 +3,7 @@
 class AcompProcessoList extends TPage
 {
     private $form;
-    private $datagrid;
-    private $pageNavigation;
+    private $kanbanContainer;
     private static $estoqueSnapshotByCrt = [];
     private static $lastEventByProcessId = [];
 
@@ -15,6 +14,7 @@ class AcompProcessoList extends TPage
     public function __construct()
     {
         parent::__construct();
+        TPage::include_css('app/resources/css/acomp_processo_cards.css');
 
         $this->setDatabase('sample');
         $this->setActiveRecord('AcompProcesso');
@@ -29,112 +29,16 @@ class AcompProcessoList extends TPage
         $this->addFilterField('importador', 'like', 'importador');
         $this->addFilterField('crt', 'like', 'crt');
 
-        $this->form = new BootstrapFormBuilder('form_search_acomp_processo');
-        $this->form->setFormTitle('Acompanhamento Manual - Processos e Rastreio');
-
-        $numero_processo = new TEntry('numero_processo');
-        $exportador = new TEntry('exportador');
-        $importador = new TEntry('importador');
-        $crt = new TEntry('crt');
-
-        $numero_processo->setSize('100%');
-        $exportador->setSize('100%');
-        $importador->setSize('100%');
-        $crt->setSize('100%');
-
-        $this->form->addFields([new TLabel('No processo')], [$numero_processo], [new TLabel('CRT')], [$crt]);
-        $this->form->addFields([new TLabel('Exportador')], [$exportador], [new TLabel('Importador')], [$importador]);
-
-        $this->form->setData(TSession::getValue($this->activeRecord . '_filter_data'));
-        $this->form->addAction('Buscar', new TAction([$this, 'onSearch']), 'fa:search blue');
-
-        $this->datagrid = new BootstrapDatagridWrapper(new TQuickGrid);
-        $this->datagrid->style = 'width:100%';
-
-        $this->datagrid->addQuickColumn('ID', 'id', 'center', '5%');
-        $this->datagrid->addQuickColumn('No BR/AR', 'numero_processo', 'left', '14%');
-        $this->datagrid->addQuickColumn('Exportador', 'exportador', 'left', '19%');
-        $this->datagrid->addQuickColumn('Importador', 'importador', 'left', '19%');
-        $this->datagrid->addQuickColumn('CRT', 'crt', 'left', '11%');
-        $col_estoque = $this->datagrid->addQuickColumn('Posicao estoque', 'crt', 'left', '18%');
-        $col_estoque->setTransformer(function ($value) {
-            return self::renderEstoquePositionByCrt((string) $value);
-        });
-
-        $col_data = $this->datagrid->addQuickColumn('Data coleta', 'data_coleta', 'center', '10%');
-        $col_data->setTransformer(function ($value, $object) {
-            $processId = isset($object->id) ? (int) $object->id : 0;
-            $last = self::$lastEventByProcessId[$processId]['data_evento'] ?? '';
-            $raw = $last !== '' ? $last : (string) $value;
-
-            $ts = strtotime($raw);
-            if ($ts) {
-                return date('d/m/Y', $ts);
-            }
-
-            if ($raw && preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
-                return TDate::convertToMask($raw, 'yyyy-mm-dd', 'dd/mm/yyyy');
-            }
-
-            return $raw ?: '-';
-        });
-
-        $col_etapa = $this->datagrid->addQuickColumn('Etapa', 'etapa', 'center', '12%');
-        $col_etapa->setTransformer(function ($value, $object) {
-            $processId = isset($object->id) ? (int) $object->id : 0;
-            $stageRaw = self::$lastEventByProcessId[$processId]['status_texto'] ?? (string) $value;
-            $stage = AcompProcesso::normalizeStageCode((string) $stageRaw);
-            if ($stage === '') {
-                $stage = AcompProcesso::STAGE_COLETA;
-            }
-            $label = AcompProcesso::stageLabel($stage);
-
-            $class = 'info';
-            if ($stage === AcompProcesso::STAGE_ENTREGA) {
-                $class = 'success';
-            } elseif (AcompProcesso::isTransitStage($stage)) {
-                $class = 'warning';
-            }
-
-            $badge = '<span class="label label-' . $class . '">' . strtoupper(htmlspecialchars($label)) . '</span>';
-
-            $processId = isset($object->id) ? (int) $object->id : 0;
-            $alertInfo = self::build24hAlertInfo($processId, $stage);
-            if ($alertInfo !== '') {
-                $badge .= $alertInfo;
-            }
-
-            return $badge;
-        });
-
-        $act_view = new TDataGridAction(['AcompProcessoView', 'onShow']);
-
-        $act_track = new TDataGridAction(['AcompEventoList', 'onReload']);
-        $act_track->setParameter('processo_id', '{id}');
-        $act_stock = new TDataGridAction(['EstoqueView', 'onReload']);
-        $act_stock->setParameter('busca', '{crt}');
-        $act_stock->setParameter('sentido', 'todos');
-        $act_pickup = new TDataGridAction(['AcompOrdemColetaReport', 'onGenerate']);
-        $act_pickup->setParameter('processo_id', '{id}');
-
-        $this->datagrid->addQuickAction('Visualizar', $act_view, 'id', 'fa:eye');
-        $this->datagrid->addQuickAction('Rastreio', $act_track, 'id', 'fa:crosshairs green');
-        $this->datagrid->addQuickAction('Estoque', $act_stock, 'id', 'fa:warehouse blue');
-        $this->datagrid->addQuickAction('Ordem coleta', $act_pickup, 'id', 'fa:file-alt black');
-
-        $this->datagrid->createModel();
-
-        $this->pageNavigation = new TPageNavigation;
-        $this->pageNavigation->setAction(new TAction([$this, 'onReload']));
+        $this->kanbanContainer = new TElement('div');
+        $this->kanbanContainer->class = 'acomp-kanban';
 
         $panel = new TPanelGroup;
-        $panel->add($this->datagrid);
-        $panel->addFooter($this->pageNavigation);
+        $panel->class = 'acomp-process-card-panel';
+        $panel->add($this->kanbanContainer);
 
         $box = new TVBox;
         $box->style = 'width:100%';
         $box->add(new TXMLBreadCrumb('menu.xml', get_class($this)));
-        $box->add($this->form);
         $box->add($panel);
 
         parent::add($box);
@@ -149,15 +53,26 @@ class AcompProcessoList extends TPage
             self::syncProcessosFromConhecimento();
             self::loadEstoqueSnapshot();
             self::loadLastUpdateSnapshot();
+
+            $repo = new TRepository('AcompProcesso');
+            $criteria = new TCriteria;
+            $criteria->add(new TFilter('crt', 'is not', null));
+            $criteria->add(new TFilter('crt', '<>', ''));
+            $criteria->setProperty('order', 'id');
+            $criteria->setProperty('direction', 'desc');
+            $processos = $repo->load($criteria, false) ?: [];
+
+            $this->kanbanContainer->clearChildren();
+            $this->kanbanContainer->add(self::getKanbanCss());
+            $this->kanbanContainer->add(self::buildKanbanWidget($processos));
             TTransaction::close();
         } catch (Exception $e) {
             try {
                 TTransaction::rollback();
             } catch (Exception $ee) {
             }
+            new TMessage('error', $e->getMessage());
         }
-
-        $this->traitOnReload($param);
     }
 
     private static function loadEstoqueSnapshot(): void
@@ -397,6 +312,172 @@ class AcompProcessoList extends TPage
         return '<div style="margin-top:4px;">' .
             '<span class="label label-danger">ALERTA 24H (' . (int) $ageHours . 'h)</span>' .
             '</div>';
+    }
+
+    private static function resolveCurrentStage($object): string
+    {
+        $stageRaw = (string) ($object->etapa ?? '');
+        if (trim($stageRaw) === '') {
+            $id = (int) ($object->id ?? 0);
+            $stageRaw = self::$lastEventByProcessId[$id]['status_texto'] ?? '';
+        }
+        $stage = AcompProcesso::normalizeStageCode((string) $stageRaw);
+        if ($stage === '') {
+            $stage = AcompProcesso::STAGE_COLETA;
+        }
+
+        return $stage;
+    }
+
+    private static function buildKanbanWidget(array $processos)
+    {
+        $stageOrder = [
+            AcompProcesso::STAGE_COLETA,
+            AcompProcesso::STAGE_TRANSITO_BRASIL,
+            AcompProcesso::STAGE_ARMAZENAGEM,
+            AcompProcesso::STAGE_ADUANA_BRASIL,
+            AcompProcesso::STAGE_TRANSITO_EXT,
+            AcompProcesso::STAGE_ADUANA_DESTINO,
+            AcompProcesso::STAGE_ENTREGA,
+        ];
+
+        $kanban = new TKanban;
+        $kanban->setStageHeight('74vh');
+        $kanban->setItemDropAction(new TAction([__CLASS__, 'onUpdateItemDrop']));
+
+        // Conta processos por estágio para exibir no cabeçalho da coluna.
+        $stageCounts = array_fill_keys($stageOrder, 0);
+        foreach ($processos as $obj) {
+            $stage = self::resolveCurrentStage($obj);
+            if (!isset($stageCounts[$stage])) {
+                $stageCounts[$stage] = 0;
+            }
+            $stageCounts[$stage]++;
+        }
+
+        foreach ($stageOrder as $stage) {
+            $label = strtoupper(AcompProcesso::stageLabel($stage));
+            $count = (int) ($stageCounts[$stage] ?? 0);
+            $kanban->addStage($stage, "{$label} ({$count})");
+        }
+
+        foreach ($processos as $obj) {
+            $stage = self::resolveCurrentStage($obj);
+            $card = self::renderProcessCard($obj);
+            $kanban->addItem((int) $obj->id, $stage, '', $card, '#f59e0b');
+        }
+
+        return $kanban;
+    }
+
+    public static function renderProcessCard($object): string
+    {
+        $id = (int) ($object->id ?? 0);
+        $numero = (string) ($object->numero_processo ?? '-');
+        $exportador = (string) ($object->exportador ?? '-');
+        $importador = (string) ($object->importador ?? '-');
+        $crt = (string) ($object->crt ?? '-');
+
+        $stage = self::resolveCurrentStage($object);
+        $stageClass = 'stage-' . preg_replace('/[^a-z0-9_]/', '', (string) $stage);
+
+        $data = self::renderDataColeta($object);
+        $estoque = self::renderEstoquePositionByCrt($crt);
+        $alert24 = self::build24hAlertInfo($id, $stage);
+
+        $viewUrl = 'index.php?class=AcompProcessoView&method=onShow&key=' . $id . '&id=' . $id;
+        $trackUrl = 'index.php?class=AcompEventoList&method=onReload&processo_id=' . $id . '&key=' . $id . '&id=' . $id;
+        $stockUrl = 'index.php?class=EstoqueView&method=onReload&crt=' . rawurlencode($crt) . '&busca=' . rawurlencode($crt) . '&sentido=todos';
+        $pickupUrl = 'index.php?class=AcompOrdemColetaReport&method=onGenerate&processo_id=' . $id;
+
+        return '
+            <div class="acomp-card ' . htmlspecialchars($stageClass) . '">
+                <div class="acomp-card-head">
+                    <div class="acomp-card-title">Processo #' . $id . ' - ' . htmlspecialchars($numero) . '</div>
+                </div>
+                <div class="acomp-card-grid">
+                    <div class="full"><span class="lbl">Exportador</span><span class="val">' . htmlspecialchars($exportador) . '</span></div>
+                    <div class="full"><span class="lbl">Importador</span><span class="val">' . htmlspecialchars($importador) . '</span></div>
+                    <div><span class="lbl">CRT</span><span class="val">' . htmlspecialchars($crt) . '</span></div>
+                    <div><span class="lbl">Data coleta</span><span class="val">' . htmlspecialchars($data) . '</span></div>
+                </div>
+                <div class="acomp-card-stock">' . $estoque . '</div>
+                ' . $alert24 . '
+                <div class="acomp-card-actions">
+                    <a href="' . htmlspecialchars($viewUrl) . '" class="btn-act btn-view" generator="adianti"><i class="fa fa-eye"></i> Visualizar</a>
+                    <a href="' . htmlspecialchars($trackUrl) . '" class="btn-act btn-track" generator="adianti"><i class="fa fa-crosshairs"></i> Rastreio</a>
+                    <a href="' . htmlspecialchars($stockUrl) . '" class="btn-act btn-stock" generator="adianti"><i class="fa fa-building"></i> Estoque</a>
+                    <a href="' . htmlspecialchars($pickupUrl) . '" class="btn-act btn-doc" generator="adianti"><i class="fa fa-file-alt"></i> Ordem coleta</a>
+                </div>
+            </div>';
+    }
+
+    private static function getKanbanCss(): string
+    {
+        return <<<HTML
+<style>
+  .kanban-stage { background:#eef2f7 !important; border:1px solid #dbe1ea; border-radius:10px; padding:8px !important; }
+  .kanban-stage-header { border-radius:8px; text-align:center; text-transform:uppercase; font-size:12px !important; font-weight:800 !important; padding:8px 12px !important; border:1px solid transparent; color:#fff !important; }
+  .kanban-stage:nth-child(1) .kanban-stage-header { background:#f2c318 !important; border-color:#e0b100 !important; color:#4a3a00 !important; }
+  .kanban-stage:nth-child(2) .kanban-stage-header { background:#1d9bf0 !important; border-color:#1889d4 !important; }
+  .kanban-stage:nth-child(3) .kanban-stage-header { background:#10b981 !important; border-color:#0ea371 !important; }
+  .kanban-stage:nth-child(4) .kanban-stage-header { background:#8b5cf6 !important; border-color:#7c4ee4 !important; }
+  .kanban-stage:nth-child(5) .kanban-stage-header { background:#14b8a6 !important; border-color:#0ea294 !important; }
+  .kanban-stage:nth-child(6) .kanban-stage-header { background:#e11d48 !important; border-color:#c8143d !important; }
+  .kanban-stage:nth-child(7) .kanban-stage-header { background:#22c55e !important; border-color:#1cab50 !important; }
+  .kanban-item { background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; margin-bottom:9px !important; }
+  .kanban-item > .kanban-item-content { padding:0 !important; background:transparent !important; }
+</style>
+HTML;
+    }
+
+    public static function onUpdateItemDrop($param)
+    {
+        try {
+            TTransaction::open('sample');
+            AcompProcesso::ensureTables();
+
+            $id = (int) ($param['id'] ?? 0);
+            $stage = AcompProcesso::normalizeStageCode((string) ($param['stage_id'] ?? ''));
+            if ($id <= 0 || $stage === '') {
+                throw new Exception('Movimentacao invalida.');
+            }
+
+            $proc = new AcompProcesso($id);
+            $proc->etapa = $stage;
+            $proc->updated_at = date('Y-m-d H:i:s');
+            $proc->store();
+
+            TTransaction::close();
+            TToast::show('success', 'Etapa atualizada!', 'bottom right');
+        } catch (Exception $e) {
+            try {
+                TTransaction::rollback();
+            } catch (Exception $ee) {
+            }
+            TToast::show('error', $e->getMessage(), 'bottom right');
+        }
+    }
+
+    private static function renderDataColeta($object): string
+    {
+        $processId = isset($object->id) ? (int) $object->id : 0;
+        $last = self::$lastEventByProcessId[$processId]['data_evento'] ?? '';
+        $raw = $last !== '' ? $last : (string) ($object->data_coleta ?? '');
+        if ($raw === '') {
+            return '-';
+        }
+
+        $ts = strtotime($raw);
+        if ($ts !== false) {
+            return date('d/m/Y', $ts);
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+            return TDate::convertToMask($raw, 'yyyy-mm-dd', 'dd/mm/yyyy');
+        }
+
+        return $raw;
     }
 
     private static function renderEstoquePositionByCrt(string $crt): string

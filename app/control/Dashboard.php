@@ -22,96 +22,16 @@ class Dashboard extends TPage
         $box = new TVBox;
         $box->style = 'width: 100%';
         $box->add(TBreadCrumb::create(['Dashboard', 'Operacional']));
+        $box->add(self::renderQuickAccessSection());
 
         // ── Coleta de dados ──────────────────────────────────────────────
         TTransaction::open(self::$database);
         $conn = TTransaction::get();
 
         $hoje   = date('Y-m-d');
-        $mes_ini = date('Y-m-01');
-        $mes_fim = date('Y-m-t');
 
-        // KPI: CRTs emitidos no mês
-        $crts_mes = (int)$conn->query(
-            "SELECT COUNT(*) FROM conhecimento
-             WHERE data_transportador_assinatura BETWEEN '$mes_ini' AND '$mes_fim'"
-        )->fetchColumn();
-
-        // KPI: CRTs emitidos hoje
-        $crts_hoje = (int)$conn->query(
-            "SELECT COUNT(*) FROM conhecimento
-             WHERE data_transportador_assinatura = '$hoje'"
-        )->fetchColumn();
-
-        // KPI: Total de CRTs ativos (não concluídos)
-        $crts_ativos = (int)$conn->query(
-            "SELECT COUNT(*) FROM conhecimento c
-             INNER JOIN status_crt s ON s.id = c.status_crt_id
-             WHERE (s.status_final IS NULL OR s.status_final = '0')
-               AND (s.deleted_at IS NULL OR s.deleted_at = '')"
-        )->fetchColumn();
-
-        // KPI: Faturas em aberto (sem data de pagamento)
-        $faturas_abertas = (int)$conn->query(
-            "SELECT COUNT(*) FROM fatura
-             WHERE (pagamento IS NULL OR pagamento = '')"
-        )->fetchColumn();
-
-        // KPI: Contratos não pagos
-        $contratos_nao_pagos = (int)$conn->query(
-            "SELECT COUNT(*) FROM contrato
-             WHERE (pago IS NULL OR pago = '' OR pago = '0')"
-        )->fetchColumn();
-
-        // KPI: Valor total fretes do mês (contratos)
-        $frete_mes = (float)$conn->query(
-            "SELECT COALESCE(SUM(CAST(frete1 AS REAL)), 0) FROM contrato
-             WHERE emissao BETWEEN '$mes_ini' AND '$mes_fim'"
-        )->fetchColumn();
-
-        // KPI: Saldo a pagar motoristas (contratos não pagos)
-        $saldo_motoristas = (float)$conn->query(
-            "SELECT COALESCE(SUM(CAST(saldo1 AS REAL)), 0) FROM contrato
-             WHERE (pago IS NULL OR pago = '' OR pago = '0')"
-        )->fetchColumn();
-
-        // KPI: Faturas a vencer nos próximos 7 dias
+        // KPI: Faturas a vencer nos proximos 7 dias
         $prox7 = date('Y-m-d', strtotime('+7 days'));
-        $faturas_vencendo = (int)$conn->query(
-            "SELECT COUNT(*) FROM fatura
-             WHERE (pagamento IS NULL OR pagamento = '')
-               AND vencimento BETWEEN '$hoje' AND '$prox7'"
-        )->fetchColumn();
-
-        // Gráfico: CRTs por status
-        $status_rows = $conn->query(
-            "SELECT s.nome, s.cor, COUNT(c.id) as total
-             FROM status_crt s
-             LEFT JOIN conhecimento c ON c.status_crt_id = s.id
-             WHERE (s.deleted_at IS NULL OR s.deleted_at = '')
-             GROUP BY s.id, s.nome, s.cor
-             ORDER BY s.ordem"
-        )->fetchAll(\PDO::FETCH_ASSOC);
-
-        // Gráfico: CRTs por dia (últimos 30 dias)
-        $dt30 = date('Y-m-d', strtotime('-29 days'));
-        $crts_diario = $conn->query(
-            "SELECT data_transportador_assinatura as dia, COUNT(*) as total
-             FROM conhecimento
-             WHERE data_transportador_assinatura >= '$dt30'
-             GROUP BY data_transportador_assinatura
-             ORDER BY data_transportador_assinatura"
-        )->fetchAll(\PDO::FETCH_ASSOC);
-
-        // Gráfico: Frete mensal (últimos 6 meses)
-        $frete_mensal = $conn->query(
-            "SELECT substr(emissao,1,7) as mes,
-                    COALESCE(SUM(CAST(frete1 AS REAL)), 0) as total
-             FROM contrato
-             WHERE emissao >= date('now','-5 months','start of month')
-             GROUP BY mes
-             ORDER BY mes"
-        )->fetchAll(\PDO::FETCH_ASSOC);
 
         // Tabela: Últimos 8 CRTs
         $ultimos_crts = $conn->query(
@@ -150,45 +70,7 @@ class Dashboard extends TPage
 
         TTransaction::close();
 
-        // ── Serializa dados para JS ──────────────────────────────────────
-        $status_labels  = json_encode(array_column($status_rows, 'nome'));
-        $status_totais  = json_encode(array_map('intval', array_column($status_rows, 'total')));
-        $status_cores   = json_encode(array_column($status_rows, 'cor'));
-
-        // Preenche dias sem CRT com zero (últimos 30 dias)
-        $mapa_diario = [];
-        foreach ($crts_diario as $row) {
-            $mapa_diario[$row['dia']] = (int)$row['total'];
-        }
-        $dias_labels = [];
-        $dias_vals   = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $d = date('Y-m-d', strtotime("-$i days"));
-            $dias_labels[] = date('d/m', strtotime($d));
-            $dias_vals[]   = $mapa_diario[$d] ?? 0;
-        }
-        $dias_labels_js = json_encode($dias_labels);
-        $dias_vals_js   = json_encode($dias_vals);
-
-        $mapa_mensal = [];
-        foreach ($frete_mensal as $row) {
-            $mapa_mensal[$row['mes']] = round((float)$row['total'], 2);
-        }
-        $meses_labels = [];
-        $meses_vals   = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $m = date('Y-m', strtotime("-$i months"));
-            $meses_labels[] = date('m/Y', strtotime("$m-01"));
-            $meses_vals[]   = $mapa_mensal[$m] ?? 0;
-        }
-        $meses_labels_js = json_encode($meses_labels);
-        $meses_vals_js   = json_encode($meses_vals);
-
         // ── HTML / CSS ───────────────────────────────────────────────────
-        $frete_mes_fmt       = 'R$ ' . number_format($frete_mes, 2, ',', '.');
-        $saldo_motor_fmt     = 'R$ ' . number_format($saldo_motoristas, 2, ',', '.');
-        $alerta_venc_class   = $faturas_vencendo > 0 ? 'bg-warning' : 'bg-success';
-        $contratos_pend_class = $contratos_nao_pagos > 0 ? 'bg-danger' : 'bg-success';
 
         // Linhas da tabela de últimos CRTs
         $rows_crts = '';
@@ -207,7 +89,7 @@ class Dashboard extends TPage
                 <td><span class='badge' style='background-color:{$cor}'>{$st}</span></td>
                 <td>{$rem}</td>
                 <td>
-                    <a href='?class=ConhecimentoForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-primary py-0 px-1'>
+                    <a href='index.php?class=ConhecimentoForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-primary py-0 px-1'>
                         <i class='fa fa-edit'></i>
                     </a>
                 </td>
@@ -229,7 +111,7 @@ class Dashboard extends TPage
                 <td class='{$venc_class}'>{$venc}</td>
                 <td class='text-end'>{$saldo}</td>
                 <td>
-                    <a href='?class=ContratoForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-success py-0 px-1'>
+                    <a href='index.php?class=ContratoForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-success py-0 px-1'>
                         <i class='fa fa-check'></i>
                     </a>
                 </td>
@@ -249,7 +131,7 @@ class Dashboard extends TPage
                 <td class='{$venc_class}'>{$venc}</td>
                 <td class='text-end'>{$valor}</td>
                 <td>
-                    <a href='?class=FaturaForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-warning py-0 px-1'>
+                    <a href='index.php?class=FaturaForm&method=onEdit&key={$r['id']}' class='btn btn-xs btn-warning py-0 px-1'>
                         <i class='fa fa-edit'></i>
                     </a>
                 </td>
@@ -267,134 +149,6 @@ class Dashboard extends TPage
         }
 
         $html = <<<HTML
-<!-- ── KPIs ─────────────────────────────────────────────────────────── -->
-<p class="border-start border-4 border-primary ps-2 fw-bold mb-3 mt-2"><i class="bi bi-speedometer2"></i> Indicadores Operacionais</p>
-<div class="row row-cols-2 row-cols-md-3 g-3 mb-4">
-
-  <div class="col">
-    <div class="card h-100 bg-primary text-white border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-file-earmark-text fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">CRTs no Mês</div>
-        <div class="fs-2 fw-bold lh-1">$crts_mes</div>
-        <div class="small opacity-75 mt-1">Hoje: <strong>$crts_hoje</strong></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="card h-100 bg-success text-white border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-arrow-repeat fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">CRTs Ativos</div>
-        <div class="fs-2 fw-bold lh-1">$crts_ativos</div>
-        <div class="small opacity-75 mt-1">Em andamento</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="card h-100 bg-secondary text-white border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-cash-stack fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">Frete Mês</div>
-        <div class="fs-4 fw-bold lh-1">$frete_mes_fmt</div>
-        <div class="small opacity-75 mt-1">Contratos emitidos</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="card h-100 bg-danger text-white border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-people fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">Saldo Motoristas</div>
-        <div class="fs-4 fw-bold lh-1">$saldo_motor_fmt</div>
-        <div class="small opacity-75 mt-1">$contratos_nao_pagos contrato(s) pendente(s)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="card h-100 bg-warning text-dark border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-receipt fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">Faturas em Aberto</div>
-        <div class="fs-2 fw-bold lh-1">$faturas_abertas</div>
-        <div class="small opacity-75 mt-1">Aguardando pagamento</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col">
-    <div class="card h-100 bg-danger text-white border-0 shadow-sm">
-      <div class="card-body">
-        <i class="bi bi-alarm fs-1 opacity-25 float-end mt-n1"></i>
-        <div class="text-uppercase small opacity-75">Faturas Vencendo</div>
-        <div class="fs-2 fw-bold lh-1">$faturas_vencendo</div>
-        <div class="small opacity-75 mt-1">Próximos 7 dias</div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ── Ações Rápidas ─────────────────────────────────────────────────── -->
-<p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-lightning-charge"></i> Ações Rápidas</p>
-<div class="d-flex flex-wrap gap-2 mb-4">
-  <a href="?class=ConhecimentoList" class="btn btn-primary btn-sm">
-    <i class="bi bi-file-earmark-plus me-1"></i> Novo CRT
-  </a>
-  <a href="?class=ContratoList" class="btn btn-success btn-sm">
-    <i class="bi bi-pen me-1"></i> Contratos
-  </a>
-  <a href="?class=FaturaList" class="btn btn-warning btn-sm">
-    <i class="bi bi-receipt me-1"></i> Faturas
-  </a>
-  <a href="?class=AcompProcessoKanban" class="btn btn-info btn-sm text-white">
-    <i class="bi bi-kanban me-1"></i> Kanban Processos
-  </a>
-  <a href="?class=VeiculoList" class="btn btn-secondary btn-sm">
-    <i class="bi bi-truck me-1"></i> Veículos
-  </a>
-  <a href="?class=MotoristaList" class="btn btn-dark btn-sm">
-    <i class="bi bi-person-badge me-1"></i> Motoristas
-  </a>
-  <a href="?class=EnlastreList" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-layers me-1"></i> Enlastres
-  </a>
-</div>
-
-<!-- ── Gráficos ──────────────────────────────────────────────────────── -->
-<p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-bar-chart-line"></i> Análise Gráfica</p>
-<div class="row g-3 mb-4">
-
-  <div class="col-md-8">
-    <div class="card shadow-sm">
-      <div class="card-header fw-bold"><i class="bi bi-graph-up me-1"></i> CRTs Emitidos — Últimos 30 dias</div>
-      <div class="card-body">
-        <canvas id="chartDiario" height="80"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <div class="card-header fw-bold"><i class="bi bi-pie-chart me-1"></i> Distribuição por Status</div>
-      <div class="card-body">
-        <canvas id="chartStatus" height="200"></canvas>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="card shadow-sm mb-4">
-  <div class="card-header fw-bold"><i class="bi bi-currency-dollar me-1"></i> Frete Total por Mês (últimos 6 meses)</div>
-  <div class="card-body">
-    <canvas id="chartFreteMensal" height="60"></canvas>
-  </div>
-</div>
 
 <!-- ── Tabelas ───────────────────────────────────────────────────────── -->
 <p class="border-start border-4 border-primary ps-2 fw-bold mb-3"><i class="bi bi-table"></i> Monitoramento Operacional</p>
@@ -414,7 +168,7 @@ class Dashboard extends TPage
         </div>
       </div>
       <div class="card-footer p-1">
-        <a href="?class=ConhecimentoList" class="btn btn-sm btn-outline-primary w-100">Ver todos os CRTs →</a>
+        <a href="index.php?class=ConhecimentoList" class="btn btn-sm btn-outline-primary w-100">Ver todos os CRTs →</a>
       </div>
     </div>
   </div>
@@ -433,7 +187,7 @@ class Dashboard extends TPage
         </div>
       </div>
       <div class="card-footer p-1">
-        <a href="?class=FaturaList" class="btn btn-sm btn-outline-warning w-100">Ver todas as faturas →</a>
+        <a href="index.php?class=FaturaList" class="btn btn-sm btn-outline-warning w-100">Ver todas as faturas →</a>
       </div>
     </div>
   </div>
@@ -453,96 +207,83 @@ class Dashboard extends TPage
     </div>
   </div>
   <div class="card-footer p-1">
-    <a href="?class=ContratoList" class="btn btn-sm btn-outline-success w-100">Ver todos os contratos →</a>
+    <a href="index.php?class=ContratoList" class="btn btn-sm btn-outline-success w-100">Ver todos os contratos →</a>
   </div>
 </div>
 
-<!-- ── Scripts ───────────────────────────────────────────────────────── -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<script>
-(function () {
-    Chart.defaults.font.family = "'Segoe UI', sans-serif";
-    Chart.defaults.font.size   = 12;
-
-    // Cores padrão da transportadora
-    const blue = '#2563eb', green = '#10b981', amber = '#f59e0b', red = '#ef4444';
-
-    // Gráfico: CRTs diários
-    new Chart(document.getElementById('chartDiario'), {
-        type: 'bar',
-        data: {
-            labels: $dias_labels_js,
-            datasets: [{
-                label: 'CRTs emitidos',
-                data: $dias_vals_js,
-                backgroundColor: blue + 'cc',
-                borderColor: blue,
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-    });
-
-    // Gráfico: Status (donut)
-    var statusLabels = $status_labels;
-    var statusTotais = $status_totais;
-    var statusCores  = $status_cores;
-    new Chart(document.getElementById('chartStatus'), {
-        type: 'doughnut',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusTotais,
-                backgroundColor: statusCores.map(function(c){ return c || '#adb5bd'; }),
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
-            }
-        }
-    });
-
-    // Gráfico: Frete mensal (barras)
-    new Chart(document.getElementById('chartFreteMensal'), {
-        type: 'bar',
-        data: {
-            labels: $meses_labels_js,
-            datasets: [{
-                label: 'Frete Total (R$)',
-                data: $meses_vals_js,
-                backgroundColor: green + 'cc',
-                borderColor: green,
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(v){ return 'R$ ' + v.toLocaleString('pt-BR'); }
-                    }
-                }
-            }
-        }
-    });
-})();
-</script>
 HTML;
 
         $box->add($html);
         parent::add($box);
     }
+
+    private static function renderQuickAccessSection(): string
+    {
+        $grupos = [
+            'Opcoes' => [
+                ['Conhecimento(CRT)', 'index.php?class=ConhecimentoList', 'fa fa-file-text'],
+                ['Tracking Processos', 'index.php?class=AcompProcessoKanban', 'fa fa-sitemap'],
+                ['Controle de Estoque', 'index.php?class=EstoqueView', 'fa fa-archive'],
+                ['Caixa', 'index.php?class=CaixaList', 'fa fa-briefcase'],
+            ],
+            'Acoes' => [
+                ['Motorista', 'index.php?class=MotoristaList', 'fa fa-id-card'],
+                ['Clientes', 'index.php?class=ClientesList', 'fa fa-users'],
+                ['Contratos', 'index.php?class=ContratoList', 'fa fa-file-text'],
+                ['Faturas', 'index.php?class=FaturaList', 'fa fa-file-invoice-dollar'],
+            ],
+            'Favoritos' => [
+                ['Faturas', 'index.php?class=FaturaList', 'fa fa-credit-card'],
+                ['Consulta ANTT', 'index.php?class=ANTTForm', 'fa fa-balance-scale'],
+                ['Tabela de Fretes', 'index.php?class=TabelaFreteList', 'fa fa-road'],
+                ['Veiculo - Cadastro', 'index.php?class=VeiculoList', 'fa fa-truck'],
+            ],
+        ];
+
+        $cols = '';
+        foreach ($grupos as $titulo => $itens) {
+            $cards = '';
+            foreach ($itens as $item) {
+                $label = htmlspecialchars($item[0]);
+                $href  = htmlspecialchars($item[1]);
+                $icon  = htmlspecialchars($item[2]);
+                $cards .= "
+                    <a class='dash-quick-card' href='{$href}' generator='adianti'>
+                        <i class='{$icon}'></i>
+                        <span>{$label}</span>
+                    </a>";
+            }
+
+            $cols .= "
+                <div class='dash-quick-col'>
+                    <div class='dash-quick-title'>{$titulo}</div>
+                    <div class='dash-quick-list'>{$cards}</div>
+                </div>";
+        }
+
+        return <<<HTML
+<style>
+  .dash-quick-wrap { background:#e9edf1; border:1px solid #d5dbe2; border-radius:10px; padding:12px; margin:10px 0 14px 0; }
+  .dash-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+  .dash-quick-col { padding-right:12px; border-right:1px solid #cfd5dc; }
+  .dash-quick-col:last-child { border-right:0; padding-right:0; }
+  .dash-quick-title { font-size:13px; line-height:1; font-weight:700; color:#5c6672; letter-spacing:.04em; text-transform:uppercase; margin:2px 0 10px 4px; }
+  .dash-quick-list { display:grid; gap:8px; }
+  .dash-quick-card { display:flex; align-items:center; gap:14px; text-decoration:none; border:1px solid #c3c9d2; background:#dde3e9; border-radius:5px; padding:12px 14px; color:#2f343a; font-weight:700; transition:.15s ease; min-height:68px; }
+  .dash-quick-card i { color:#ef7f2d; width:44px; text-align:center; font-size:34px; line-height:1; }
+  .dash-quick-card span { font-size:18px; }
+  .dash-quick-card:hover { background:#d6dde4; border-color:#b7bec9; color:#1f2937; }
+  @media (max-width:1200px){ .dash-quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:1200px){ .dash-quick-col { border-right:0; padding-right:0; } }
+  @media (max-width:760px){ .dash-quick-grid { grid-template-columns:1fr; } .dash-quick-card span { font-size:18px; } .dash-quick-card i { font-size:28px; width:36px; } }
+</style>
+<div class="dash-quick-wrap">
+  <div class="dash-quick-grid">
+    {$cols}
+  </div>
+</div>
+HTML;
+    }
 }
+
+

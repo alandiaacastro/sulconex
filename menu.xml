@@ -203,7 +203,7 @@
                 <icon>fas:list fa-fw</icon>
                 <action>ANTTConsultaList</action>
             </menuitem>
-            <menuitem label="Mot">
+            <menuitem label="Motorista">
                 <icon>fas:list fa-fw</icon>
                 <action>MotoristaList</action>
             </menuitem>
