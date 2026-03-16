@@ -217,11 +217,14 @@ class PropostaList extends TPage
 
         $this->totalsContainer = new TElement('div');
 
+        $footerWrap = new TElement('div');
+        $footerWrap->add($this->totalsContainer);
+        $footerWrap->add($this->pageNavigation);
+
         $panel = new TPanelGroup;
         $panel->add($this->kpiContainer);
         $panel->add($this->datagrid);
-        $panel->addFooter($this->totalsContainer);
-        $panel->addFooter($this->pageNavigation);
+        $panel->addFooter($footerWrap);
 
         $box = new TVBox;
         $box->style = 'width:100%';
