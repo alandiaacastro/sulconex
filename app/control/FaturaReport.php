@@ -40,16 +40,22 @@ class FaturaReport extends TPage
 
     private static function gerarPDFReais($object)
     {
-        self::gerarPDF($object, 'R$');
+        self::gerarPDF($object, 'R$', 1.0);
     }
 
     private static function gerarPDFDolar($object)
     {
-        self::gerarPDF($object, 'US$');
+        $taxa = (float) ($object->taxa ?? 0);
+        if ($taxa <= 0) {
+            new TMessage('error', 'Taxa de câmbio (BRL/USD) não informada nesta fatura. Preencha o campo "Taxa" antes de gerar o relatório em dólar.');
+            return;
+        }
+        self::gerarPDF($object, 'US$', $taxa);
     }
 
-    private static function gerarPDF($object, string $moeda)
+    private static function gerarPDF($object, string $moeda, float $taxa)
     {
+        $converter = fn($valor) => (float) $valor / ($taxa > 0 ? $taxa : 1);
         $conv = function ($text) {
             return mb_convert_encoding((string) $text, 'ISO-8859-1', 'UTF-8');
         };
@@ -78,12 +84,21 @@ class FaturaReport extends TPage
         $emissao = $emissao ? TDate::convertToMask($emissao, 'yyyy-mm-dd', 'dd/mm/yyyy') : '';
         $vencimento = $vencimento ? TDate::convertToMask($vencimento, 'yyyy-mm-dd', 'dd/mm/yyyy') : '';
 
-        $total = $object->valor_fatura;
-        if ($total === null || $total === '') {
-            $total = (float) ($object->valor1 ?? 0) + (float) ($object->valor2 ?? 0) + (float) ($object->valor3 ?? 0);
+        $total_brl = $object->valor_fatura;
+        if ($total_brl === null || $total_brl === '') {
+            $total_brl = (float) ($object->valor1 ?? 0) + (float) ($object->valor2 ?? 0) + (float) ($object->valor3 ?? 0);
         }
+        $total   = $converter($total_brl);
+        $valor1  = $converter((float) ($object->valor1 ?? 0));
+        $valor2  = $converter((float) ($object->valor2 ?? 0));
+        $valor3  = $converter((float) ($object->valor3 ?? 0));
 
-        $valorExtenso = (string) ($object->valor_extenso ?? '');
+        $valorExtenso = ExtensoReal::numeroPorExtenso($total);
+        if ($moeda === 'US$') {
+            $taxaFmt   = number_format($taxa, 4, ',', '.');
+            $totalBrlFmt = number_format((float)$total_brl, 2, ',', '.');
+            $valorExtenso = "USD " . $valorExtenso . " (Cambio R\$ {$taxaFmt} = R\$ {$totalBrlFmt})";
+        }
         $descricao1 = (string) ($object->descricao1 ?? '');
         $descricao2 = (string) ($object->descricao2 ?? '');
         $descricao3 = (string) ($object->descricao3 ?? '');
@@ -266,11 +281,11 @@ class FaturaReport extends TPage
         $pdf->Text(162, 142, $conv('VALOR'));
         $pdf->SetFont('Arial', '', 8);
         $pdf->SetXY(160, 142);
-        $pdf->Cell(30, 10, $moeda . ' ' . number_format((float) ($object->valor1 ?? 0), 2, ',', '.'), 0, 0, 'R');
+        $pdf->Cell(30, 10, $moeda . ' ' . number_format($valor1, 2, ',', '.'), 0, 0, 'R');
         $pdf->SetXY(160, 146);
-        $pdf->Cell(30, 10, $moeda . ' ' . number_format((float) ($object->valor2 ?? 0), 2, ',', '.'), 0, 0, 'R');
+        $pdf->Cell(30, 10, $moeda . ' ' . number_format($valor2, 2, ',', '.'), 0, 0, 'R');
         $pdf->SetXY(160, 150);
-        $pdf->Cell(30, 10, $moeda . ' ' . number_format((float) ($object->valor3 ?? 0), 2, ',', '.'), 0, 0, 'R');
+        $pdf->Cell(30, 10, $moeda . ' ' . number_format($valor3, 2, ',', '.'), 0, 0, 'R');
 
         $pdf->SetXY(160, 250);
         $pdf->Cell(30, 10, $moeda . ' ' . number_format((float) $total, 2, ',', '.'), 0, 0, 'R');
