@@ -63,6 +63,8 @@ class CaixaList extends TPage
         $this->form->addAction('Novo Lancamento',    new TAction(['CaixaForm', 'onEdit']),        'fa:plus green');
         $this->form->addAction('Entradas',           new TAction([$this, 'onFiltrarEntrada']),     'fa:arrow-up green');
         $this->form->addAction('Saidas',             new TAction([$this, 'onFiltrarSaida']),       'fa:arrow-down red');
+        $this->form->addAction('Pendente',           new TAction([$this, 'onFiltrarPendente']),    'fa:clock-o orange');
+        $this->form->addAction('Conciliado',         new TAction([$this, 'onFiltrarConciliado']),  'fa:check green');
         $this->form->addAction('Importar OFX',       new TAction(['CaixaImportOFX', 'onShow']),   'fa:university orange');
         $this->form->addAction('Importar Faturas',   new TAction([$this, 'onImportarFaturas']),  'fa:file-invoice-dollar teal');
         $this->form->addAction('Relatorio Caixa',    new TAction([$this, 'onRelatorio']),            'fa:file-text-o blue');
@@ -297,6 +299,26 @@ HTML;
         $data = $this->form->getData();
         $data = $data ?: (object) [];
         $data->tipo = 'SAIDA';
+        $this->form->setData($data);
+        TSession::setValue(__CLASS__ . '_filter_data', $data);
+        $this->onReload(['offset' => 0, 'first_page' => 1]);
+    }
+
+    public function onFiltrarPendente($param)
+    {
+        $data = $this->form->getData();
+        $data = $data ?: (object) [];
+        $data->status = 'PENDENTE';
+        $this->form->setData($data);
+        TSession::setValue(__CLASS__ . '_filter_data', $data);
+        $this->onReload(['offset' => 0, 'first_page' => 1]);
+    }
+
+    public function onFiltrarConciliado($param)
+    {
+        $data = $this->form->getData();
+        $data = $data ?: (object) [];
+        $data->status = 'CONCILIADO';
         $this->form->setData($data);
         TSession::setValue(__CLASS__ . '_filter_data', $data);
         $this->onReload(['offset' => 0, 'first_page' => 1]);
