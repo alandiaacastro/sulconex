@@ -207,6 +207,10 @@
                 <icon>fas:list fa-fw</icon>
                 <action>MotoristaList</action>
             </menuitem>
+            <menuitem label="Alíquotas de Impostos">
+                <icon>fas:percentage fa-fw</icon>
+                <action>AliquotasImpostosForm</action>
+            </menuitem>
         </menu>
     </menuitem>
 

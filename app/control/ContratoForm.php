@@ -26,6 +26,9 @@ class ContratoForm extends TPage
         parent::__construct($param);
         parent::setTargetContainer('adianti_right_panel');
 
+        Contrato::addColumnsIfNotExists();
+        AliquotaImposto::createTableIfNotExists();
+
         $this->form = new BootstrapFormBuilder('form_contrato');
         $this->form->setFormTitle('Cadastro de Contrato');
 
@@ -43,6 +46,8 @@ class ContratoForm extends TPage
         $inss1 = new TNumeric('inss1', 2, ',', '.', true);
         $irrf1 = new TNumeric('irrf1', 2, ',', '.', true);
         $sest1 = new TNumeric('sest1', 2, ',', '.', true);
+        $pis1 = new TNumeric('pis1', 2, ',', '.', true);
+        $cofins1 = new TNumeric('cofins1', 2, ',', '.', true);
         $descontos1 = new TNumeric('descontos1', 2, ',', '.', true);
         $saldo1 = new TNumeric('saldo1', 2, ',', '.');
         $pagamento = new TText('pagamento');
@@ -55,6 +60,9 @@ class ContratoForm extends TPage
         $placa_semi = new TEntry('placa_semi');
         $motorista_nome = new TEntry('motorista_nome');
         $proprietario_nome = new TEntry('proprietario_nome');
+        $pis_motorista = new TEntry('pis_motorista');
+        $pis_motorista->setPlaceHolder('Ex: 123.45678.90-1');
+        $pis_motorista->setSize('100%');
 
         $placa_trator->setEditable(FALSE);
         $placa_semi->setEditable(FALSE);
@@ -77,11 +85,14 @@ class ContratoForm extends TPage
         $pago->addItems(['N' => 'Não', 'S' => 'Sim']);
 
         $update_action = new TAction(['ContratoForm', 'onUpdateValores']);
+        $pis_motorista->setExitAction($update_action);
         $frete1->setExitAction($update_action);
         $adt1->setExitAction($update_action);
         $inss1->setExitAction($update_action);
         $irrf1->setExitAction($update_action);
         $sest1->setExitAction($update_action);
+        $pis1->setExitAction($update_action);
+        $cofins1->setExitAction($update_action);
         $descontos1->setExitAction($update_action);
 
         $this->form->appendPage('Dados Principais');
@@ -89,7 +100,7 @@ class ContratoForm extends TPage
         $this->form->addFields( [new TLabel('Contratante (Permissão)', '#FF0000')], [$permisso_id] );
         $this->form->addFields( [new TLabel('Selecione o Veículo', '#FF0000')], [$veiculo_id] );
         $this->form->addFields( [new TLabel('Placa Trator')], [$placa_trator], [new TLabel('Placa Carreta')], [$placa_semi] );
-        $this->form->addFields( [new TLabel('Motorista')], [$motorista_nome] );
+        $this->form->addFields( [new TLabel('Motorista')], [$motorista_nome], [new TLabel('PIS do Motorista')], [$pis_motorista] );
         $this->form->addFields( [new TLabel('Proprietário')], [$proprietario_nome] );
         $this->form->addFields( [new TLabel('Conhecimento')], [$conhecimento_numero], [new TLabel('Danfe/Mic')], [$danfeoumic] );
         $this->form->addFields( [new TLabel('Emissão')], [$emissao] );
@@ -98,8 +109,9 @@ class ContratoForm extends TPage
 
         $this->form->appendPage('Valores e Pagamento');
         $this->form->addFields( [new TLabel('Frete')], [$frete1], [new TLabel('Adiantamento')], [$adt1] );
-        $this->form->addFields( [new TLabel('INSS')], [$inss1], [new TLabel('IRRF')], [$irrf1] );
-        $this->form->addFields( [new TLabel('SEST/SENAT')], [$sest1], [new TLabel('Outros Descontos')], [$descontos1] );
+        $this->form->addFields( [new TLabel('INSS (*)')], [$inss1], [new TLabel('IRRF (auto 1,5%)')], [$irrf1] );
+        $this->form->addFields( [new TLabel('SEST/SENAT (auto 1,5%)')], [$sest1], [new TLabel('PIS (auto 0,65%)')], [$pis1] );
+        $this->form->addFields( [new TLabel('COFINS (auto 3%)')], [$cofins1], [new TLabel('Outros Descontos')], [$descontos1] );
         $this->form->addFields( [new TLabel('Saldo')], [$saldo1] );
         $this->form->addFields( [new TLabel('Valor por Extenso')], [$extenso1] );
         $this->form->addFields( [new TLabel('Forma de Pagamento')], [$pagamento] );
@@ -140,19 +152,67 @@ class ContratoForm extends TPage
         }
     }
     
+    private static function parseBrNumber($val): float
+    {
+        $val = trim((string)($val ?? '0'));
+        // formato pt-BR: 1.234,56
+        if (strpos($val, ',') !== false) {
+            $val = str_replace('.', '', $val);
+            $val = str_replace(',', '.', $val);
+        }
+        return (float) $val;
+    }
+
     public static function onUpdateValores($param)
     {
-        $frete = (float) str_replace(',', '.', str_replace('.', '', $param['frete1'] ?? '0'));
-        $adt = (float) str_replace(',', '.', str_replace('.', '', $param['adt1'] ?? '0'));
-        $inss = (float) str_replace(',', '.', str_replace('.', '', $param['inss1'] ?? '0'));
-        $irrf = (float) str_replace(',', '.', str_replace('.', '', $param['irrf1'] ?? '0'));
-        $sest = (float) str_replace(',', '.', str_replace('.', '', $param['sest1'] ?? '0'));
-        $descontos = (float) str_replace(',', '.', str_replace('.', '', $param['descontos1'] ?? '0'));
-        
+        $frete          = self::parseBrNumber($param['frete1']     ?? 0);
+        $adt            = self::parseBrNumber($param['adt1']       ?? 0);
+        $inss           = self::parseBrNumber($param['inss1']      ?? 0);
+        $irrf           = self::parseBrNumber($param['irrf1']      ?? 0);
+        $sest           = self::parseBrNumber($param['sest1']      ?? 0);
+        $pis            = self::parseBrNumber($param['pis1']       ?? 0);
+        $cofins         = self::parseBrNumber($param['cofins1']    ?? 0);
+        $descontos      = self::parseBrNumber($param['descontos1'] ?? 0);
+        $pis_motorista  = trim($param['pis_motorista'] ?? '');
+
         $obj = new stdClass;
-        $obj->saldo1 = $frete - $adt - $inss - $irrf - $sest - $descontos;
+
+        // Calcula impostos automaticamente apenas se PIS do motorista estiver preenchido
+        if ($pis_motorista !== '') {
+            // Lê alíquotas configuráveis do banco (fallback para valores padrão)
+            try {
+                $rates = AliquotaImposto::getAll();
+            } catch (Exception $e) {
+                $rates = [];
+            }
+            $r_irrf   = (float) ($rates['IRRF']       ?? 0.015);
+            $r_sest   = (float) ($rates['SEST_SENAT']  ?? 0.015);
+            $r_pis    = (float) ($rates['PIS']         ?? 0.0065);
+            $r_cofins = (float) ($rates['COFINS']      ?? 0.03);
+
+            $obj->irrf1   = round($frete * $r_irrf,   2);
+            $obj->sest1   = round($frete * $r_sest,   2);
+            $obj->pis1    = round($frete * $r_pis,    2);
+            $obj->cofins1 = round($frete * $r_cofins, 2);
+            $irrf   = $obj->irrf1;
+            $sest   = $obj->sest1;
+            $pis    = $obj->pis1;
+            $cofins = $obj->cofins1;
+        } else {
+            // PIS não informado → zera impostos automáticos
+            $obj->irrf1   = 0;
+            $obj->sest1   = 0;
+            $obj->pis1    = 0;
+            $obj->cofins1 = 0;
+            $irrf   = 0;
+            $sest   = 0;
+            $pis    = 0;
+            $cofins = 0;
+        }
+
+        $obj->saldo1   = $frete - $adt - $inss - $irrf - $sest - $pis - $cofins - $descontos;
         $obj->extenso1 = ExtensoReal::numeroPorExtenso($frete);
-        
+
         TForm::sendData('form_contrato', $obj, false, false);
     }
 
@@ -162,7 +222,7 @@ class ContratoForm extends TPage
             TTransaction::open('sample');
             $this->form->validate();
             $object = $this->form->getData('Contrato');
-            $object->saldo1 = (float)$object->frete1 - (float)$object->adt1 - (float)$object->inss1 - (float)$object->irrf1 - (float)$object->sest1 - (float)$object->descontos1;
+            $object->saldo1 = (float)$object->frete1 - (float)$object->adt1 - (float)$object->inss1 - (float)$object->irrf1 - (float)$object->sest1 - (float)$object->pis1 - (float)$object->cofins1 - (float)$object->descontos1;
             $object->extenso1 = ExtensoReal::numeroPorExtenso((float)$object->frete1);
             $object->store();
             $this->form->setData($object);

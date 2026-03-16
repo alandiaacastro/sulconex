@@ -1,8 +1,8 @@
 <?php
 /**
  * CaixaList - Caixa Financeiro
- * Lancamentos de entrada/sa�da, contas a receber (faturas) e a pagar (contratos)
- * com importa��o de extrato OFX.
+ * Lancamentos de entrada/sa�da, contas a receber (faturas) e a pagar (contratos)
+ * com importa��o de extrato OFX.
  */
 class CaixaList extends TPage
 {
@@ -17,13 +17,12 @@ class CaixaList extends TPage
 
         Caixa::createTableIfNotExists();
 
-        // ── FORMUL�RIO DE FILTRO ───────────────────────────────────────────
+        // ── FORMUL�RIO DE FILTRO ───────────────────────────────────────────
         $this->form = new BootstrapFormBuilder('form_search_caixa');
         $this->form->setFormTitle('Caixa Financeiro');
 
         $data_de   = new TDate('data_de');
         $data_ate  = new TDate('data_ate');
-        $tipo      = new TCombo('tipo');
         $categoria = new TCombo('categoria');
         $status    = new TCombo('status');
 
@@ -32,7 +31,6 @@ class CaixaList extends TPage
         $data_ate->setMask('dd/mm/yyyy');
         $data_ate->setDatabaseMask('yyyy-mm-dd');
 
-        $tipo->addItems(['' => '(Todos)', 'ENTRADA' => 'ENTRADA', 'SAIDA' => 'SAIDA']);
         $categoria->addItems([
             ''         => '(Todas)',
             'MANUAL'   => 'Manual',
@@ -42,18 +40,23 @@ class CaixaList extends TPage
         ]);
         $status->addItems(['' => '(Todos)', 'PENDENTE' => 'Pendente', 'CONCILIADO' => 'Conciliado']);
 
-        foreach ([$data_de, $data_ate, $tipo, $categoria, $status] as $f) {
+        foreach ([$data_de, $data_ate, $categoria, $status] as $f) {
             $f->setSize('100%');
         }
 
+        // 8 slots → label(1) + field(2) × 4 = 12 colunas Bootstrap
+        $this->form->setColumnClasses(8, [
+            'col-sm-1', 'col-sm-2',
+            'col-sm-1', 'col-sm-2',
+            'col-sm-1', 'col-sm-2',
+            'col-sm-1', 'col-sm-2',
+        ]);
+
         $this->form->addFields(
             [new TLabel('Periodo De')], [$data_de],
-            [new TLabel('Ate')],        [$data_ate]
-        );
-        $this->form->addFields(
-            [new TLabel('Tipo')], [$tipo],
-            [new TLabel('Categoria')], [$categoria],
-            [new TLabel('Status')], [$status]
+            [new TLabel('Ate')],        [$data_ate],
+            [new TLabel('Categoria')],  [$categoria],
+            [new TLabel('Status')],     [$status]
         );
 
         $this->form->addAction('Filtrar',            new TAction([$this, 'onSearch']),           'fa:search blue');
@@ -122,7 +125,7 @@ class CaixaList extends TPage
         $this->datagrid->addColumn($colValor);
         $this->datagrid->addColumn($colStatus);
 
-        // A��es por linha
+        // A��es por linha
         $actionEdit = new TDataGridAction(['CaixaForm', 'onEdit'], ['key' => '{id}']);
         $this->datagrid->addAction($actionEdit, 'Editar', 'fa:edit blue');
 
@@ -134,7 +137,7 @@ class CaixaList extends TPage
 
         $this->datagrid->createModel();
 
-        // Pagina��o
+        // Pagina��o
         $this->pageNavigation = new TPageNavigation;
         $this->pageNavigation->setAction(new TAction([$this, 'onReload']));
         $this->pageNavigation->setWidth($this->datagrid->getWidth());
@@ -155,7 +158,7 @@ class CaixaList extends TPage
     }
 
     /**
-     * Constr�i os cards de KPI financeiro no topo
+     * Constr�i os cards de KPI financeiro no topo
      */
     private function buildKpiPanel()
     {
@@ -404,7 +407,7 @@ HTML;
             $caixa->delete();
             TTransaction::close();
             $this->onReload($param);
-            new TMessage('info', 'Lancamento exclu�do.');
+            new TMessage('info', 'Lancamento exclu�do.');
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();
@@ -436,7 +439,7 @@ HTML;
             TTransaction::open('sample');
             $conn = TTransaction::get();
 
-            // IDs de faturas j� importadas
+            // IDs de faturas j� importadas
             $importadas = $conn->query(
                 "SELECT referencia_id FROM caixa WHERE referencia_tipo='fatura'"
             )->fetchAll(\PDO::FETCH_COLUMN);
