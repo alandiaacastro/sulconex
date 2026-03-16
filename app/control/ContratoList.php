@@ -58,10 +58,38 @@ class ContratoList extends TPage
         $this->datagrid->addQuickColumn('Motorista', '{veiculo->motorista->nome}', 'left');
         $col_emissao = $this->datagrid->addQuickColumn('Emissão', 'emissao', 'center');
         $col_frete = $this->datagrid->addQuickColumn('Frete', 'frete1', 'right');
-        $col_pago = $this->datagrid->addQuickColumn('pago', 'Pago', 'center');
+        $col_pago = $this->datagrid->addQuickColumn('id', 'Pagamento', 'center');
         $col_emissao->setTransformer(function($value){ return TDate::convertToMask($value, 'yyyy-mm-dd', 'dd/mm/yyyy'); });
         $col_frete->setTransformer(function($value){ return is_numeric($value) ? 'R$ ' . number_format((float) $value, 2, ',', '.') : $value; });
-        $col_pago->setTransformer(function($value){ return $value == 'S' ? '<span class="label label-success">Sim</span>' : '<span class="label label-danger">Não</span>'; });
+        $col_pago->setTransformer(function($id) {
+            // Carrega todos de uma vez (cache estático por requisição)
+            static $cache = null;
+            if ($cache === null) {
+                $cache = ['adt' => [], 'saldo' => []];
+                try {
+                    TTransaction::open('sample');
+                    $rows = TTransaction::get()->query(
+                        "SELECT referencia_id, referencia_tipo FROM caixa
+                         WHERE referencia_tipo IN ('contrato_adt','contrato_saldo')"
+                    )->fetchAll(\PDO::FETCH_ASSOC);
+                    TTransaction::close();
+                    foreach ($rows as $r) {
+                        $key = $r['referencia_tipo'] === 'contrato_adt' ? 'adt' : 'saldo';
+                        $cache[$key][] = (string) $r['referencia_id'];
+                    }
+                } catch (Exception $e) { /* silencia */ }
+            }
+            $adt = in_array((string)$id, $cache['adt']);
+            $sal = in_array((string)$id, $cache['saldo']);
+            if ($adt && $sal) {
+                return "<span class='badge' style='background:#198754;color:#fff;font-size:.78rem;padding:4px 7px'>&#10003; Pago ADT+Saldo</span>";
+            } elseif ($sal) {
+                return "<span class='badge' style='background:#0d6efd;color:#fff;font-size:.78rem;padding:4px 7px'>Pago Saldo</span>";
+            } elseif ($adt) {
+                return "<span class='badge' style='background:#fd7e14;color:#fff;font-size:.78rem;padding:4px 7px'>Pago ADT</span>";
+            }
+            return "<span class='badge' style='background:#dc3545;color:#fff;font-size:.78rem;padding:4px 7px'>N&#227;o Pago</span>";
+        });
         
         $action_edit      = new TDataGridAction(['ContratoForm', 'onEdit']);
         $action_del       = new TDataGridAction([$this, 'onDelete']);
