@@ -115,8 +115,25 @@ class ContratoList extends TPage
         $container->add($this->form);
         $container->add($panel);
         parent::add($container);
+
+        TScript::create("
+            (function() {
+                var \$card   = \$('#form_search_contrato').closest('.card');
+                var \$header = \$card.find('.card-header').first();
+                var \$body   = \$card.find('.card-body').first();
+                if (!\$header.length || !\$body.length) return;
+
+                \$header.css('cursor','pointer');
+                \$header.append('<span style=\"float:right;margin-left:8px\"><i class=\"fa fa-chevron-up\" id=\"cont-filter-icon\"></i></span>');
+
+                \$header.on('click', function() {
+                    \$body.slideToggle(180);
+                    \$('#cont-filter-icon').toggleClass('fa-chevron-up fa-chevron-down');
+                });
+            })();
+        ");
     }
-    
+
     public function onGenerateReport($param)
     {
         ContratoRelatorio::onGenerate($param);
