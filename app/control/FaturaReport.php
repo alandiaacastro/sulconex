@@ -310,7 +310,22 @@ class FaturaReport extends TPage
         $pdf->Text(11, 288, $conv('USUARIO E DATA DE INCLUSAO '));
         $pdf->Text(119, 288, $conv('USUARIO E DATA DE ALTERACAO '));
 
-        $imgFile = 'app/images/logos/COOPERATIVA.png';
+        // Logo: tenta pelo permisso do conhecimento (mesma base do CRT), fallback COOPERATIVA.png
+        $imgFile = null;
+        try {
+            if ($conhecimento && !empty($conhecimento->permisso_id)) {
+                $permisso = new Permisso($conhecimento->permisso_id);
+                if (!empty($permisso->logo)) {
+                    $candidate = 'app/images/logos/' . $permisso->logo;
+                    if (file_exists($candidate) && getimagesize($candidate)) {
+                        $imgFile = $candidate;
+                    }
+                }
+            }
+        } catch (Exception $e) {}
+        if (!$imgFile) {
+            $imgFile = 'app/images/logos/COOPERATIVA.png';
+        }
         if (file_exists($imgFile)) {
             $pdf->Image(realpath($imgFile), 12, 12, 40);
         } else {
