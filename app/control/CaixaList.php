@@ -65,7 +65,6 @@ class CaixaList extends TPage
         $this->form->addAction('Saidas',             new TAction([$this, 'onFiltrarSaida']),       'fa:arrow-down red');
         $this->form->addAction('Importar OFX',       new TAction(['CaixaImportOFX', 'onShow']),   'fa:university orange');
         $this->form->addAction('Importar Faturas',   new TAction([$this, 'onImportarFaturas']),  'fa:file-invoice-dollar teal');
-        $this->form->addAction('Importar Contratos', new TAction([$this, 'onImportarContratos']),'fa:truck purple');
         $this->form->addAction('Relatorio Caixa',    new TAction([$this, 'onRelatorio']),            'fa:file-text-o blue');
         $this->form->addAction('Recarregar',         new TAction([$this, 'onReload']),           'fa:refresh');
 
