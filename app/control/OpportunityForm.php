@@ -1,19 +1,31 @@
 <?php
 
+use Adianti\Control\TPage;
+use Adianti\Control\TAction;
+use Adianti\Database\TTransaction;
+use Adianti\Widget\Container\TVBox;
+use Adianti\Widget\Dialog\TMessage;
+use Adianti\Widget\Form\TCombo;
+use Adianti\Widget\Form\TDate;
+use Adianti\Widget\Form\TEntry;
+use Adianti\Widget\Form\TLabel;
+use Adianti\Widget\Form\TNumeric;
+use Adianti\Widget\Form\TText;
+use Adianti\Widget\Util\TXMLBreadCrumb;
+use Adianti\Wrapper\BootstrapFormBuilder;
+
 class OpportunityForm extends TPage
 {
-    protected $form; // Formulário principal
+    protected $form;
 
     public function __construct()
     {
         parent::__construct();
 
-        // Criação do formulário com layout Bootstrap
         $this->form = new BootstrapFormBuilder('form_Opportunity');
         $this->form->setFormTitle('Cadastro de Oportunidade');
-        $this->form->setProperty('style', 'width: 100%'); // Ocupa toda a largura
+        $this->form->setProperty('style', 'width: 100%');
 
-        // Definição dos campos do formulário
         $id               = new TEntry('id');
         $company_name     = new TEntry('company_name');
         $status           = new TCombo('status');
@@ -23,124 +35,172 @@ class OpportunityForm extends TPage
         $position         = new TEntry('position');
         $notes            = new TText('notes');
         $closing_date     = new TDate('closing_date');
+        $proximo_contato  = new TDate('proximo_contato');
+        $valor_estimado   = new TNumeric('valor_estimado', 2, ',', '.');
+        $origem_lead      = new TCombo('origem_lead');
+        $prioridade       = new TCombo('prioridade');
 
-        // Opções para o campo 'status'
         $status->addItems([
             'QUALIFICACAO' => 'Qualificação',
             'PROPOSTA'     => 'Proposta',
             'NEGOCIACAO'   => 'Negociação',
-            'FECHAMENTO'   => 'Fechamento'
+            'FECHAMENTO'   => 'Fechamento',
+            'PERDIDO'      => 'Perdido',
         ]);
-        $status->setEditable(false); // Impede edição manual, status é atualizado por lógica ou Kanban
         $status->setSize('100%');
-        $status->setDefaultOption('Selecione'); // Opção padrão para combo boxes
+        $status->setDefaultOption('Selecione');
 
-        // Configuração e validação dos campos
-        $id->setEditable(false); // ID não pode ser editado
+        $origem_lead->addItems([
+            ''            => 'Não informado',
+            'Site'        => 'Site / Landing Page',
+            'Indicacao'   => 'Indicação de cliente',
+            'LinkedIn'    => 'LinkedIn',
+            'Feira'       => 'Feira / Evento',
+            'ColdCall'    => 'Cold Call / Prospecção ativa',
+            'WhatsApp'    => 'WhatsApp / Redes sociais',
+            'Parceiro'    => 'Parceiro comercial',
+            'Outro'       => 'Outro',
+        ]);
+        $origem_lead->setSize('100%');
+
+        $prioridade->addItems([
+            ''      => 'Não definida',
+            'Alta'  => '🔴 Alta',
+            'Media' => '🟡 Média',
+            'Baixa' => '🟢 Baixa',
+        ]);
+        $prioridade->setSize('100%');
+
+        $id->setEditable(false);
         $id->setSize('100%');
-
-        // Define o tamanho para 100% e máscara para data
         $company_name->setSize('100%');
         $responsible_name->setSize('100%');
         $phone->setSize('100%');
         $email->setSize('100%');
         $position->setSize('100%');
-        $notes->setSize('100%');
-        $closing_date->setSize('100%');
-        $closing_date->setMask('dd/mm/yyyy'); // Máscara para entrada de data
+        $notes->setSize('100%', 80);
+        $valor_estimado->setSize('100%');
+        $valor_estimado->setProperty('placeholder', '0,00');
 
-        // Adiciona validações (campos obrigatórios e formato de e-mail)
+        $closing_date->setSize('100%');
+        $closing_date->setMask('dd/mm/yyyy');
+        $closing_date->setDatabaseMask('yyyy-mm-dd');
+
+        $proximo_contato->setSize('100%');
+        $proximo_contato->setMask('dd/mm/yyyy');
+        $proximo_contato->setDatabaseMask('yyyy-mm-dd');
+
         $company_name->addValidation('Empresa', new TRequiredValidator);
         $status->addValidation('Status', new TRequiredValidator);
         $responsible_name->addValidation('Responsável', new TRequiredValidator);
-        $email->addValidation('E-mail', new TEmailValidator); // Valida formato de e-mail
+        $email->addValidation('E-mail', new TEmailValidator);
 
-        // Organização dos campos no formulário (linhas e colunas)
-        // Cada chamada a addFields cria uma nova linha no formulário
-        $this->form->addFields([new TLabel('ID')],                 [$id],
-                               [new TLabel('Empresa <font color="red">*</font>')], [$company_name]);
+        // Separador — Identificação
+        $this->form->addContent(['<div style="font-weight:700;font-size:13px;color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:4px;margin:6px 0 10px">📋 Identificação</div>']);
+        $this->form->addFields(
+            [new TLabel('ID')], [$id, '20%'],
+            [new TLabel('Empresa <font color="red">*</font>')], [$company_name]
+        );
+        $this->form->addFields(
+            [new TLabel('Status <font color="red">*</font>')], [$status],
+            [new TLabel('Responsável <font color="red">*</font>')], [$responsible_name]
+        );
+        $this->form->addFields(
+            [new TLabel('Cargo')], [$position],
+            [new TLabel('Prioridade')], [$prioridade]
+        );
 
-        $this->form->addFields([new TLabel('Status <font color="red">*</font>')], [$status],
-                               [new TLabel('Responsável <font color="red">*</font>')], [$responsible_name]);
+        // Separador — Contato
+        $this->form->addContent(['<div style="font-weight:700;font-size:13px;color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:4px;margin:14px 0 10px">📞 Contato</div>']);
+        $this->form->addFields(
+            [new TLabel('Telefone')], [$phone],
+            [new TLabel('E-mail')], [$email]
+        );
 
-        $this->form->addFields([new TLabel('Telefone')],           [$phone],
-                               [new TLabel('E-mail')],             [$email]);
+        // Separador — Negócio
+        $this->form->addContent(['<div style="font-weight:700;font-size:13px;color:#1e40af;border-bottom:2px solid #bfdbfe;padding-bottom:4px;margin:14px 0 10px">💰 Negócio</div>']);
+        $this->form->addFields(
+            [new TLabel('Valor Estimado (R$)')], [$valor_estimado],
+            [new TLabel('Origem do Lead')], [$origem_lead]
+        );
+        $this->form->addFields(
+            [new TLabel('Previsão de Fechamento')], [$closing_date],
+            [new TLabel('Próximo Contato')], [$proximo_contato]
+        );
+        $this->form->addFields(
+            [new TLabel('Observações')], [$notes]
+        );
 
-        $this->form->addFields([new TLabel('Cargo')],              [$position],
-                               [new TLabel('Data Fechamento')],    [$closing_date]);
-
-        // O campo 'Notas' ocupa uma linha inteira
-        $this->form->addFields([new TLabel('Notas')],              [$notes]);
-
-        // Ações do formulário (botões)
         $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fa:save green');
-        // Ao voltar, recarrega o Kanban
         $this->form->addAction('Voltar', new TAction(['OpportunityKanban', 'onReload']), 'fa:arrow-left blue');
 
-        // Cria o container para o formulário
         $container = new TVBox;
         $container->style = 'width: 100%';
+        if (is_file('menu.xml')) {
+            $container->add(new TXMLBreadCrumb('menu.xml', 'OpportunityList'));
+        }
         $container->add($this->form);
 
-        // Adiciona o container à página
         parent::add($container);
     }
 
-    /**
-     * Salva o registro da oportunidade no banco de dados.
-     */
     public function onSave($param = null)
     {
         try {
-            TTransaction::open('sample'); // Inicia a transação com o banco de dados
+            TTransaction::open('sample');
 
-            $data = $this->form->getData(); // Obtém os dados do formulário
-            $this->form->validate();        // Executa as validações definidas nos campos
+            $data = $this->form->getData();
+            $this->form->validate();
 
-            $object = new Opportunity;      // Cria uma nova instÃ¢ncia do Model Opportunity
-            $object->fromArray((array) $data); // Preenche o objeto com os dados do formulário
+            $object = isset($data->id) && $data->id ? new Opportunity((int)$data->id) : new Opportunity;
+            $object->fromArray((array) $data);
 
-            // Regra de negócio: se a data de fechamento for preenchida, o status vai para "FECHAMENTO"
-            if (!empty($object->closing_date)) {
+            if (!empty($object->closing_date) && $object->status !== 'PERDIDO') {
                 $object->status = 'FECHAMENTO';
             }
 
-            $object->store(); // Salva o objeto (insere ou atualiza) no banco de dados
+            if (empty($object->created_at)) {
+                $object->created_at = date('Y-m-d H:i:s');
+            }
 
-            $this->form->setData($object); // Atualiza o formulário com os dados do objeto salvo (ex: ID gerado)
+            $object->store();
+            $this->form->setData($object);
 
-            TTransaction::close(); // Fecha a transação
+            TTransaction::close();
 
-            // Exibe mensagem de sucesso e redireciona para o Kanban
-            new TMessage('info', 'Registro salvo com sucesso!', new TAction(['OpportunityKanban', 'onReload']));
-
+            new TMessage('info', 'Oportunidade salva com sucesso!', new TAction(['OpportunityKanban', 'onReload']));
         } catch (Exception $e) {
-            TTransaction::rollback(); // Em caso de erro, desfaz a transação
-            new TMessage('error', 'Erro ao salvar: ' . $e->getMessage()); // Exibe a mensagem de erro
+            TTransaction::rollback();
+            new TMessage('error', 'Erro ao salvar: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Carrega um registro para edição ou prepara o formulário para um novo registro.
-     * @param $param Par�metros (pode conter 'id' para edi��o).
-     */
     public function onEdit($param = null)
     {
         try {
-            $id = $param['key'] ?? $param['id'] ?? null; // Tenta obter o ID do registro
+            $id = $param['key'] ?? $param['id'] ?? null;
 
-            if ($id) { // Se um ID for passado, carrega o registro para edição
+            if ($id) {
                 TTransaction::open('sample');
-                $object = new Opportunity($id); // Carrega a oportunidade pelo ID
-                $this->form->setData($object);  // Preenche o formulário com os dados carregados
+                $object = new Opportunity($id);
+                $this->form->setData($object);
                 TTransaction::close();
-            } else { // Se nenhum ID for passado, prepara o formulário para um novo registro
-                $this->form->clear(); // Limpa todos os campos do formulário
-
-                // Define um valor padrão inicial para o status para novos registros
+            } else {
+                $this->form->clear();
                 $obj = new StdClass;
-                $obj->status = 'QUALIFICACAO';
+                $obj->status    = 'QUALIFICACAO';
+                $obj->prioridade = 'Media';
                 $this->form->setData($obj);
+
+                // Pré-preenche dados de oportunidade se vindo do funil
+                if (!empty($param['opportunity_company'])) {
+                    $obj->company_name     = $param['opportunity_company'] ?? '';
+                    $obj->responsible_name = $param['opportunity_contact']  ?? '';
+                    $obj->email            = $param['opportunity_email']    ?? '';
+                    $obj->phone            = $param['opportunity_phone']    ?? '';
+                    $obj->notes            = $param['opportunity_notes']    ?? '';
+                    $this->form->setData($obj);
+                }
             }
         } catch (Exception $e) {
             TTransaction::rollback();
@@ -148,4 +208,3 @@ class OpportunityForm extends TPage
         }
     }
 }
-?>

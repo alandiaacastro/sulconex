@@ -5,6 +5,10 @@
 
     <menuitem label="CRM" icon="fas:users fa-fw">
         <menu>
+            <menuitem label="Dashboard CRM">
+                <icon>fas:chart-bar fa-fw</icon>
+                <action>CrmDashboard</action>
+            </menuitem>
             <menuitem label="Oportunidades (Lista)">
                 <icon>fas:list fa-fw</icon>
                 <action>OpportunityList</action>
@@ -146,6 +150,10 @@
             <menuitem label="Faturas">
                 <icon>fas:book fa-fw</icon>
                 <action>FaturaList</action>
+            </menuitem>
+            <menuitem label="Importar CSV">
+                <icon>fas:file-import fa-fw</icon>
+                <action>ImportarCsv</action>
             </menuitem>
             <menuitem label="Caixa">
                 <icon>fas:cash-register fa-fw</icon>
