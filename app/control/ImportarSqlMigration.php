@@ -165,13 +165,13 @@ HTML;
 
             // ── 2. FATURACOBRANCA → FATURA ────────────────────────────────
             $fat_stmt = $conn->prepare("
-                INSERT INTO fatura
-                    (pessoa_id, conhecimento_id, numero_fatura, emissao, vencimento,
+                INSERT OR IGNORE INTO fatura
+                    (id, pessoa_id, conhecimento_id, numero_fatura, emissao, vencimento,
                      nota_fiscal, descricao1, valor1, descricao2, valor2,
                      descricao3, valor3, valor_fatura, valor_extenso,
                      PRODUTO, texto_observacao)
                 VALUES
-                    (:pessoa_id, :conhecimento_id, :numero_fatura, :emissao, :vencimento,
+                    (:id, :pessoa_id, :conhecimento_id, :numero_fatura, :emissao, :vencimento,
                      :nota_fiscal, :descricao1, :valor1, :descricao2, :valor2,
                      :descricao3, :valor3, :valor_fatura, :valor_extenso,
                      :PRODUTO, :texto_observacao)
@@ -181,6 +181,7 @@ HTML;
             $cnt_fat = 0;
             foreach ($faturas as $f) {
                 $fat_stmt->execute([
+                    ':id'              => $f['id'],
                     ':pessoa_id'       => $f['cliente_id'] ?? null,
                     ':conhecimento_id' => $f['conhecimento'] ?? null,
                     ':numero_fatura'   => $f['numero'] ?? null,
@@ -198,7 +199,7 @@ HTML;
                     ':PRODUTO'         => $f['prod'] ?? null,
                     ':texto_observacao'=> $f['obs'] ?? null,
                 ]);
-                $cnt_fat++;
+                if ($fat_stmt->rowCount() > 0) $cnt_fat++;
             }
 
             $conn->exec('PRAGMA foreign_keys = ON');
