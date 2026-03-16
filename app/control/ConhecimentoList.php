@@ -119,6 +119,23 @@ class ConhecimentoList extends TPage
 
         parent::add($container);
 
+        TScript::create("
+            (function() {
+                var \$card   = \$('#form_search_conhecimento').closest('.card');
+                var \$header = \$card.find('.card-header').first();
+                var \$body   = \$card.find('.card-body').first();
+                if (!\$header.length || !\$body.length) return;
+
+                \$header.css('cursor','pointer');
+                \$header.append('<span style=\"float:right;margin-left:8px\"><i class=\"fa fa-chevron-up\" id=\"crt-filter-icon\"></i></span>');
+
+                \$header.on('click', function() {
+                    \$body.slideToggle(180);
+                    \$('#crt-filter-icon').toggleClass('fa-chevron-up fa-chevron-down');
+                });
+            })();
+        ");
+
         $this->onReload(['offset' => 0, 'first_page' => 1]);
     }
 
