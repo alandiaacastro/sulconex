@@ -24,9 +24,12 @@ class Contrato extends TRecord
         parent::addAttribute('destino1');
         parent::addAttribute('frete1');
         parent::addAttribute('adt1');
+        parent::addAttribute('pis_motorista');
         parent::addAttribute('inss1');
         parent::addAttribute('irrf1');
         parent::addAttribute('sest1');
+        parent::addAttribute('pis1');
+        parent::addAttribute('cofins1');
         parent::addAttribute('descontos1');
         parent::addAttribute('saldo1');
         parent::addAttribute('pagamento');
@@ -38,6 +41,23 @@ class Contrato extends TRecord
         parent::addAttribute('pago');
         parent::addAttribute('created_at');
         parent::addAttribute('updated_at');
+    }
+
+    public static function addColumnsIfNotExists()
+    {
+        TTransaction::open('sample');
+        $conn = TTransaction::get();
+        $cols = $conn->query("PRAGMA table_info(contrato)")->fetchAll(\PDO::FETCH_COLUMN, 1);
+        if (!in_array('pis1', $cols)) {
+            $conn->exec("ALTER TABLE contrato ADD COLUMN pis1 REAL DEFAULT 0");
+        }
+        if (!in_array('cofins1', $cols)) {
+            $conn->exec("ALTER TABLE contrato ADD COLUMN cofins1 REAL DEFAULT 0");
+        }
+        if (!in_array('pis_motorista', $cols)) {
+            $conn->exec("ALTER TABLE contrato ADD COLUMN pis_motorista TEXT DEFAULT NULL");
+        }
+        TTransaction::close();
     }
 
     public function get_veiculo()
