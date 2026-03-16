@@ -327,7 +327,7 @@ class FaturaReport extends TPage
             $imgFile = 'app/images/logos/COOPERATIVA.png';
         }
         if (file_exists($imgFile)) {
-            $pdf->Image(realpath($imgFile), 12, 12, 40);
+            $pdf->Image(realpath($imgFile), 12, 8, 0, 22);
         } else {
             $pdf->SetXY(12, 12);
             $pdf->SetFont('Arial', 'I', 7);
