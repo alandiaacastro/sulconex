@@ -143,6 +143,24 @@ class FaturaList extends TPage
         $container->add($panel);
 
         parent::add($container);
+
+        // Colapso do filtro
+        TScript::create("
+            (function() {
+                var \$card   = \$('#form_search_fatura').closest('.card');
+                var \$header = \$card.find('.card-header').first();
+                var \$body   = \$card.find('.card-body').first();
+                if (!\$header.length || !\$body.length) return;
+
+                \$header.css('cursor','pointer');
+                \$header.append('<span style=\"float:right;margin-left:8px\"><i class=\"fa fa-chevron-up\" id=\"fat-filter-icon\"></i></span>');
+
+                \$header.on('click', function() {
+                    \$body.slideToggle(180);
+                    \$('#fat-filter-icon').toggleClass('fa-chevron-up fa-chevron-down');
+                });
+            })();
+        ");
     }
 
     // ── KPI PANEL ─────────────────────────────────────────────────────────
