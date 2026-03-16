@@ -61,7 +61,6 @@ class ContratoForm extends TPage
         $motorista_nome = new TEntry('motorista_nome');
         $proprietario_nome = new TEntry('proprietario_nome');
         $pis_motorista = new TEntry('pis_motorista');
-        $pis_motorista->setPlaceHolder('Ex: 123.45678.90-1');
         $pis_motorista->setSize('100%');
 
         $placa_trator->setEditable(FALSE);
