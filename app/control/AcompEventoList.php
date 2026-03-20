@@ -8,6 +8,7 @@ class AcompEventoList extends TPage
     private $timelineContainer;
     private $infoCards;
     private $googleMapsUrl;
+    private $etaForm;
 
     public function __construct($param = null)
     {
@@ -86,14 +87,31 @@ class AcompEventoList extends TPage
         // Info cards
         $box->add($this->infoCards);
 
-        // Timeline Panel
-        $timelinePanel = new TPanelGroup('Historico de Eventos');
-        $timelinePanel->addHeaderActionLink('Abrir no Google Maps', new TAction([$this, 'onOpenGoogleMaps'], ['processo_id' => $this->processo_id]), 'fa:map-marker-alt blue');
-        $timelinePanel->add($this->timelineContainer);
-        $box->add($timelinePanel);
+        // ── MINI FORM ETA ─────────────────────────────────────────────────
+        $this->etaForm = new BootstrapFormBuilder('form_eta_processo');
+        $eta_field = new TDate('previsao_entrega');
+        $eta_field->setMask('dd/mm/yyyy');
+        $eta_field->setDatabaseMask('yyyy-mm-dd');
+        $eta_field->setSize('160px');
+
+        $pid_hidden = new THidden('processo_id');
+
+        $this->etaForm->addFields(
+            [new TLabel('<i class="fa fa-calendar-check-o"></i> ETA — Estimativa de Chegada', null, null, null, '100%')],
+            [$eta_field, $pid_hidden]
+        );
+        $this->etaForm->addAction('Salvar ETA', new TAction([$this, 'onSaveEta']), 'fa:save green');
+        $this->etaForm->setFields([$eta_field, $pid_hidden]);
+        $box->add($this->etaForm);
 
         // Datagrid panel
-        $panel = new TPanelGroup('Detalhes de Eventos');
+        $panel = new TPanelGroup('Detalhes do Evento');
+        $panel->addHeaderActionLink(
+            'Visualizar processo',
+            new TAction(['AcompProcessoView', 'onShow'], ['key' => $this->processo_id, 'id' => $this->processo_id]),
+            'fa:eye blue'
+        );
+        $panel->addHeaderActionLink('Abrir no Google Maps', new TAction([$this, 'onOpenGoogleMaps'], ['processo_id' => $this->processo_id]), 'fa:map-marker-alt blue');
         $panel->addHeaderActionLink('+ Novo evento', new TAction(['AcompEventoForm', 'onEdit'], ['processo_id' => $this->processo_id]), 'fa:plus green');
         $panel->add($this->datagrid);
         $panel->addFooter($this->pageNavigation);
@@ -141,11 +159,16 @@ class AcompEventoList extends TPage
                 $this->datagrid->addItem($obj);
             }
 
+            // Preenche form ETA
+            $eta_data = new stdClass;
+            $eta_data->processo_id = $this->processo_id;
+            $eta_data->previsao_entrega = !empty($processo->previsao_entrega)
+                ? TDate::convertToMask($processo->previsao_entrega, 'yyyy-mm-dd', 'dd/mm/yyyy')
+                : '';
+            $this->etaForm->setData($eta_data);
+
             // Build info cards
             $this->buildInfoCards($processo);
-
-            // Build timeline
-            $this->buildTimeline($objs, $processo);
 
             // Build Google Maps URL
             $this->googleMapsUrl = GoogleMapsUrlBuilder::getRouteFromEvents($objs);
@@ -174,8 +197,11 @@ class AcompEventoList extends TPage
         $exportador = (string) ($processo->exportador ?? '-');
         $importador = (string) ($processo->importador ?? '-');
         $crt = (string) ($processo->crt ?? '-');
-        $previsao = !empty($processo->previsao_entrega) ?
-            date('d/m/Y', strtotime((string) $processo->previsao_entrega)) : '-';
+        $previsao = '-';
+        if (!empty($processo->previsao_entrega)) {
+            $ts = strtotime((string) $processo->previsao_entrega);
+            $previsao = $ts > 0 ? date('d/m/Y', $ts) : htmlspecialchars((string) $processo->previsao_entrega);
+        }
 
         $html = '
         <div class="col-md-3 mb-3">
@@ -371,6 +397,38 @@ class AcompEventoList extends TPage
         }
 
         return $chunks ? implode('<br>', $chunks) : '-';
+    }
+
+    public static function onSaveEta($param)
+    {
+        try {
+            $processo_id = $param['processo_id'] ?? null;
+            $previsao    = $param['previsao_entrega'] ?? null;
+
+            if (empty($processo_id)) {
+                throw new Exception('Processo não informado.');
+            }
+
+            // Converte dd/mm/yyyy → yyyy-mm-dd para armazenar no banco
+            if (!empty($previsao) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $previsao)) {
+                $previsao = TDate::convertToMask($previsao, 'dd/mm/yyyy', 'yyyy-mm-dd');
+            }
+
+            TTransaction::open('sample');
+            AcompProcesso::ensureTables();
+            $processo = new AcompProcesso($processo_id);
+            $processo->previsao_entrega = !empty($previsao) ? $previsao : null;
+            $processo->store();
+            TTransaction::close();
+
+            new TMessage('info', 'ETA atualizado com sucesso.',
+                new TAction([__CLASS__, 'onReload'], ['processo_id' => $processo_id]));
+        } catch (Exception $e) {
+            if (TTransaction::get()) {
+                TTransaction::rollback();
+            }
+            new TMessage('error', $e->getMessage());
+        }
     }
 
     public static function onDelete($param)

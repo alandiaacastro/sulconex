@@ -205,20 +205,14 @@ class LoginForm extends TPage
                 SystemAccessLogService::registerLogin();
                 SystemAccessNotificationLogService::registerLogin();
                 
-                $frontpage = $user->frontpage;
                 if (!empty($param['previous_class']) && $param['previous_class'] !== 'LoginForm')
                 {
                     AdiantiCoreApplication::gotoPage($param['previous_class'], $param['previous_method'], json_decode(base64_decode($param['previous_parameters']), true)); // reload
                 }
-                else if ($frontpage instanceof SystemProgram and $frontpage->controller)
-                {
-                    AdiantiCoreApplication::gotoPage($frontpage->controller); // reload
-                    TSession::setValue('frontpage', $frontpage->controller);
-                }
                 else
                 {
-                    AdiantiCoreApplication::gotoPage('EmptyPage'); // reload
-                    TSession::setValue('frontpage', 'EmptyPage');
+                    AdiantiCoreApplication::gotoPage('Dashboard'); // reload
+                    TSession::setValue('frontpage', 'Dashboard');
                 }
             }
         }

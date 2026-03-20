@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 /**
  * CaixaList - Caixa Financeiro
- * Lancamentos de entrada/sa�da, contas a receber (faturas) e a pagar (contratos)
- * com importa��o de extrato OFX.
+ * Lancamentos de entrada/saï¿½da, contas a receber (faturas) e a pagar (contratos)
+ * com importaï¿½ï¿½o de extrato OFX.
  */
 class CaixaList extends TPage
 {
@@ -17,7 +17,7 @@ class CaixaList extends TPage
 
         Caixa::createTableIfNotExists();
 
-        // ── FORMUL�RIO DE FILTRO ───────────────────────────────────────────
+        // â”€â”€ FORMULï¿½RIO DE FILTRO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $this->form = new BootstrapFormBuilder('form_search_caixa');
         $this->form->setFormTitle('Caixa Financeiro');
 
@@ -36,6 +36,7 @@ class CaixaList extends TPage
             'MANUAL'   => 'Manual',
             'FATURA'   => 'Fatura',
             'CONTRATO' => 'Contrato',
+            'CHEQUE'   => 'Cheque',
             'EXTRATO'  => 'Extrato',
         ]);
         $status->addItems(['' => '(Todos)', 'PENDENTE' => 'Pendente', 'CONCILIADO' => 'Conciliado']);
@@ -44,7 +45,7 @@ class CaixaList extends TPage
             $f->setSize('100%');
         }
 
-        // 8 slots → label(1) + field(2) × 4 = 12 colunas Bootstrap
+        // 8 slots â†’ label(1) + field(2) Ã— 4 = 12 colunas Bootstrap
         $this->form->setColumnClasses(8, [
             'col-sm-1', 'col-sm-2',
             'col-sm-1', 'col-sm-2',
@@ -66,13 +67,12 @@ class CaixaList extends TPage
         $this->form->addAction('Pendente',           new TAction([$this, 'onFiltrarPendente']),    'fa:clock-o orange');
         $this->form->addAction('Conciliado',         new TAction([$this, 'onFiltrarConciliado']),  'fa:check green');
         $this->form->addAction('Importar OFX',       new TAction(['CaixaImportOFX', 'onShow']),   'fa:university orange');
-        $this->form->addAction('Importar Faturas',   new TAction([$this, 'onImportarFaturas']),  'fa:file-invoice-dollar teal');
         $this->form->addAction('Relatorio Caixa',    new TAction([$this, 'onRelatorio']),            'fa:file-text-o blue');
         $this->form->addAction('Recarregar',         new TAction([$this, 'onReload']),           'fa:refresh');
 
         $this->form->setData(TSession::getValue(__CLASS__ . '_filter_data'));
 
-        // ── DATAGRID ──────────────────────────────────────────────────────
+        // â”€â”€ DATAGRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $this->datagrid = new BootstrapDatagridWrapper(new TDataGrid);
         $this->datagrid->style = 'width: 100%';
         $this->datagrid->datatable = 'true';
@@ -83,6 +83,18 @@ class CaixaList extends TPage
         });
 
         $colDesc = new TDataGridColumn('descricao', 'Descricao', 'left', '35%');
+        $colDesc->setTransformer(function ($v, $obj) {
+            $html = htmlspecialchars($v ?? '');
+            if (!empty($obj->tipo_baixa)) {
+                $desconto_str = '';
+                if ((float)($obj->desconto_banco ?? 0) > 0) {
+                    $desconto_str = ' &minus;R$&nbsp;' . number_format((float)$obj->desconto_banco, 2, ',', '.');
+                }
+                $html .= "&nbsp;<span class='badge' style='background:#6f42c1;color:#fff;font-size:.72rem;padding:2px 6px'>"
+                       . "<i class='fa fa-university'></i>&nbsp;Antecipado Banco{$desconto_str}</span>";
+            }
+            return $html;
+        });
 
         $colTipo = new TDataGridColumn('tipo', 'Tipo', 'center', '9%');
         $colTipo->setTransformer(function ($v) {
@@ -97,6 +109,7 @@ class CaixaList extends TPage
             $cores = [
                 'FATURA'   => '#0d6efd',
                 'CONTRATO' => '#6f42c1',
+                'CHEQUE'   => '#20c997',
                 'EXTRATO'  => '#0dcaf0',
                 'MANUAL'   => '#6c757d',
             ];
@@ -126,7 +139,7 @@ class CaixaList extends TPage
         $this->datagrid->addColumn($colValor);
         $this->datagrid->addColumn($colStatus);
 
-        // A��es por linha
+        // Aï¿½ï¿½es por linha
         $actionEdit = new TDataGridAction(['CaixaForm', 'onEdit'], ['key' => '{id}']);
         $this->datagrid->addAction($actionEdit, 'Editar', 'fa:edit blue');
 
@@ -138,12 +151,12 @@ class CaixaList extends TPage
 
         $this->datagrid->createModel();
 
-        // Pagina��o
+        // Paginaï¿½ï¿½o
         $this->pageNavigation = new TPageNavigation;
         $this->pageNavigation->setAction(new TAction([$this, 'onReload']));
         $this->pageNavigation->setWidth($this->datagrid->getWidth());
 
-        // ── LAYOUT ────────────────────────────────────────────────────────
+        // â”€â”€ LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $panel = new TPanelGroup('');
         $panel->add($this->datagrid);
         $panel->addFooter('<div id="caixa_totais_grid" style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#f8fafc;color:#334155;font-size:.86rem;">Totais do filtro: carregando...</div>');
@@ -159,7 +172,7 @@ class CaixaList extends TPage
     }
 
     /**
-     * Constr�i os cards de KPI financeiro no topo
+     * Constrï¿½i os cards de KPI financeiro no topo
      */
     private function buildKpiPanel()
     {
@@ -275,7 +288,7 @@ HTML;
         return (float) $value;
     }
 
-    // ── ACOES ─────────────────────────────────────────────────────────────
+    // â”€â”€ ACOES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public function onSearch($param)
     {
@@ -428,7 +441,7 @@ HTML;
             $caixa->delete();
             TTransaction::close();
             $this->onReload($param);
-            new TMessage('info', 'Lancamento exclu�do.');
+            new TMessage('info', 'Lancamento excluï¿½do.');
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();
@@ -445,64 +458,6 @@ HTML;
             TTransaction::close();
             $this->onReload($param);
             new TMessage('info', 'Lancamento marcado como conciliado.');
-        } catch (Exception $e) {
-            new TMessage('error', $e->getMessage());
-            TTransaction::rollback();
-        }
-    }
-
-    /**
-     * Importa faturas como contas a receber
-     */
-    public function onImportarFaturas($param)
-    {
-        try {
-            TTransaction::open('sample');
-            $conn = TTransaction::get();
-
-            // IDs de faturas j� importadas
-            $importadas = $conn->query(
-                "SELECT referencia_id FROM caixa WHERE referencia_tipo='fatura'"
-            )->fetchAll(\PDO::FETCH_COLUMN);
-
-            $faturas = (new TRepository('Fatura'))->load(new TCriteria, FALSE);
-            $count = 0;
-
-            foreach ($faturas as $fatura) {
-                if (in_array($fatura->id, $importadas)) {
-                    continue;
-                }
-
-                $valor = $this->parseMoney($fatura->valor_fatura ?? 0);
-                if ($valor <= 0) {
-                    continue;
-                }
-
-                $data = !empty($fatura->vencimento) ? $fatura->vencimento
-                      : (!empty($fatura->emissao)   ? $fatura->emissao : date('Y-m-d'));
-
-                $cliente = '';
-                try { $cliente = $fatura->clientekey->nome ?? ''; } catch (Exception $e) {}
-
-                $num = $fatura->numero_fatura ?? $fatura->id;
-                $descricao = "Fatura #{$num}" . ($cliente ? " - {$cliente}" : '');
-
-                $caixa = new Caixa;
-                $caixa->data_lancamento = $data;
-                $caixa->descricao      = $descricao;
-                $caixa->tipo           = 'ENTRADA';
-                $caixa->valor          = $valor;
-                $caixa->categoria      = 'FATURA';
-                $caixa->referencia_id  = $fatura->id;
-                $caixa->referencia_tipo = 'fatura';
-                $caixa->status         = !empty($fatura->pagamento) ? 'CONCILIADO' : 'PENDENTE';
-                $caixa->store();
-                $count++;
-            }
-
-            TTransaction::close();
-            $this->onReload();
-            new TMessage('info', "{$count} fatura(s) importada(s) como contas a receber.");
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();

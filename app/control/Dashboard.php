@@ -214,6 +214,74 @@ class Dashboard extends TPage
 HTML;
 
         $box->add($html);
+
+        // ── KPIs Portal Motorista ────────────────────────────────────────
+        try {
+            TTransaction::open(self::$database);
+            $conn2 = TTransaction::get();
+
+            // Verifica se tabelas existem
+            $tblCheck = $conn2->query("SELECT name FROM sqlite_master WHERE type='table' AND name='carga_disponivel'")->fetchColumn();
+            if ($tblCheck) {
+                $cargasDisp = (int) $conn2->query("SELECT COUNT(*) FROM carga_disponivel WHERE status='disponivel'")->fetchColumn();
+                $tblSolic = $conn2->query("SELECT name FROM sqlite_master WHERE type='table' AND name='solicitacao_carga'")->fetchColumn();
+                $solicPend = 0;
+                $aprovMes = 0;
+                if ($tblSolic) {
+                    $solicPend = (int) $conn2->query("SELECT COUNT(*) FROM solicitacao_carga WHERE status='pendente'")->fetchColumn();
+                    $primDiaMes = date('Y-m-01');
+                    $aprovMes = (int) $conn2->query("SELECT COUNT(*) FROM solicitacao_carga WHERE status='aprovado' AND created_at >= '{$primDiaMes}'")->fetchColumn();
+                }
+                $totalMotoristas = (int) $conn2->query("SELECT COUNT(*) FROM motorista")->fetchColumn();
+
+                $alertSolic = $solicPend > 5 ? ' text-danger fw-bold' : '';
+
+                $kpiHtml = <<<KPIHTML
+<p class="border-start border-4 border-success ps-2 fw-bold mb-3"><i class="bi bi-truck"></i> Portal Motorista</p>
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center">
+      <div class="card-body py-3">
+        <div style="font-size:2rem;font-weight:700;color:#198754">{$cargasDisp}</div>
+        <div class="text-muted" style="font-size:.85rem">Cargas Disponiveis</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center">
+      <div class="card-body py-3">
+        <div style="font-size:2rem;font-weight:700;color:#fd7e14" class="{$alertSolic}">{$solicPend}</div>
+        <div class="text-muted" style="font-size:.85rem">Solicitacoes Pendentes</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center">
+      <div class="card-body py-3">
+        <div style="font-size:2rem;font-weight:700;color:#0d6efd">{$aprovMes}</div>
+        <div class="text-muted" style="font-size:.85rem">Aprovadas no Mes</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center">
+      <div class="card-body py-3">
+        <div style="font-size:2rem;font-weight:700;color:#6c757d">{$totalMotoristas}</div>
+        <div class="text-muted" style="font-size:.85rem">Motoristas Cadastrados</div>
+      </div>
+    </div>
+  </div>
+</div>
+KPIHTML;
+
+                $box->add($kpiHtml);
+            }
+
+            TTransaction::close();
+        } catch (Exception $e) {
+            // Portal Motorista tables may not exist yet — skip KPIs silently
+        }
+
         parent::add($box);
     }
 

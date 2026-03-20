@@ -24,6 +24,9 @@ class MotoristaForm extends TPage
         $local_nascimento  = new TEntry('local_nascimento');
         $filiacao_pai      = new TEntry('filiacao_pai');
         $filiacao_mae      = new TEntry('filiacao_mae');
+        $telefone          = new TEntry('telefone');
+        $email             = new TEntry('email');
+        $system_user_id    = new TDBCombo('system_user_id', 'permission', 'SystemUser', 'id', 'name', 'name');
         $cnh_numero        = new TEntry('cnh_numero');
         $data_emissao_cnh  = new TDate('data_emissao_cnh');
         $data_validade_cnh = new TDate('data_validade_cnh');
@@ -36,6 +39,8 @@ class MotoristaForm extends TPage
         $data_nascimento->setMask('dd/mm/yyyy');
         $data_emissao_cnh->setMask('dd/mm/yyyy');
         $data_validade_cnh->setMask('dd/mm/yyyy');
+        $telefone->setMask('(99)99999-9999');
+        $email->setSize('100%');
 
         // Validações
         $nome->addValidation('Nome', new TRequiredValidator);
@@ -50,6 +55,8 @@ class MotoristaForm extends TPage
         $this->form->addFields([new TLabel('Data Nascimento')], [$data_nascimento], [new TLabel('Local Nascimento')], [$local_nascimento]);
         $this->form->addFields([new TLabel('Filiação Pai')], [$filiacao_pai]);
         $this->form->addFields([new TLabel('Filiação Mãe')], [$filiacao_mae]);
+        $this->form->addFields([new TLabel('Telefone')], [$telefone], [new TLabel('Email')], [$email]);
+        $this->form->addFields([new TLabel('Usuario do Sistema')], [$system_user_id]);
         $this->form->addFields([new TLabel('CNH')], [$cnh_numero], [new TLabel('Categoria')], [$categoria]);
         $this->form->addFields([new TLabel('Registro CNH')], [$registro_num]);
         $this->form->addFields([new TLabel('Emissão CNH')], [$data_emissao_cnh], [new TLabel('Validade CNH')], [$data_validade_cnh]);
@@ -74,6 +81,7 @@ class MotoristaForm extends TPage
     try
     {
         TTransaction::open('sample');
+        Motorista::ensureTables();
 
         $this->form->validate();
         $data = $this->form->getData();
@@ -108,6 +116,7 @@ class MotoristaForm extends TPage
         try
         {
             TTransaction::open('sample');
+            Motorista::ensureTables();
 
             if (isset($param['id']))
             {

@@ -684,7 +684,10 @@ Template.setFirstPageTabInfo = function(label, url) {
  * Adjust menu size according screen size
  */
 Template.adjustMenu = function() {
-  if ($(window).width() > 767) {
+  if (Template.navbarOptions['always_collapse'] == '1') {
+      $("#sidebar").addClass("collapsed");
+  }
+  else if ($(window).width() > 767) {
       $("#sidebar").removeClass("collapsed");
   }
   else {

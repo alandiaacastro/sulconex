@@ -38,7 +38,7 @@ class AcompProcessoList extends TPage
 
         $box = new TVBox;
         $box->style = 'width:100%';
-        $box->add(new TXMLBreadCrumb('menu.xml', get_class($this)));
+        $box->add(new TXMLBreadCrumb('menu.xml', 'AcompProcessoKanban'));
         $box->add($panel);
 
         parent::add($box);
@@ -58,13 +58,22 @@ class AcompProcessoList extends TPage
             $criteria = new TCriteria;
             $criteria->add(new TFilter('crt', 'is not', null));
             $criteria->add(new TFilter('crt', '<>', ''));
+            if (!self::isShowHiddenEnabled()) {
+                $criteria->add(new TFilter('oculto_kanban', '<>', 1));
+            }
             $criteria->setProperty('order', 'id');
             $criteria->setProperty('direction', 'desc');
             $processos = $repo->load($criteria, false) ?: [];
 
+            $hiddenCount = self::countHiddenCards();
+
             $this->kanbanContainer->clearChildren();
             $this->kanbanContainer->add(self::getKanbanCss());
+            $this->kanbanContainer->add(self::buildToolbarWidget(self::isShowHiddenEnabled(), $hiddenCount));
             $this->kanbanContainer->add(self::buildKanbanWidget($processos));
+
+            // Mantem a tela iniciando com o menu lateral (cortina) fechado.
+            TScript::create("if ($('#sidebar').length) { $('#sidebar').addClass('collapsed'); }");
             TTransaction::close();
         } catch (Exception $e) {
             try {
@@ -329,6 +338,38 @@ class AcompProcessoList extends TPage
         return $stage;
     }
 
+    private static function isShowHiddenEnabled(): bool
+    {
+        return (bool) TSession::getValue(__CLASS__ . '_show_hidden');
+    }
+
+    private static function countHiddenCards(): int
+    {
+        $repo = new TRepository('AcompProcesso');
+        $criteria = new TCriteria;
+        $criteria->add(new TFilter('crt', 'is not', null));
+        $criteria->add(new TFilter('crt', '<>', ''));
+        $criteria->add(new TFilter('oculto_kanban', '=', 1));
+        return (int) $repo->count($criteria);
+    }
+
+    private static function buildToolbarWidget(bool $showHidden, int $hiddenCount): string
+    {
+        $toggleLabel = $showHidden ? 'Ocultar Arquivados' : 'Mostrar Arquivados';
+        $toggleIcon = $showHidden ? 'fa-eye-slash' : 'fa-eye';
+        $toggleUrl = 'index.php?class=AcompProcessoKanban&method=onToggleShowHidden';
+
+        return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px 0;flex-wrap:wrap">'
+            . '<div style="font-size:12px;color:#475569;font-weight:600">'
+            . 'Arquivados no Kanban: <span class="label label-default" style="margin-left:4px">' . (int) $hiddenCount . '</span>'
+            . '</div>'
+            . '<a href="' . htmlspecialchars($toggleUrl) . '" generator="adianti"'
+            . ' style="display:inline-flex;align-items:center;gap:6px;background:#0f172a;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">'
+            . '<i class="fa ' . $toggleIcon . '"></i>' . $toggleLabel
+            . '</a>'
+            . '</div>';
+    }
+
     private static function buildKanbanWidget(array $processos)
     {
         $stageOrder = [
@@ -426,10 +467,19 @@ class AcompProcessoList extends TPage
         $expTrunc = mb_strlen($exportador) > 26 ? mb_substr($exportador, 0, 26) . '…' : $exportador;
         $impTrunc = mb_strlen($importador) > 26 ? mb_substr($importador, 0, 26) . '…' : $importador;
 
-        $viewUrl    = 'index.php?class=AcompProcessoView&method=onShow&key=' . $id . '&id=' . $id;
         $trackUrl   = 'index.php?class=AcompEventoList&method=onReload&processo_id=' . $id . '&key=' . $id . '&id=' . $id;
         $stockUrl   = 'index.php?class=EstoqueView&method=onReload&crt=' . rawurlencode($crt) . '&busca=' . rawurlencode($crt) . '&sentido=todos';
         $pickupUrl  = 'index.php?class=AcompOrdemColetaReport&method=onGenerate&processo_id=' . $id;
+        $isHidden   = ((int) ($object->oculto_kanban ?? 0)) === 1;
+        $canArchive = ($stage === AcompProcesso::STAGE_ENTREGA) || $isHidden;
+        $archiveAction = '';
+        if ($canArchive) {
+            $archiveUrl = 'index.php?class=AcompProcessoKanban&method=onToggleHiddenCard&id=' . $id;
+            $archiveTitle = $isHidden ? 'Mostrar card no Kanban' : 'Arquivar card do Kanban';
+            $archiveIcon = $isHidden ? 'fa-eye' : 'fa-eye-slash';
+            $archiveClass = $isHidden ? 'btn-view' : 'btn-doc';
+            $archiveAction = '<a href="' . htmlspecialchars($archiveUrl) . '" class="btn-act ' . $archiveClass . '" title="' . htmlspecialchars($archiveTitle) . '" generator="adianti"><i class="fa ' . $archiveIcon . '"></i></a>';
+        }
 
         return '
             <div class="acomp-card ' . htmlspecialchars($stageClass) . '">
@@ -455,10 +505,10 @@ class AcompProcessoList extends TPage
                     ' . $alert24 . '
                 </div>
                 <div class="acomp-card-actions">
-                    <a href="' . htmlspecialchars($viewUrl) . '" class="btn-act btn-view" title="Visualizar processo" generator="adianti"><i class="fa fa-eye"></i></a>
-                    <a href="' . htmlspecialchars($trackUrl) . '" class="btn-act btn-track" title="Rastreio de eventos" generator="adianti"><i class="fa fa-crosshairs"></i> Rastreio</a>
+                    <a href="' . htmlspecialchars($trackUrl) . '" class="btn-act btn-track" title="Rastreio de eventos" generator="adianti"><i class="fa fa-crosshairs"></i></a>
                     <a href="' . htmlspecialchars($stockUrl) . '" class="btn-act btn-stock" title="Controle de estoque" generator="adianti"><i class="fa fa-building"></i></a>
                     <a href="' . htmlspecialchars($pickupUrl) . '" class="btn-act btn-doc" title="Ordem de coleta" generator="adianti"><i class="fa fa-file-alt"></i></a>
+                    ' . $archiveAction . '
                 </div>
             </div>';
     }
@@ -608,6 +658,42 @@ HTML;
 
             TTransaction::close();
             TToast::show('success', 'Etapa atualizada!', 'bottom right');
+        } catch (Exception $e) {
+            try {
+                TTransaction::rollback();
+            } catch (Exception $ee) {
+            }
+            TToast::show('error', $e->getMessage(), 'bottom right');
+        }
+    }
+
+    public static function onToggleShowHidden($param)
+    {
+        $current = (bool) TSession::getValue(__CLASS__ . '_show_hidden');
+        TSession::setValue(__CLASS__ . '_show_hidden', !$current);
+        TApplication::loadPage('AcompProcessoKanban', 'onReload');
+    }
+
+    public static function onToggleHiddenCard($param)
+    {
+        try {
+            TTransaction::open('sample');
+            AcompProcesso::ensureTables();
+
+            $id = (int) ($param['id'] ?? $param['key'] ?? 0);
+            if ($id <= 0) {
+                throw new Exception('Card invalido.');
+            }
+
+            $proc = new AcompProcesso($id);
+            $isHidden = ((int) ($proc->oculto_kanban ?? 0)) === 1;
+            $proc->oculto_kanban = $isHidden ? 0 : 1;
+            $proc->updated_at = date('Y-m-d H:i:s');
+            $proc->store();
+
+            TTransaction::close();
+            TToast::show('success', $isHidden ? 'Card exibido no Kanban.' : 'Card arquivado do Kanban.', 'bottom right');
+            TApplication::loadPage('AcompProcessoKanban', 'onReload');
         } catch (Exception $e) {
             try {
                 TTransaction::rollback();

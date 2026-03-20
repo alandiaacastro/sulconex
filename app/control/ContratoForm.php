@@ -63,10 +63,6 @@ class ContratoForm extends TPage
         $pis_motorista = new TEntry('pis_motorista');
         $pis_motorista->setSize('100%');
 
-        $placa_trator->setEditable(FALSE);
-        $placa_semi->setEditable(FALSE);
-        $motorista_nome->setEditable(FALSE);
-        $proprietario_nome->setEditable(FALSE);
         $id->setEditable(FALSE);
         $saldo1->setEditable(FALSE);
         $extenso1->setEditable(FALSE);
@@ -221,6 +217,9 @@ class ContratoForm extends TPage
             TTransaction::open('sample');
             $this->form->validate();
             $object = $this->form->getData('Contrato');
+            if (empty($object->veiculo_id)) {
+                $object->veiculo_id = self::createManualVeiculo((array) $param);
+            }
             $object->saldo1 = (float)$object->frete1 - (float)$object->adt1 - (float)$object->inss1 - (float)$object->irrf1 - (float)$object->sest1 - (float)$object->pis1 - (float)$object->cofins1 - (float)$object->descontos1;
             $object->extenso1 = ExtensoReal::numeroPorExtenso((float)$object->frete1);
             $object->store();
@@ -260,4 +259,55 @@ class ContratoForm extends TPage
     {
         $this->form->clear(true);
     }
+
+    private static function createManualVeiculo(array $param): int
+    {
+        $placaTrator = strtoupper(trim((string) ($param['placa_trator'] ?? '')));
+        $placaSemi   = strtoupper(trim((string) ($param['placa_semi'] ?? '')));
+        $motoristaNm = trim((string) ($param['motorista_nome'] ?? ''));
+        $propNome    = trim((string) ($param['proprietario_nome'] ?? ''));
+
+        if ($placaTrator === '') {
+            $placaTrator = 'MANUAL-' . date('His');
+        }
+        if ($motoristaNm === '') {
+            $motoristaNm = 'MOTORISTA AVULSO';
+        }
+        if ($propNome === '') {
+            $propNome = 'PROPRIETARIO NAO INFORMADO';
+        }
+
+        $motorista = new Motorista;
+        $motorista->cnh_numero = 'AVULSO-' . date('YmdHis');
+        $motorista->nome = $motoristaNm;
+        $motorista->store();
+
+        $trator = new AnttConsulta;
+        $trator->placa = $placaTrator;
+        $trator->tipo = 'TRATOR';
+        $trator->razao_social = $propNome;
+        $trator->data_consulta = date('Y-m-d H:i:s');
+        $trator->store();
+
+        $semiId = null;
+        if ($placaSemi !== '') {
+            $semi = new AnttConsulta;
+            $semi->placa = $placaSemi;
+            $semi->tipo = 'SEMI_REBOQUE';
+            $semi->razao_social = $propNome;
+            $semi->data_consulta = date('Y-m-d H:i:s');
+            $semi->store();
+            $semiId = $semi->id;
+        }
+
+        $veiculo = new Veiculo;
+        $veiculo->antt_consulta_trator_id = $trator->id;
+        $veiculo->antt_consulta_semi_reboque_id = $semiId;
+        $veiculo->motorista_id = $motorista->id;
+        $veiculo->placa_trator = $placaTrator;
+        $veiculo->store();
+
+        return (int) $veiculo->id;
+    }
 }
+

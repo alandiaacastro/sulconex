@@ -64,7 +64,7 @@ class ConhecimentoList extends TPage
         $colStatus->setTransformer(function ($value) {
             try {
                 $status = new StatusCrt($value);
-                return "<span style='color:{$status->cor};font-weight:bold;'>{$status->descricao}</span>";
+                return $this->buildStatusBadge($status);
             } catch (Exception $e) {
                 return '-';
             }
@@ -87,18 +87,20 @@ class ConhecimentoList extends TPage
         $actionEdit = new TDataGridAction(['ConhecimentoForm', 'onEdit'], ['key' => '{id}']);
         $this->datagrid->addAction($actionEdit, 'Editar', 'fa:edit blue');
 
-        $actionDelete = new TDataGridAction([$this, 'onDelete'], ['key' => '{id}']);
-        $this->datagrid->addAction($actionDelete, 'Excluir', 'fa:trash red');
-
         $actionPrint = new TDataGridAction([$this, 'onPrint'], ['key' => '{id}']);
         $this->datagrid->addAction($actionPrint, 'Imprimir', 'fa:print green');
 
-
         $actionCopy = new TDataGridAction([$this, 'onCopy'], ['key' => '{id}']);
         $actionCopy->setDisplayCondition(function ($obj) {
-            return $obj->copiacrt === '1';
+            return $obj->copiacrt === '1' && !self::isConhecimentoEntregue($obj);
         });
         $this->datagrid->addAction($actionCopy, 'Copiar', 'fa:copy orange');
+
+        $actionDelete = new TDataGridAction([$this, 'onDelete'], ['key' => '{id}']);
+        $actionDelete->setDisplayCondition(function ($obj) {
+            return !self::isConhecimentoEntregue($obj);
+        });
+        $this->datagrid->addAction($actionDelete, 'Excluir', 'fa:trash red');
 
         $this->datagrid->createModel();
 
@@ -113,8 +115,14 @@ class ConhecimentoList extends TPage
         $panel->add($this->datagrid);
         $panel->addFooter($this->pageNavigation);
 
+        // CARDS DE SITUAÇÃO (placeholder; preenchido em onReload)
+        $cardsDiv = new TElement('div');
+        $cardsDiv->id = 'crt-status-cards';
+        $cardsDiv->style = 'width:100%;margin-bottom:12px';
+
         $container = new TVBox;
         $container->style = 'width: 100%';
+        $container->add($cardsDiv);
         $container->add($panel);
 
         parent::add($container);
@@ -163,6 +171,10 @@ class ConhecimentoList extends TPage
             $criteria = new TCriteria;
             $criteria->setProperties($param);
             $criteria->setProperty('limit', $limit);
+            if (!$criteria->getProperty('order')) {
+                $criteria->setProperty('order', 'id');
+                $criteria->setProperty('direction', 'desc');
+            }
 
             foreach (['_filter_id','_filter_numero','_filter_status_crt_id','_filter_nome_remetente'] as $session_filter) {
                 $filter = TSession::getValue(__CLASS__.$session_filter);
@@ -187,14 +199,207 @@ class ConhecimentoList extends TPage
 
             TTransaction::close();
             $this->loaded = true;
+
+            // Renderizar cards de situação
+            $cardsHtml = $this->buildStatusCards();
+            $baseUrl   = "engine.php?class=ConhecimentoList&method=onFilterByStatus";
+            TScript::create("
+                \$('#crt-status-cards').html(" . json_encode($cardsHtml) . ");
+                \$('#crt-status-cards').off('click.statuscard').on('click.statuscard', '[data-status-id]', function() {
+                    var sid = \$(this).data('status-id');
+                    __adianti_load_page__('{$baseUrl}&status_id=' + sid);
+                });
+            ");
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();
         }
     }
 
+    private function buildStatusCards(): string
+    {
+        $icons = [
+            'DRAFT'    => ['icon' => 'fa-pencil',         'bg' => '#6c757d'],
+            'AGUARDA'  => ['icon' => 'fa-clock-o',        'bg' => '#fd7e14'],
+            'APROVADO' => ['icon' => 'fa-check-circle',   'bg' => '#28a745'],
+            'AVERBADO' => ['icon' => 'fa-stamp',          'bg' => '#009688'],
+            'TRANSITO' => ['icon' => 'fa-truck',          'bg' => '#e6a817'],
+            'ENTREGUE' => ['icon' => 'fa-flag-checkered', 'bg' => '#3F51B5'],
+        ];
+
+        try {
+            TTransaction::open('sample');
+            $result = TTransaction::get()->query(
+                "SELECT s.id, s.nome, s.cor, COUNT(c.id) as total
+                 FROM status_crt s
+                 LEFT JOIN conhecimento c ON c.status_crt_id = s.id
+                 WHERE s.deleted_at IS NULL
+                 GROUP BY s.id
+                 ORDER BY s.ordem, s.id"
+            );
+
+            $statuses = [];
+            $grandTotal = 0;
+            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $statuses[] = $row;
+                $grandTotal += (int) $row['total'];
+            }
+            TTransaction::close();
+        } catch (Exception $e) {
+            if (TTransaction::get()) TTransaction::close();
+            return '';
+        }
+
+        // Detecta filtro de status ativo
+        $filterData     = TSession::getValue(__CLASS__ . '_filter_data');
+        $activeStatusId = $filterData->status_crt_id ?? null;
+
+        // Monta HTML com data-status-id (click handler via jQuery no onReload)
+        $parts = [];
+
+        $isActive  = empty($activeStatusId);
+        $ring      = $isActive ? 'box-shadow:0 0 0 3px #0d6efd;' : '';
+        $parts[] = '<div class="col" style="flex:1;min-width:100px">'
+            . '<div class="card border-0 shadow-sm" data-status-id="0"'
+            . ' style="cursor:pointer;border-radius:12px;' . $ring . 'transition:box-shadow .15s">'
+            . '<div class="card-body p-3 d-flex align-items-center gap-2">'
+            . '<div style="background:#495057;border-radius:10px;width:40px;height:40px;min-width:40px;display:flex;align-items:center;justify-content:center">'
+            . '<i class="fa fa-list text-white"></i></div>'
+            . '<div>'
+            . '<div style="font-size:1.5rem;font-weight:700;line-height:1;color:#212529">' . $grandTotal . '</div>'
+            . '<div style="font-size:0.65rem;color:#6c757d;text-transform:uppercase;letter-spacing:.5px">TODOS</div>'
+            . '</div></div></div></div>';
+
+        foreach ($statuses as $status) {
+            $nome      = $status['nome'];
+            $total     = (int) $status['total'];
+            $statusId  = $status['id'];
+            $def       = $icons[$nome] ?? ['icon' => 'fa-circle', 'bg' => '#6c757d'];
+            $bg        = !empty($status['cor']) ? $status['cor'] : $def['bg'];
+            $iconClass = $def['icon'];
+            $textColor = in_array($bg, ['#FFE821', '#FFEB3B', '#FFC107', '#e6a817']) ? '#333333' : '#ffffff';
+            $isActive  = ((string) $activeStatusId === (string) $statusId);
+            $ring      = $isActive ? 'box-shadow:0 0 0 3px #0d6efd;' : '';
+
+            $parts[] = '<div class="col" style="flex:1;min-width:100px">'
+                . '<div class="card border-0 shadow-sm" data-status-id="' . $statusId . '"'
+                . ' style="cursor:pointer;border-radius:12px;' . $ring . 'transition:box-shadow .15s">'
+                . '<div class="card-body p-3 d-flex align-items-center gap-2">'
+                . '<div style="background:' . $bg . ';border-radius:10px;width:40px;height:40px;min-width:40px;display:flex;align-items:center;justify-content:center">'
+                . '<i class="fa ' . $iconClass . '" style="color:' . $textColor . '"></i></div>'
+                . '<div>'
+                . '<div style="font-size:1.5rem;font-weight:700;line-height:1;color:#212529">' . $total . '</div>'
+                . '<div style="font-size:0.65rem;color:#6c757d;text-transform:uppercase;letter-spacing:.5px">' . $nome . '</div>'
+                . '</div></div></div></div>';
+        }
+
+        return '<div class="row g-2" style="margin:0">' . implode('', $parts) . '</div>';
+    }
+
+    private function buildStatusBadge($status): string
+    {
+        $label = htmlspecialchars((string) ($status->nome ?? '-'), ENT_QUOTES, 'UTF-8');
+        $hexColor = $this->normalizeHexColor((string) ($status->cor ?? '#6c757d'));
+        [$r, $g, $b] = $this->hexToRgb($hexColor);
+
+        $icon = $this->resolveStatusIcon((string) ($status->nome ?? ''));
+        $isLight = ((0.299 * $r) + (0.587 * $g) + (0.114 * $b)) > 180;
+        $textColor = $isLight ? '#1f2937' : $hexColor;
+        $borderColor = $isLight ? 'rgba(31,41,55,.22)' : "rgba({$r},{$g},{$b},.35)";
+        $backgroundColor = "rgba({$r},{$g},{$b},.14)";
+
+        return '<span style="display:inline-flex;align-items:center;gap:6px;'
+            . 'padding:4px 10px;border-radius:999px;border:1px solid ' . $borderColor . ';'
+            . 'background:' . $backgroundColor . ';color:' . $textColor . ';font-weight:700;'
+            . 'font-size:11px;line-height:1;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">'
+            . '<i class="fa ' . $icon . '" style="font-size:10px"></i>'
+            . $label
+            . '</span>';
+    }
+
+    private function resolveStatusIcon(string $statusName): string
+    {
+        $name = strtoupper(trim($statusName));
+        if (strpos($name, 'ENTREG') !== false) {
+            return 'fa-flag-checkered';
+        }
+        if (strpos($name, 'TRANSIT') !== false) {
+            return 'fa-truck';
+        }
+        if (strpos($name, 'AVERB') !== false) {
+            return 'fa-stamp';
+        }
+        if (strpos($name, 'APROV') !== false) {
+            return 'fa-check-circle';
+        }
+        if (strpos($name, 'AGUARD') !== false || strpos($name, 'PEND') !== false) {
+            return 'fa-clock-o';
+        }
+        if (strpos($name, 'RASCUNHO') !== false || strpos($name, 'DRAFT') !== false) {
+            return 'fa-pencil';
+        }
+        return 'fa-circle';
+    }
+
+    private function normalizeHexColor(string $value): string
+    {
+        $hex = ltrim(trim($value), '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+            return '#6c757d';
+        }
+        return '#' . strtoupper($hex);
+    }
+
+    private function hexToRgb(string $hexColor): array
+    {
+        $hex = ltrim($hexColor, '#');
+        return [
+            hexdec(substr($hex, 0, 2)),
+            hexdec(substr($hex, 2, 2)),
+            hexdec(substr($hex, 4, 2)),
+        ];
+    }
+
+    public function onFilterByStatus($param)
+    {
+        $statusId = $param['status_id'] ?? 0;
+
+        if ($statusId) {
+            TSession::setValue(__CLASS__ . '_filter_status_crt_id', new TFilter('status_crt_id', '=', $statusId));
+        } else {
+            TSession::setValue(__CLASS__ . '_filter_status_crt_id', null);
+        }
+
+        $data = TSession::getValue(__CLASS__ . '_filter_data') ?? new stdClass;
+        $data->status_crt_id = $statusId ?: null;
+        TSession::setValue(__CLASS__ . '_filter_data', $data);
+
+        $this->onReload(['offset' => 0, 'first_page' => 1]);
+    }
+
     public static function onDelete($param)
     {
+        try {
+            TTransaction::open('sample');
+            $object = new Conhecimento($param['key']);
+            $isEntregue = self::isConhecimentoEntregue($object);
+            TTransaction::close();
+
+            if ($isEntregue) {
+                new TMessage('warning', 'CRT com status ENTREGUE nao pode ser alterado ou excluido. Somente visualizacao.');
+                return;
+            }
+        } catch (Exception $e) {
+            if (TTransaction::get()) {
+                TTransaction::rollback();
+            }
+            new TMessage('error', 'Erro ao validar status do CRT: ' . $e->getMessage());
+            return;
+        }
+
         $action = new TAction([__CLASS__, 'delete'], $param);
         new TQuestion('Deseja realmente excluir este CRT?', $action);
     }
@@ -206,6 +411,9 @@ class ConhecimentoList extends TPage
             TTransaction::get()->exec('PRAGMA foreign_keys = ON');
 
             $object = new Conhecimento($param['key']);
+            if (self::isConhecimentoEntregue($object)) {
+                throw new Exception('CRT com status ENTREGUE nao pode ser alterado ou excluido.');
+            }
             $object->delete();
 
             TTransaction::close();
@@ -233,6 +441,9 @@ class ConhecimentoList extends TPage
             TTransaction::get()->exec('PRAGMA foreign_keys = ON');
 
             $original = new Conhecimento($param['key']);
+            if (self::isConhecimentoEntregue($original)) {
+                throw new Exception('CRT com status ENTREGUE nao pode ser copiado.');
+            }
             $permissao = new Permisso($original->permisso_id);
 
             $novoNumero = (int)$permissao->numerocrt + 1;
@@ -260,25 +471,83 @@ class ConhecimentoList extends TPage
         }
     }
 
+    private static function isConhecimentoEntregue($obj): bool
+    {
+        try {
+            $statusNome = (string) ($obj->status_crt->nome ?? '');
+        } catch (Exception $e) {
+            $statusNome = '';
+        }
+
+        $statusNome = strtoupper(trim($statusNome));
+        return strpos($statusNome, 'ENTREG') !== false;
+    }
+
     public static function onNumerarCrt()
     {
         try {
             TTransaction::open('sample');
 
             $form = new BootstrapFormBuilder('form_novo_crt');
-            $form->setFormTitle('Novo CRT');
-            $form->setProperty('style', 'width: 50%');
+            $form->setFormTitle('');
+            $form->setProperty('style', 'width: 100%');
 
             $permisso_id = new TDBCombo('permisso_id', 'sample', 'Permisso', 'id', 'permisso');
             $permisso_id->enableSearch();
             $permisso_id->setSize('100%');
+            $permisso_id->setDefaultOption('Selecione uma permissão');
 
-            $form->addFields([new TLabel('Permissao')], [$permisso_id]);
+            $form->addFields([new TLabel('Permissão')], [$permisso_id]);
 
-            $form->addAction('Gerar', new TAction([__CLASS__, 'gerarCrt']), 'fa:check green');
-            $form->addAction('Cancelar', new TAction([__CLASS__, 'closeWindow']), 'fa:times red');
+            $btnGenerate = $form->addAction('Gerar', new TAction([__CLASS__, 'gerarCrt']), 'fa:check');
+            $btnGenerate->class = 'btn btn-success';
+            $btnCancel = $form->addAction('Cancelar', new TAction([__CLASS__, 'closeWindow']), 'fa:times');
+            $btnCancel->class = 'btn btn-outline-secondary';
 
-            new TInputDialog('form_novo_crt', $form);
+            new TInputDialog('NOVO CRT', $form);
+            TScript::create("
+                (function() {
+                    var styleId = 'crt-create-dialog-style';
+                    if (!document.getElementById(styleId)) {
+                        var css = ''
+                            + '.modal.crt-create-dialog .modal-dialog{max-width:434px;}'
+                            + '.modal.crt-create-dialog .modal-content{border:0;border-radius:16px;overflow:hidden;box-shadow:0 20px 48px rgba(15,23,42,.24);}'
+                            + '.modal.crt-create-dialog .modal-header{padding:16px 22px;border-bottom:1px solid #e2e8f0;background:linear-gradient(135deg,#f8fbff,#eef4ff);}'
+                            + '.modal.crt-create-dialog .modal-title{font-size:24px;font-weight:700;letter-spacing:.2px;color:#0f172a;}'
+                            + '.modal.crt-create-dialog .modal-body{padding:20px 22px 18px;background:#ffffff;}'
+                            + '.modal.crt-create-dialog .modal-footer{padding:14px 22px;background:#fbfdff;border-top:1px solid #e2e8f0;}'
+                            + '.modal.crt-create-dialog .modal-footer .btn{border-radius:10px;padding:9px 16px;font-weight:600;}'
+                            + '#form_novo_crt .control-label{font-size:14px;font-weight:600;color:#334155;margin-bottom:8px;}'
+                            + '#form_novo_crt .form-control{height:44px;border-radius:12px;border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a;}'
+                            + '#form_novo_crt .form-control:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.16);background:#fff;}'
+                            + '#form_novo_crt .select2-container .select2-selection--single{height:44px;border-radius:12px;border:1px solid #cbd5e1;background:#f8fafc;}'
+                            + '#form_novo_crt .select2-container--default .select2-selection--single .select2-selection__rendered{line-height:42px;padding-left:14px;color:#0f172a;}'
+                            + '#form_novo_crt .select2-container--default .select2-selection--single .select2-selection__arrow{height:42px;right:8px;}'
+                            + '#form_novo_crt .select2-container--default.select2-container--open .select2-selection--single{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.16);background:#fff;}'
+                            + '@media (max-width: 767px){.modal.crt-create-dialog .modal-dialog{margin:12px;}.modal.crt-create-dialog .modal-title{font-size:20px;}}';
+
+                        var style = document.createElement('style');
+                        style.id = styleId;
+                        style.type = 'text/css';
+                        style.appendChild(document.createTextNode(css));
+                        document.head.appendChild(style);
+                    }
+
+                    var modal = $('#form_novo_crt').closest('.modal');
+                    if (!modal.length) return;
+
+                    modal.addClass('crt-create-dialog');
+                    modal.find('.modal-footer .btn').each(function() {
+                        var text = ($(this).text() || '').trim().toLowerCase();
+                        if (text === 'gerar') {
+                            $(this).removeClass('btn-default btn-secondary btn-outline-secondary').addClass('btn-success');
+                        }
+                        if (text === 'cancelar') {
+                            $(this).removeClass('btn-secondary btn-default').addClass('btn-outline-secondary');
+                        }
+                    });
+                })();
+            ");
             TTransaction::close();
         } catch (Exception $e) {
             TTransaction::rollback();

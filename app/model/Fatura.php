@@ -42,6 +42,8 @@ class Fatura extends TRecord
         parent::addAttribute('valor_fatura');
         parent::addAttribute('valor_extenso');
         parent::addAttribute('pagamento');
+        parent::addAttribute('tipo_baixa');
+        parent::addAttribute('desconto_banco');
         parent::addAttribute('ORIGEM');
         parent::addAttribute('DESTINO');
         parent::addAttribute('REMETENTE');

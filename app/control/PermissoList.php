@@ -1,8 +1,7 @@
-<?php
+﻿<?php
 
 class PermissoList extends TPage
 {
-    private $form;
     private $datagrid;
     private $pageNavigation;
     private static $database = 'sample';
@@ -14,23 +13,8 @@ class PermissoList extends TPage
     {
         parent::__construct();
 
-        // Formulário de filtro
-        $this->form = new BootstrapFormBuilder(self::$formName);
-        $this->form->setFormTitle('Lista de Permissões CRT');
-        $this->form->setFieldSizes('100%');
-
-        $permisso     = new TEntry('permisso');
-        $pais_destino = new TEntry('pais_destino');
-
-        $this->form->addFields(
-            [new TLabel('Permissão')], [$permisso],
-            [new TLabel('País Destino')], [$pais_destino]
-        );
-
-        $this->form->addAction('Buscar', new TAction([$this, 'onSearch']), 'fas:search blue');
-        $this->form->addAction('Novo', new TAction(['PermissoForm', 'onShow']), 'fas:plus green');
-
-        $this->form->setData(TSession::getValue(__CLASS__ . '_filter_data'));
+        // Ação principal (sem filtros)
+        $btnNew = new TAction(['PermissoForm', 'onShow']);
 
         // Datagrid
         $this->datagrid = new BootstrapDatagridWrapper(new TDataGrid);
@@ -48,9 +32,9 @@ class PermissoList extends TPage
         // Transformador para exibir a imagem
         $col_logo->setTransformer(function($value) {
             if ($value && file_exists('app/images/logos/' . $value)) {
-                return "<img src='app/images/logos/{$value}' style='width:100px; height:auto'>";
+                return "<img src='app/images/logos/{$value}' style='width:110px; height:auto; border-radius:6px; border:1px solid #e5e7eb; padding:2px; background:#fff'>";
             }
-            return '';
+            return '<span class="text-muted">—</span>';
         });
 
         $this->datagrid->addColumn($col_id);
@@ -70,6 +54,7 @@ class PermissoList extends TPage
 
         $this->datagrid->addAction($action_edit);
         $this->datagrid->addAction($action_delete);
+        $this->datagrid->createModel();
 
         // Navegação
         $this->pageNavigation = new TPageNavigation;
@@ -79,6 +64,7 @@ class PermissoList extends TPage
 
         // Painel
         $panel = new TPanelGroup('Permissões CRT');
+        $panel->addHeaderActionLink('Novo', $btnNew, 'fas:plus green');
         $panel->add($this->datagrid);
         $panel->addFooter($this->pageNavigation);
 
@@ -86,7 +72,6 @@ class PermissoList extends TPage
         $vbox = new TVBox;
         $vbox->style = 'width: 100%';
         $vbox->add(new TXMLBreadCrumb('menu.xml', __CLASS__));
-        $vbox->add($this->form);
         $vbox->add($panel);
 
         parent::add($vbox);
@@ -103,19 +88,9 @@ class PermissoList extends TPage
             $criteria->setProperty('order', 'id desc');
             $criteria->setProperty('limit', $limit);
 
-            // Filtros
-            if (!empty($param['permisso'])) {
-                $criteria->add(new TFilter('permisso', 'like', "%{$param['permisso']}%"));
-            }
-
-            if (!empty($param['pais_destino'])) {
-                $criteria->add(new TFilter('pais_destino', 'like', "%{$param['pais_destino']}%"));
-            }
-
             $objects = $repository->load($criteria, FALSE);
 
             $this->datagrid->clear();
-            $this->datagrid->createModel(); // âš ï¸ ESSENCIAL
 
             if ($objects) {
                 foreach ($objects as $object) {
@@ -137,16 +112,6 @@ class PermissoList extends TPage
         }
     }
 
-    public function onSearch($param)
-    {
-        $data = $this->form->getData();
-        TSession::setValue(__CLASS__ . '_filter_data', $data);
-
-        $this->onReload([
-            'permisso' => $data->permisso,
-            'pais_destino' => $data->pais_destino
-        ]);
-    }
 
     public function onDelete($param)
     {

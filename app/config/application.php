@@ -65,7 +65,7 @@ return [
     ],
     'template' => [
         'navbar' => [
-            'has_program_search' => '1',
+            'has_program_search' => '0',
             'has_notifications' => '1',
             'has_messages' => '1',
             'has_docs' => '1',

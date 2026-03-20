@@ -38,6 +38,17 @@ class MotoristaList extends TPage
         $this->datagrid->addColumn(new TDataGridColumn('cnh_numero', 'CNH', 'center'));
         $this->datagrid->addColumn(new TDataGridColumn('categoria', 'Categoria', 'center'));
 
+        $col_telefone = new TDataGridColumn('telefone', 'Telefone', 'center');
+        $col_telefone->setTransformer(function ($value) {
+            if (empty($value)) return '<span style="color:#999">-</span>';
+            $fone = preg_replace('/\D/', '', $value);
+            $foneBR = (strlen($fone) <= 11) ? '55' . $fone : $fone;
+            $display = htmlspecialchars($value);
+            return "<a href='tel:+{$foneBR}' title='Ligar' style='text-decoration:none'>{$display}</a> "
+                 . "<a href='https://wa.me/{$foneBR}' target='_blank' title='WhatsApp' style='color:#25D366;font-size:1.1rem;margin-left:4px'><i class='fab fa-whatsapp'></i></a>";
+        });
+        $this->datagrid->addColumn($col_telefone);
+
         // Datas formatadas
         $this->datagrid->addColumn(new TDataGridColumn('data_emissao_cnh', 'Emissão CNH', 'center'))
             ->setTransformer([$this, 'formatDate']);
@@ -135,6 +146,7 @@ class MotoristaList extends TPage
         try
         {
             TTransaction::open('sample');
+            Motorista::ensureTables();
 
             $repository = new TRepository('Motorista');
             $criteria = new TCriteria;

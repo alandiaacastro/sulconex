@@ -1,0 +1,189 @@
+/* ============================================================
+   Portal do Motorista – Cargas Disponiveis (Estilo Fretebras)
+   ============================================================ */
+
+/* ---- Stats cards (topo) ---- */
+.portal-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.portal-stat-card {
+    flex: 1;
+    min-width: 140px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    border-left: 4px solid #0d6efd;
+    text-align: center;
+}
+.portal-stat-card .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1.1;
+}
+.portal-stat-card .stat-label {
+    font-size: .82rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+.portal-stat-card.stat-pendente  { border-left-color: #fd7e14; }
+.portal-stat-card.stat-aprovado  { border-left-color: #198754; }
+.portal-stat-card.stat-recusado  { border-left-color: #dc3545; }
+.portal-stat-card.stat-total     { border-left-color: #0d6efd; }
+
+/* ---- Grid de cards ---- */
+.cargas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+@media (max-width: 1200px) {
+    .cargas-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .cargas-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Card de carga ---- */
+.carga-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    overflow: hidden;
+    transition: transform .18s, box-shadow .18s;
+    display: flex;
+    flex-direction: column;
+}
+.carga-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.13);
+}
+
+.carga-card-header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.carga-card-header i {
+    font-size: 1.3rem;
+    opacity: .85;
+}
+.carga-card-header .rota {
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.carga-card-header .rota .arrow {
+    margin: 0 6px;
+    opacity: .7;
+}
+
+.carga-card-body {
+    padding: 14px 16px;
+    flex: 1;
+}
+.carga-card-body .info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-size: .88rem;
+    color: #495057;
+}
+.carga-card-body .info-row i {
+    width: 18px;
+    text-align: center;
+    color: #6c757d;
+    font-size: .85rem;
+}
+.carga-card-body .info-row .label {
+    color: #868e96;
+    min-width: 65px;
+}
+
+.carga-card-footer {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.carga-card-footer .valor-frete {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #198754;
+}
+.carga-card-footer .btn-solicitar {
+    display: inline-block;
+    padding: 6px 16px;
+    background: #0d6efd;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+}
+.carga-card-footer .btn-solicitar:hover {
+    background: #0b5ed7;
+}
+.carga-card-footer .btn-solicitar.disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+/* ---- Badge de status ---- */
+.carga-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #fff;
+}
+.carga-badge-disponivel { background: #198754; }
+.carga-badge-reservada  { background: #fd7e14; }
+.carga-badge-encerrada  { background: #6c757d; }
+.carga-badge-cancelada  { background: #dc3545; }
+
+/* ---- Sem cargas ---- */
+.cargas-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: #6c757d;
+}
+.cargas-empty i {
+    font-size: 3rem;
+    opacity: .4;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* ---- Titulo da pagina ---- */
+.portal-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a3a5c;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.portal-title i {
+    font-size: 1.4rem;
+    color: #2d6a9f;
+}

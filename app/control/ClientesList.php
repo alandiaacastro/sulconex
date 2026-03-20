@@ -46,7 +46,16 @@ class ClientesList extends TPage
         $this->datagrid->addColumn(new TDataGridColumn('nome', 'Nome', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('cnpj', 'CNPJ', 'left'));
         $this->datagrid->addColumn(new TDataGridColumn('cidade', 'Cidade', 'left'));
-        $this->datagrid->addColumn(new TDataGridColumn('telefone', 'Telefone', 'left'));
+        $col_telefone = new TDataGridColumn('telefone', 'Telefone', 'left');
+        $col_telefone->setTransformer(function ($value) {
+            if (empty($value)) return '<span style="color:#999">-</span>';
+            $fone = preg_replace('/\D/', '', $value);
+            $foneBR = (strlen($fone) <= 11) ? '55' . $fone : $fone;
+            $display = htmlspecialchars($value);
+            return "<a href='tel:+{$foneBR}' title='Ligar' style='text-decoration:none'>{$display}</a> "
+                 . "<a href='https://wa.me/{$foneBR}' target='_blank' title='WhatsApp' style='color:#25D366;font-size:1.1rem;margin-left:4px'><i class='fab fa-whatsapp'></i></a>";
+        });
+        $this->datagrid->addColumn($col_telefone);
 
         $col_tipo = new TDataGridColumn('tipo', 'Classificação', 'center');
         $col_tipo->setTransformer(function($value) {

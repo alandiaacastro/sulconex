@@ -192,6 +192,28 @@
         </menu>
     </menuitem>
 
+    <menuitem label="Portal Motorista">
+        <icon>fas:truck fa-fw</icon>
+        <menu>
+            <menuitem label="Cargas Disponiveis">
+                <icon>fas:truck-loading fa-fw</icon>
+                <action>PortalMotoristaCargas</action>
+            </menuitem>
+            <menuitem label="Minhas Solicitacoes">
+                <icon>fas:clipboard-check fa-fw</icon>
+                <action>PortalMotoristaSolicitacoes</action>
+            </menuitem>
+            <menuitem label="Gerenciar Cargas">
+                <icon>fas:cogs fa-fw</icon>
+                <action>CargaDisponivelList</action>
+            </menuitem>
+            <menuitem label="Gerenciar Solicitacoes">
+                <icon>fas:tasks fa-fw</icon>
+                <action>SolicitacaoCargaList</action>
+            </menuitem>
+        </menu>
+    </menuitem>
+
     <menuitem label="Configurações">
         <icon>fas:cog fa-fw</icon>
         <menu>

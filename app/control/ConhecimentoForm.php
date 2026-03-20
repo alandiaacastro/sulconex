@@ -5,6 +5,7 @@ use Adianti\Widget\Form\TEntry;
 class ConhecimentoForm extends TPage
 {
     protected $form;
+    private $isReadOnly = false;
 
     public function __construct($param)
     {
@@ -568,10 +569,15 @@ class ConhecimentoForm extends TPage
                 $data->data_transportador_assinatura = TDate::date2us($data->data_transportador_assinatura);
             }
 
+            $this->normalizeNumericFieldsForStorage($data);
+
             $data->copiarcrt = in_array($data->copiacrt, ['1', 1, true], true) ? '1' : '0';
 
             if (!empty($data->id)) {
                 $object = new Conhecimento($data->id);
+                if ($this->isConhecimentoEntregue($object)) {
+                    throw new Exception('CRT com status ENTREGUE esta bloqueado para alteracoes. Somente visualizacao.');
+                }
             } else {
                 $object = new Conhecimento;
             }
@@ -619,8 +625,16 @@ class ConhecimentoForm extends TPage
                 if (!empty($object->data_transportador_assinatura)) {
                     $object->data_transportador_assinatura = TDate::convertToMask($object->data_transportador_assinatura, 'yyyy-mm-dd', 'dd/mm/yyyy');
                 }
+
+                $this->formatNumericFieldsForDisplay($object);
                 
                 $this->form->setData($object);
+
+                if ($this->isConhecimentoEntregue($object)) {
+                    $this->setFormReadOnlyMode();
+                    new TMessage('info', 'CRT com status ENTREGUE: modo somente visualizacao.');
+                }
+
                 TTransaction::close();
             } else {
                 $this->form->clear(TRUE);
@@ -806,5 +820,125 @@ class ConhecimentoForm extends TPage
             'total_custo_remetente'    => number_format($totalRemetente, 2, ',', '.'),
             'total_custo_destinatario' => number_format($totalDestinatario, 2, ',', '.'),
         ]);
+    }
+
+    private function isConhecimentoEntregue(Conhecimento $conhecimento): bool
+    {
+        try {
+            $statusNome = (string) ($conhecimento->status_crt->nome ?? '');
+        } catch (Exception $e) {
+            $statusNome = '';
+        }
+
+        $statusNome = strtoupper(trim($statusNome));
+        return strpos($statusNome, 'ENTREG') !== false;
+    }
+
+    private function setFormReadOnlyMode(): void
+    {
+        $this->isReadOnly = true;
+
+        foreach ((array) $this->form->getFields() as $field) {
+            if (is_object($field) && !($field instanceof THidden) && method_exists($field, 'setEditable')) {
+                $field->setEditable(false);
+            }
+        }
+
+        TScript::create("$('#form_Conhecimento').closest('.panel,.card').find('.btn.btn-primary').hide();");
+    }
+
+    private function normalizeNumericFieldsForStorage($data): void
+    {
+        $fields = $this->getNumericFieldScaleMap();
+        foreach ($fields as $field => $decimals) {
+            if (property_exists($data, $field)) {
+                $data->{$field} = self::formatNumberForStorage($data->{$field}, $decimals);
+            }
+        }
+    }
+
+    private function formatNumericFieldsForDisplay($data): void
+    {
+        $fields = $this->getNumericFieldScaleMap();
+        foreach ($fields as $field => $decimals) {
+            if (isset($data->{$field})) {
+                $data->{$field} = self::formatNumberForDisplay($data->{$field}, $decimals);
+            }
+        }
+    }
+
+    private function getNumericFieldScaleMap(): array
+    {
+        return [
+            'peso_bruto_kg' => 3,
+            'peso_liq_kg' => 3,
+            'valor_mercadorias' => 2,
+            'valor_declarado' => 2,
+            'valor_reembolso' => 2,
+            'valor_frete_externo' => 2,
+            'custoremetente1' => 2,
+            'custoremetente2' => 2,
+            'custoremetente3' => 2,
+            'custodestino1' => 2,
+            'custodestino2' => 2,
+            'custodestino3' => 2,
+            'total_custo_remetente' => 2,
+            'total_custo_destinatario' => 2,
+        ];
+    }
+
+    private static function parseNumericValue($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $text = trim((string) $value);
+        if ($text === '') {
+            return null;
+        }
+
+        $text = preg_replace('/[^0-9,.\-]/', '', $text);
+        if ($text === '' || $text === '-' || $text === ',' || $text === '.') {
+            return null;
+        }
+
+        $lastComma = strrpos($text, ',');
+        $lastDot = strrpos($text, '.');
+
+        if ($lastComma !== false && $lastDot !== false) {
+            $decimalSep = ($lastComma > $lastDot) ? ',' : '.';
+            $thousandSep = ($decimalSep === ',') ? '.' : ',';
+            $text = str_replace($thousandSep, '', $text);
+            $text = str_replace($decimalSep, '.', $text);
+        } elseif ($lastComma !== false) {
+            $text = str_replace('.', '', $text);
+            $text = str_replace(',', '.', $text);
+        } else {
+            $text = str_replace(',', '', $text);
+        }
+
+        return is_numeric($text) ? (float) $text : null;
+    }
+
+    private static function formatNumberForStorage($value, int $decimals): ?string
+    {
+        $number = self::parseNumericValue($value);
+        if ($number === null) {
+            $raw = trim((string) $value);
+            return $raw === '' ? null : $raw;
+        }
+
+        return number_format($number, $decimals, '.', '');
+    }
+
+    private static function formatNumberForDisplay($value, int $decimals): string
+    {
+        $number = self::parseNumericValue($value);
+        if ($number === null) {
+            return trim((string) $value);
+        }
+
+        return number_format($number, $decimals, ',', '.');
     }
 }

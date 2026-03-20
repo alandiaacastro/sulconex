@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 class PermissoForm extends TPage
 {
@@ -14,8 +14,10 @@ class PermissoForm extends TPage
         parent::__construct();
 
         $this->form = new BootstrapFormBuilder(self::$formName);
-        $this->form->setFormTitle('Cadastro de Permissão CRT');
+        $this->form->setFormTitle('<i class="fa fa-id-card me-1"></i> Cadastro de Permissão CRT');
         $this->form->setFieldSizes('100%');
+        $this->form->enableClientValidation();
+        $this->form->setProperty('style', 'max-width: 1100px; margin: 0 auto;');
 
         $this->createFields();
         $this->addFormActions();
@@ -37,45 +39,68 @@ class PermissoForm extends TPage
         $numeroenlastre   = new TEntry('numeroenlastre');
         $cnpj             = new TEntry('cnpj');
         $transportadora   = new TEntry('transportadora');
-        $dados_documentos = new TText('dados_documentos');
+        $dados_Documentos = new TText('dados_Documentos');
         $logo             = new TFile('logo');
 
         $id->setEditable(false);
         $permisso->addValidation('Permissão', new TRequiredValidator);
         $pais_destino->addValidation('País Destino', new TRequiredValidator);
-        $dados_documentos->setSize('100%', 100);
+        $dados_Documentos->setSize('100%', 100);
         $logo->setAllowedExtensions(['jpg','jpeg','png','gif']);
         $logo->setSize('100%');
+        $logo->setProperty('accept', 'image/*');
 
+        $permisso->setProperty('placeholder', 'Ex.: BR-00123');
+        $pais_destino->setProperty('placeholder', 'Ex.: Brasil, Chile, Paraguai');
+        $cnpj->setProperty('placeholder', 'Ex.: 12.345.678/0001-99');
+        $transportadora->setProperty('placeholder', 'Ex.: Transportes XYZ');
+        $numerocrt->setProperty('placeholder', 'Ex.: BR774000190');
+        $numeroenlastre->setProperty('placeholder', 'Ex.: EN-123456');
+        $dados_Documentos->setProperty('placeholder', 'Informe dados adicionais do documento, observações e regras de emissão');
+
+        $this->form->addFields([new TFormSeparator('Identificação')]);
         $this->form->addFields(
             [new TLabel('ID'), $id],
             [new TLabel('Permissão*'), $permisso],
-            [new TLabel('País Destino*'), $pais_destino],
-            [new TLabel('CNPJ'), $cnpj],
-            [new TLabel('Transportadora'), $transportadora]
-        )->layout = ['col-sm-1','col-sm-2','col-sm-2','col-sm-2','col-sm-5'];
+            [new TLabel('País Destino*'), $pais_destino]
+        )->layout = ['col-sm-2','col-sm-5','col-sm-5'];
 
         $this->form->addFields(
-            [new TLabel('Dados Documentos'), $dados_documentos],
+            [new TLabel('CNPJ'), $cnpj],
+            [new TLabel('Transportadora'), $transportadora]
+        )->layout = ['col-sm-4','col-sm-8'];
+
+        $this->form->addFields([new TFormSeparator('Documentos')]);
+        $this->form->addFields(
+            [new TLabel('Dados Documentos'), $dados_Documentos]
+        )->layout = ['col-sm-12'];
+
+        $this->form->addFields(
             [new TLabel('Número Enlastre'), $numeroenlastre],
             [new TLabel('Número CRT'), $numerocrt]
-        )->layout = ['col-sm-8', 'col-sm-2', 'col-sm-2'];
+        )->layout = ['col-sm-6', 'col-sm-6'];
 
+        $this->form->addFields([new TFormSeparator('Logo')]);
         $this->form->addFields(
             [new TLabel('Logo (máx. 2MB)'), $logo]
         )->layout = ['col-sm-12'];
 
         $this->form->setFields([
             $id, $permisso, $pais_destino, $numerocrt, $numeroenlastre,
-            $cnpj, $transportadora, $dados_documentos, $logo
+            $cnpj, $transportadora, $dados_Documentos, $logo
         ]);
     }
 
     private function addFormActions()
     {
-        $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fas:save blue');
-        $this->form->addAction('Limpar', new TAction([$this, 'onClear']), 'fas:eraser red');
-        $this->form->addAction('Voltar', new TAction(['PermissoList', 'onReload']), 'fas:arrow-left gray');
+        $btnSave = $this->form->addAction('Salvar', new TAction([$this, 'onSave']), 'fas:save');
+        $btnSave->class = 'btn btn-sm btn-primary';
+
+        $btnClear = $this->form->addAction('Limpar', new TAction([$this, 'onClear']), 'fas:eraser');
+        $btnClear->class = 'btn btn-sm btn-outline-danger';
+
+        $btnBack = $this->form->addAction('Voltar', new TAction(['PermissoList', 'onReload']), 'fas:arrow-left');
+        $btnBack->class = 'btn btn-sm btn-outline-secondary';
     }
 
     public function onSave($param)
@@ -123,9 +148,11 @@ class PermissoForm extends TPage
                 $this->form->setData($object);
 
                 if ($object->logo && file_exists('app/images/logos/' . $object->logo)) {
-                    $preview = new TImage('app/images/logos/' . $object->logo);
-                    $preview->style = 'max-width:180px; max-height:100px; margin:10px';
-                    $this->form->addContent([$preview]);
+                    $preview = new TImage("app/images/logos/" . $object->logo);
+                    $preview->style = "max-width:220px; max-height:120px; margin:6px 0";
+                    $this->form->addFields(
+                        [new TLabel("Logo atual"), $preview]
+                    )->layout = ["col-sm-12"];
                 }
             }
 
@@ -148,3 +175,9 @@ class PermissoForm extends TPage
         }
     }
 }
+
+
+
+
+
+

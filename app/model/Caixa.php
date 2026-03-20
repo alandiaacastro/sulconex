@@ -26,6 +26,8 @@ class Caixa extends TRecord
         parent::addAttribute('status');         // PENDENTE | CONCILIADO
         parent::addAttribute('ofx_fitid');
         parent::addAttribute('observacao');
+        parent::addAttribute('tipo_baixa');
+        parent::addAttribute('desconto_banco');
         parent::addAttribute('created_at');
         parent::addAttribute('updated_at');
     }
@@ -96,6 +98,8 @@ class Caixa extends TRecord
             'status'          => "ALTER TABLE caixa ADD COLUMN status TEXT DEFAULT 'PENDENTE'",
             'ofx_fitid'       => "ALTER TABLE caixa ADD COLUMN ofx_fitid TEXT",
             'observacao'      => "ALTER TABLE caixa ADD COLUMN observacao TEXT",
+            'tipo_baixa'      => "ALTER TABLE caixa ADD COLUMN tipo_baixa TEXT",
+            'desconto_banco'  => "ALTER TABLE caixa ADD COLUMN desconto_banco REAL DEFAULT 0",
             'created_at'      => "ALTER TABLE caixa ADD COLUMN created_at TEXT",
             'updated_at'      => "ALTER TABLE caixa ADD COLUMN updated_at TEXT"
         ];

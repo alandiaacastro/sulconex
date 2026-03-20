@@ -83,6 +83,68 @@ class ConhecimentoPDFGenerator
 
         return '';
     }
+
+    private static function sanitizeFilePart($value, int $maxLen = 40): string
+    {
+        $text = trim((string) $value);
+        if ($text === '') {
+            return '';
+        }
+
+        $text = preg_replace('/\s+/', '_', $text);
+        $text = preg_replace('/[^A-Za-z0-9_\-]/', '', $text);
+        $text = trim((string) $text, '_-');
+
+        if ($text === '') {
+            return '';
+        }
+
+        return substr($text, 0, $maxLen);
+    }
+
+    private static function parseNumber($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $text = trim((string) $value);
+        if ($text === '') {
+            return null;
+        }
+
+        $text = preg_replace('/[^0-9,.\-]/', '', $text);
+        if ($text === '' || $text === '-' || $text === ',' || $text === '.') {
+            return null;
+        }
+
+        $lastComma = strrpos($text, ',');
+        $lastDot = strrpos($text, '.');
+
+        if ($lastComma !== false && $lastDot !== false) {
+            $decimalSep = $lastComma > $lastDot ? ',' : '.';
+            $thousandSep = ($decimalSep === ',') ? '.' : ',';
+            $text = str_replace($thousandSep, '', $text);
+            $text = str_replace($decimalSep, '.', $text);
+        } elseif ($lastComma !== false) {
+            $text = str_replace('.', '', $text);
+            $text = str_replace(',', '.', $text);
+        } else {
+            $text = str_replace(',', '', $text);
+        }
+
+        return is_numeric($text) ? (float) $text : null;
+    }
+
+    private static function formatMoney($value): string
+    {
+        $number = self::parseNumber($value);
+        if ($number === null) {
+            return trim((string) $value);
+        }
+
+        return number_format($number, 2, ',', '.');
+    }
     /**
      * Construtor
      * @param mixed $key Chave para buscar o objeto Conhecimento
@@ -121,8 +183,12 @@ class ConhecimentoPDFGenerator
 
         // Cabeçalho e imagens
         $pdf->SetFont('Helvetica', 'B', 20);
-        $pdf->Image('app/images/CRT.jpg', 6, 6, 18, 18);
-      $pdf->Image('app/images/assinatura2.jpg', 56, 255, 35, 25);
+        if (file_exists('app/images/CRT.jpg')) {
+            $pdf->Image('app/images/CRT.jpg', 6, 6, 18, 18);
+        }
+        if (file_exists('app/images/assinatura2.jpg')) {
+            $pdf->Image('app/images/assinatura2.jpg', 56, 255, 35, 25);
+        }
       //  $pdf->Image('app/images/assinatura1.png', 56, 255, 35, 25); // sem assinatura so carimbo
         $pdf->SetFont('Helvetica', '', 6);
       //  $pdf->Image('app/images/' . $object->logotransporte, 150, 48, 45, 20);
@@ -251,7 +317,7 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
         $pdf->Text(166, 150, self::toPdfText('14 Valor / Valor'));
         $pdf->SetFont('Helvetica', '', 8);
         $pdf->Text(168, 154, (string)$object->incoterm);
-        $pdf->Text(168, 160, (string)$object->valor_mercadorias);
+        $pdf->Text(168, 160, self::toPdfText(self::formatMoney($object->valor_mercadorias)));
         $pdf->Text(168, 166, self::toPdfText('Moneda / Moeda'));
         $pdf->Text(168, 170, self::toPdfText((string)$object->moeda_valor_mercadorias));
         $pdf->SetFont('Helvetica', '', 6);
@@ -259,7 +325,7 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
         $pdf->SetFont('Helvetica', '', 8);
         $pdf->Text(107, 180, (string)$object->incoterm16);
         $pdf->Text(114, 180, (string)$object->moeda_valor_mercadorias);
-        $pdf->Text(124, 180, (string)$object->valor_declarado);
+        $pdf->Text(124, 180, self::toPdfText(self::formatMoney($object->valor_declarado)));
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(106, 186, self::toPdfText('17 Documentos anexos / Documentos anexos'));
         $pdf->SetFont('Helvetica', '', 8);
@@ -308,14 +374,14 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
 
         $x_pos = 50;
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente1), 187, 
-            !empty($object->custoremetente1) ? (string)$object->custoremetente1 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente2), 195, 
-            !empty($object->custoremetente2) ? (string)$object->custoremetente2 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custoremetente3), 202, 
-            !empty($object->custoremetente3) ? (string)$object->custoremetente3 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->total_custo_remetente), 211, 
-            !empty($object->total_custo_remetente) ? (string)$object->total_custo_remetente : '');
+        $custoRem1 = self::formatMoney($object->custoremetente1);
+        $custoRem2 = self::formatMoney($object->custoremetente2);
+        $custoRem3 = self::formatMoney($object->custoremetente3);
+        $totalRem = self::formatMoney($object->total_custo_remetente);
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoRem1), 187, self::toPdfText($custoRem1));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoRem2), 195, self::toPdfText($custoRem2));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoRem3), 202, self::toPdfText($custoRem3));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($totalRem), 211, self::toPdfText($totalRem));
         $pdf->Text(56, 186, self::toPdfText((string)$object->gastosmoeda));
         $pdf->Text(56, 195, self::toPdfText((string)$object->gastosmoeda));
         $pdf->Text(56, 202, self::toPdfText((string)$object->gastosmoeda));
@@ -329,25 +395,27 @@ Localidade pais e data em que o transportador se responsabiliza para mercadoria 
 
         $x_pos = 85;
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino1), 187, 
-            !empty($object->custodestino1) ? (string)$object->custodestino1 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino2), 195, 
-            !empty($object->custodestino2) ? (string)$object->custodestino2 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->custodestino3), 202, 
-            !empty($object->custodestino3) ? (string)$object->custodestino3 : '');
-        $pdf->Text($x_pos - $pdf->GetStringWidth((string)$object->total_custo_destinatario), 211, 
-            !empty($object->total_custo_destinatario) ? (string)$object->total_custo_destinatario : '');
+        $custoDest1 = self::formatMoney($object->custodestino1);
+        $custoDest2 = self::formatMoney($object->custodestino2);
+        $custoDest3 = self::formatMoney($object->custodestino3);
+        $totalDest = self::formatMoney($object->total_custo_destinatario);
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoDest1), 187, self::toPdfText($custoDest1));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoDest2), 195, self::toPdfText($custoDest2));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($custoDest3), 202, self::toPdfText($custoDest3));
+        $pdf->Text($x_pos - $pdf->GetStringWidth($totalDest), 211, self::toPdfText($totalDest));
 
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(95, 174);
         $pdf->MultiCell(10, 2, self::toPdfText("Moneda moeda"));
         $pdf->Text(6, 216, self::toPdfText("19-monto del flete extermo/Vakor do frete externo"));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(6, 220, !empty($object->valor_frete_externo) ? $object->gastosmoeda . (string)$object->valor_frete_externo : '');
+        $valorFreteExterno = self::formatMoney($object->valor_frete_externo);
+        $pdf->Text(6, 220, !empty($valorFreteExterno) ? self::toPdfText($object->gastosmoeda . ' ' . $valorFreteExterno) : '');
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->Text(6, 223, self::toPdfText("20-monto de rembolso contra entrega/valor de rembolso contra entrega"));
         $pdf->SetFont('Helvetica', '', 8);
-        $pdf->Text(6, 226, !empty($object->valor_reembolso) ? $object->gastosmoeda . (string)$object->valor_reembolso : '');
+        $valorReembolso = self::formatMoney($object->valor_reembolso);
+        $pdf->Text(6, 226, !empty($valorReembolso) ? self::toPdfText($object->gastosmoeda . ' ' . $valorReembolso) : '');
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY(5, 232);
         $pdf->MultiCell(60, 2, self::toPdfText("21 Nombre y firma del remitente o su representante
@@ -389,21 +457,30 @@ Nome e assinatura do remetente ou seu representante"));
             // Adiciona a segunda página com o nome "COPIA"
             $this->addPageContent("COPIA");
 
-            // Sanitiza os componentes para o nome do arquivo
-            $invalidChars      = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
-            $numero            = str_replace($invalidChars, '_', strval($this->object->numero ?? ''));
-            $fatura_crt        = str_replace($invalidChars, '_', strval($this->object->fatura_crt ?? ''));
-            $nome_destinatario = str_replace($invalidChars, '_', strval($this->getImportadorNome($this->object)));
-            $local_emissao     = str_replace($invalidChars, '_', substr(strval($this->object->local_emissao ?? ''), 0, 4));
-            $pais_destino      = str_replace($invalidChars, '_', strval($this->object->pais_destino ?? ''));
-            
+            $outputDir = 'app/output';
+            if (!is_dir($outputDir)) {
+                mkdir($outputDir, 0775, true);
+            }
 
-            $nomeArquivo = "CRT_{$numero}_{$fatura_crt}_{$nome_destinatario}_{$local_emissao}_{$pais_destino}.pdf";
+            $numero            = self::sanitizeFilePart($this->object->numero ?? '', 24);
+            $faturaCrt         = self::sanitizeFilePart($this->object->fatura_crt ?? '', 24);
+            $nomeDestinatario  = self::sanitizeFilePart($this->getImportadorNome($this->object), 32);
+            $localEmissao      = self::sanitizeFilePart($this->object->local_emissao ?? '', 16);
+            $paisDestino       = self::sanitizeFilePart($this->object->pais_destino ?? '', 12);
+
+            $parts = array_filter([$numero, $faturaCrt, $nomeDestinatario, $localEmissao, $paisDestino]);
+            $baseName = 'CRT_' . implode('_', $parts);
+            if ($baseName === 'CRT_') {
+                $baseName .= date('Ymd_His');
+            }
+            $baseName = substr($baseName, 0, 120);
+            $nomeArquivo = $baseName . '.pdf';
+            $caminhoArquivo = $outputDir . '/' . $nomeArquivo;
 
             // Gera o arquivo PDF e salva
-            $this->pdf->Output('F', 'app/output/' . $nomeArquivo);
-            TPage::openFile('app/output/' . $nomeArquivo);
+            $this->pdf->Output('F', $caminhoArquivo);
             TTransaction::close();
+            TPage::openFile($caminhoArquivo);
         } catch (Exception $e) {
             new TMessage('error', $e->getMessage());
             TTransaction::rollback();

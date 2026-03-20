@@ -136,6 +136,7 @@ class AcompProcesso extends TRecord
         parent::addAttribute('peso_bruto');
         parent::addAttribute('cubagem');
         parent::addAttribute('mapa_url');
+        parent::addAttribute('oculto_kanban');
         parent::addAttribute('created_at');
         parent::addAttribute('updated_at');
     }
@@ -172,6 +173,7 @@ class AcompProcesso extends TRecord
             peso_bruto REAL,
             cubagem REAL,
             mapa_url TEXT,
+            oculto_kanban INTEGER DEFAULT 0,
             created_at TEXT,
             updated_at TEXT
         )");
@@ -185,6 +187,7 @@ class AcompProcesso extends TRecord
                 'aduana_destino' => 'TEXT',
                 'cubagem' => 'REAL',
                 'mapa_url' => 'TEXT',
+                'oculto_kanban' => 'INTEGER DEFAULT 0',
             ];
 
             foreach ($processoCols as $name => $type) {
@@ -192,6 +195,12 @@ class AcompProcesso extends TRecord
                     $conn->exec("ALTER TABLE acomp_processo ADD COLUMN $name $type");
                 }
             }
+        } catch (Exception $e) {
+            // ignore (best-effort backfill)
+        }
+        
+        try {
+            $conn->exec("UPDATE acomp_processo SET oculto_kanban = 0 WHERE oculto_kanban IS NULL");
         } catch (Exception $e) {
             // ignore (best-effort backfill)
         }
@@ -241,7 +250,7 @@ class AcompProcesso extends TRecord
             return false;
         }
 
-        $requiredProcessoColumns = ['etapa', 'local_entrega', 'aduana_origem', 'aduana_destino', 'cubagem', 'mapa_url'];
+        $requiredProcessoColumns = ['etapa', 'local_entrega', 'aduana_origem', 'aduana_destino', 'cubagem', 'mapa_url', 'oculto_kanban'];
         foreach ($requiredProcessoColumns as $column) {
             if (!self::tableHasColumn($conn, 'acomp_processo', $column)) {
                 return false;
@@ -288,6 +297,9 @@ class AcompProcesso extends TRecord
         }
         if (empty($object->etapa)) {
             $object->etapa = 'coleta';
+        }
+        if ($object->oculto_kanban === '' || $object->oculto_kanban === null) {
+            $object->oculto_kanban = 0;
         }
         $object->updated_at = $now;
     }
