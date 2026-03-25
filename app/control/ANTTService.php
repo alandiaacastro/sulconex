@@ -26,7 +26,7 @@ class ANTTService
             $ch_get = curl_init($url);
             curl_setopt($ch_get, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch_get, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch_get, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch_get, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch_get, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
             curl_setopt($ch_get, CURLOPT_COOKIEJAR, $cookie_file);
 
@@ -56,7 +56,7 @@ class ANTTService
             curl_setopt($ch_post, CURLOPT_POSTFIELDS, http_build_query($post_fields));
             curl_setopt($ch_post, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch_post, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch_post, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch_post, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch_post, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
             curl_setopt($ch_post, CURLOPT_COOKIEFILE, $cookie_file);
             curl_setopt($ch_post, CURLOPT_REFERER, $url);

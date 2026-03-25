@@ -11,7 +11,7 @@ return [
         'multiunit' => '0',
         'public_view' => '0',
         'public_entry' => '',
-        'debug' => '1',
+        'debug' => '0',
         'strict_request' => '0',
         'multi_lang' => '1',
         'require_terms' => '0',

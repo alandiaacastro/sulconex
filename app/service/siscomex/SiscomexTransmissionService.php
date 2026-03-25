@@ -280,8 +280,8 @@ class SiscomexTransmissionService
             curl_setopt($ch, CURLOPT_TIMEOUT, $config->request['timeout'] ?? 30);
 
             // SSL
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $config->request['ssl_verify'] ?? false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $config->request['ssl_verify'] ?? false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $config->request['ssl_verify'] ?? true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $config->request['ssl_verify'] ?? 2);
 
             // User-Agent
             curl_setopt($ch, CURLOPT_USERAGENT, $config->request['user_agent'] ?? 'SulconexMIC/1.0');
