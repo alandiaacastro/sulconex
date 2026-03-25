@@ -2,7 +2,8 @@
 require_once 'init.php';
 
 $ini = AdiantiApplicationConfig::get();
-$theme  = $ini['general']['theme'];
+$allowedThemes = ['adminbs5'];
+$theme = in_array($ini['general']['theme'], $allowedThemes, true) ? $ini['general']['theme'] : 'adminbs5';
 $class  = isset($_REQUEST['class']) ? $_REQUEST['class'] : '';
 $public = in_array($class, !empty($ini['permission']['public_classes']) ? $ini['permission']['public_classes'] : []);
 

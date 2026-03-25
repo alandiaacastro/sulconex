@@ -9,7 +9,7 @@
 class ImportarSqlMigration extends TPage
 {
     // Caminho padrão do arquivo SQL (pode ser alterado no formulário)
-    private static $SQL_DEFAULT = 'C:/Users/alan/OneDrive/Desktop/importar.sql';
+    private static $SQL_DEFAULT = '';
 
     protected $form;
 

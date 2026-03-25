@@ -217,8 +217,9 @@ HTML;
 
     private static function sendCsvDownload(string $filename, string $content): void
     {
+        $safeFilename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', basename($filename));
         header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . $safeFilename . '"');
         header('Content-Length: ' . strlen($content));
         echo "\xEF\xBB\xBF"; // BOM UTF-8 para Excel
         echo $content;
@@ -334,7 +335,9 @@ HTML;
                 // Verificar duplicata por CNPJ
                 $cnpj = preg_replace('/\D/', '', $row['cnpj'] ?? '');
                 if ($cnpj) {
-                    $exists = $conn->query("SELECT id FROM clientes WHERE REPLACE(REPLACE(REPLACE(cnpj,'.',''),'-',''),'/','') = '{$cnpj}' LIMIT 1")->fetchColumn();
+                    $stmtCheck = $conn->prepare("SELECT id FROM clientes WHERE REPLACE(REPLACE(REPLACE(cnpj,'.',''),'-',''),'/','') = :cnpj LIMIT 1");
+                    $stmtCheck->execute([':cnpj' => $cnpj]);
+                    $exists = $stmtCheck->fetchColumn();
                     if ($exists) {
                         $skipped++;
                         continue;
