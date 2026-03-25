@@ -119,6 +119,10 @@
     <menuitem label="Operacional">
         <icon>fas:briefcase fa-fw</icon>
         <menu>
+            <menuitem label="Cidades">
+                <icon>fas:map-marker-alt fa-fw</icon>
+                <action>CidadeUfList</action>
+            </menuitem>
             <menuitem label="Clientes">
                 <icon>fas:user fa-fw</icon>
                 <action>ClientesList</action>

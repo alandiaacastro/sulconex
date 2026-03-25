@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class TabelaFrete extends TRecord
 {
@@ -11,9 +11,11 @@ class TabelaFrete extends TRecord
         parent::__construct($id, $callObjectLoad);
 
         parent::addAttribute('origem');
+        parent::addAttribute('fronteira');
         parent::addAttribute('destino');
         parent::addAttribute('tipo_veiculo');
         parent::addAttribute('valor_frete');
+        parent::addAttribute('atualizacao');
         parent::addAttribute('created_at');
         parent::addAttribute('updated_at');
     }

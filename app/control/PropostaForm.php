@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Adianti\Control\TPage;
 use Adianti\Control\TAction;
@@ -94,26 +94,80 @@ class PropostaForm extends TPage
         $Tempo_Transito = new TEntry('Tempo_Transito');
         $Tempo_Transito->setSize('100%');
 
-        $Local_Coleta = new TEntry('Local_Coleta');
+        // Carregar cidades para autocomplete de origem/destino
+        $cidades = [];
+        try {
+            TTransaction::open('default');
+            $listaCidades = (new TRepository('CidadeUf'))->load(null, false);
+            if ($listaCidades) {
+                foreach ($listaCidades as $c) {
+                    $label = mb_strtoupper($c->nome . ',' . $c->uf, 'UTF-8');
+                    $cidades[$label] = $label;
+                }
+            }
+            TTransaction::close();
+        } catch (Exception $e) {
+            TTransaction::rollback();
+        }
+
+        $Local_Coleta = new TUniqueSearch('Local_Coleta');
         $Local_Coleta->setSize('100%');
+        $Local_Coleta->setMinLength(2);
+        $Local_Coleta->addItems($cidades);
+        $Local_Coleta->setTip('Local de coleta / Rota 1 — ex: URUGUAIANA,RS');
 
-        $Local_Entrega = new TEntry('Local_Entrega');
+        $Local_Entrega = new TUniqueSearch('Local_Entrega');
         $Local_Entrega->setSize('100%');
+        $Local_Entrega->setMinLength(2);
+        $Local_Entrega->addItems($cidades);
+        $Local_Entrega->setTip('Local de entrega / Rota 2 — ex: BUENOS AIRES,ARGENTINA');
 
-        $Aduana = new TEntry('Aduana_Fronteira');
+        $Aduana = new TCombo('Aduana_Fronteira');
+        $Aduana->enableSearch();
         $Aduana->setSize('100%');
+
+        try {
+            TTransaction::open(self::$database);
+            $conn = TTransaction::get();
+            $result = $conn->query("SELECT DISTINCT fronteira FROM tabela_fretes WHERE fronteira IS NOT NULL AND fronteira != '' ORDER BY fronteira");
+            $fronteiras = [];
+            foreach ($result as $row) {
+                if (!empty(trim($row['fronteira']))) {
+                    // Armazena a string real no value do combo para não alterar a estrutura de Proposta.
+                    $fronteiras[$row['fronteira']] = $row['fronteira'];
+                }
+            }
+            $Aduana->addItems($fronteiras);
+            TTransaction::close();
+        } catch (Exception $e) {
+            TTransaction::rollback();
+        }
 
         $Equipamento = new TEntry('Tipo_Equipamento');
         $Equipamento->setSize('100%');
 
-        $actionBuscarFrete = new TAction([$this, 'onBuscarFretesRota']);
-        $Local_Coleta->setExitAction($actionBuscarFrete);
-        $Aduana->setExitAction($actionBuscarFrete);
-        $Local_Entrega->setExitAction($actionBuscarFrete);
+        $actionReloadRotas = new TAction([$this, 'onReloadRotas']);
+        $Local_Coleta->setChangeAction($actionReloadRotas);
+        $Aduana->setChangeAction($actionReloadRotas);
+        $Local_Entrega->setChangeAction($actionReloadRotas);
+        $Equipamento->setExitAction($actionReloadRotas);
+
+        // A busca automatica de fretes foi substituida por selecao manual nas combos.
+
 
         // -------------------------------------------------------
-        // CAMPOS - CUSTOS OPERACIONAIS (dinamicos)
+        // CAMPOS - CUSTOS OPERACIONAIS (dinamicos) E COMBOS
         // -------------------------------------------------------
+        $frete_origem_id = new TDBCombo('frete_origem_id', self::$database, 'TabelaFrete', 'id', 'Origem: {origem} > Fronteira: {fronteira} > Destino: {destino} - R$ {valor_frete}');
+        $frete_origem_id->enableSearch();
+        $frete_origem_id->setSize('100%');
+        $frete_origem_id->setChangeAction(new TAction([$this, 'onChangeFreteOrigem']));
+
+        $frete_destino_id = new TDBCombo('frete_destino_id', self::$database, 'TabelaFrete', 'id', 'Origem: {origem} > Fronteira: {fronteira} > Destino: {destino} - R$ {valor_frete}');
+        $frete_destino_id->enableSearch();
+        $frete_destino_id->setSize('100%');
+        $frete_destino_id->setChangeAction(new TAction([$this, 'onChangeFreteDestino']));
+
         $lista_custos = self::getCostFieldsLabels();
 
         $actionCalcularCusto = new TAction([$this, 'ontotaldespesas']);
@@ -211,6 +265,11 @@ class PropostaForm extends TPage
         $button_rota->setAction(new TAction([$this, 'onMapa']), 'Ver Mapa');
         $button_rota->setImage('fas:map-marked-alt #ffffff');
         $button_rota->addStyleClass('btn-info');
+        $button_rota->style = 'margin-right: 2px; height: 32px; padding-top: 5px;';
+
+        $button_rota->style = 'margin-right: 2px; height: 32px; padding-top: 5px;';
+
+
 
         $button_despesas = new TButton('button_despesas');
         $button_despesas->setAction(new TAction([$this, 'ontotaldespesas']), 'Calcular Custos');
@@ -255,15 +314,21 @@ class PropostaForm extends TPage
         $row_rota = $this->form->addFields(
             [new TLabel('Local de Origem'),   $Local_Coleta],
             [new TLabel('Local de Destino'),  $Local_Entrega],
-            [new TLabel('Rota'),              $button_rota]
+            [new TLabel('Apoio'),             $button_rota]
         );
-        $row_rota->layout = ['col-sm-5', 'col-sm-5', 'col-sm-2'];
+        $row_rota->layout = ['col-sm-6', 'col-sm-4', 'col-sm-2'];
 
         $row_adu = $this->form->addFields(
             [new TLabel('Aduana / Fronteira'),   $Aduana],
             [new TLabel('Tipo de Equipamento'),  $Equipamento]
         );
         $row_adu->layout = ['col-sm-6', 'col-sm-6'];
+
+        $row_rota1 = $this->form->addFields([new TLabel('Rota 1 (Frete Origem)'), $frete_origem_id]);
+        $row_rota1->layout = ['col-sm-12'];
+
+        $row_rota2 = $this->form->addFields([new TLabel('Rota 2 (Frete Destino)'), $frete_destino_id]);
+        $row_rota2->layout = ['col-sm-12'];
 
         // -------------------------------------------------------
         // LAYOUT - SECAO: CUSTOS OPERACIONAIS
@@ -351,9 +416,25 @@ class PropostaForm extends TPage
         $this->form->addAction('Voltar', new TAction(['PropostaList', 'onReload']), 'fas:arrow-left #ffffff')
                    ->addStyleClass('btn-secondary');
 
+        $this->form->addAction('Tabela de Fretes', new TAction([$this, 'onConsultarFretes']), 'fas:table #ffffff')
+                   ->addStyleClass('btn-success');
+
         // -------------------------------------------------------
         // CONTAINER PRINCIPAL
         // -------------------------------------------------------
+        // Re-bind dos combos de frete no carregamento inicial da página
+        TScript::create("
+            setTimeout(function(){
+                var formName = '" . self::$formName . "';
+                $('[name=frete_origem_id]').off('change.frete').on('change.frete', function(){
+                    __adianti_post_data(formName, 'class=PropostaForm&method=onChangeFreteOrigem');
+                });
+                $('[name=frete_destino_id]').off('change.frete').on('change.frete', function(){
+                    __adianti_post_data(formName, 'class=PropostaForm&method=onChangeFreteDestino');
+                });
+            }, 800);
+        ");
+
         $container        = new TVBox;
         $container->style = 'width: 100%';
         $container->add(TBreadCrumb::create(['Comercial', 'Proposta de Frete']));
@@ -785,87 +866,145 @@ class PropostaForm extends TPage
         }
     }
 
-    public static function onBuscarFretesRota($param = null): void
+    /**
+     * Script JS reutilizável para re-vincular os eventos change dos combos de frete
+     * após qualquer reloadFromModel.
+     */
+    private static function rebindFreteComboEvents(): void
     {
-        $param = is_array($param) ? $param : [];
+        TScript::create("
+            setTimeout(function(){
+                var formName = '" . self::$formName . "';
+                $('[name=frete_origem_id]').off('change.frete').on('change.frete', function(){
+                    __adianti_post_data(formName, 'class=PropostaForm&method=onChangeFreteOrigem');
+                });
+                $('[name=frete_destino_id]').off('change.frete').on('change.frete', function(){
+                    __adianti_post_data(formName, 'class=PropostaForm&method=onChangeFreteDestino');
+                });
+            }, 600);
+        ");
+    }
 
-        $origem = trim((string) ($param['Local_Coleta'] ?? ''));
-        $aduana = trim((string) ($param['Aduana_Fronteira'] ?? ''));
-        $destino = trim((string) ($param['Local_Entrega'] ?? ''));
-        $tipoVeiculo = trim((string) ($param['Tipo_Equipamento'] ?? ''));
+    public static function onChangeFreteOrigem($param): void
+    {
+        if (!empty($param['frete_origem_id'])) {
+            try {
+                TTransaction::open(self::$database);
+                $frete = new TabelaFrete($param['frete_origem_id']);
 
-        $dados = new stdClass();
-        $calcParam = $param;
+                $obj = new stdClass;
+                $obj->frete_origem = number_format((float) $frete->valor_frete, 2, ',', '.');
+                TForm::sendData(self::$formName, $obj);
 
-        if ($origem !== '' && $aduana !== '') {
-            $valorOrigem = self::buscarValorFretePorTrecho($origem, $aduana, $tipoVeiculo);
-            if ($valorOrigem !== null) {
-                $dados->frete_origem = number_format($valorOrigem, 2, ',', '.');
-                $calcParam['frete_origem'] = $dados->frete_origem;
+                $param['frete_origem'] = $obj->frete_origem;
+                self::ontotaldespesas($param);
+
+                TToast::show('success', 'Rota 1: Frete Origem = R$ ' . $obj->frete_origem);
+
+                // Filtra Rota 2 para opções que partem do destino da Rota 1
+                if (!empty($frete->destino)) {
+                    $criteria2 = new TCriteria;
+                    $criteria2->add(new TFilter('origem', '=', $frete->destino));
+
+                    $destinoFinal = trim(mb_strtoupper((string) ($param['Local_Entrega'] ?? ''), 'UTF-8'));
+                    $tipo         = trim(mb_strtoupper((string) ($param['Tipo_Equipamento'] ?? ''), 'UTF-8'));
+
+                    if ($destinoFinal) {
+                        $criteria2->add(new TFilter('destino', '=', $destinoFinal));
+                    }
+                    if ($tipo) {
+                        $filter2 = new TCriteria;
+                        $filter2->add(new TFilter('tipo_veiculo', '=', $tipo), TExpression::OR_OPERATOR);
+                        $filter2->add(new TFilter('tipo_veiculo', '=', 'GERAL'), TExpression::OR_OPERATOR);
+                        $criteria2->add($filter2);
+                    }
+
+                    TDBCombo::reloadFromModel(self::$formName, 'frete_destino_id', self::$database, 'TabelaFrete', 'id', 'Origem: {origem} > Fronteira: {fronteira} > Destino: {destino} - R$ {valor_frete}', 'id desc', $criteria2);
+                }
+
+                TTransaction::close();
+                self::rebindFreteComboEvents();
+
+            } catch (Exception $e) {
+                TTransaction::rollback();
+                TToast::show('error', 'Falha Rota 1: ' . $e->getMessage());
             }
-        }
-
-        if ($aduana !== '' && $destino !== '') {
-            $valorDestino = self::buscarValorFretePorTrecho($aduana, $destino, $tipoVeiculo);
-            if ($valorDestino !== null) {
-                $dados->frete_destino = number_format($valorDestino, 2, ',', '.');
-                $calcParam['frete_destino'] = $dados->frete_destino;
-            }
-        }
-
-        if (!empty((array) $dados)) {
-            TForm::sendData(self::$formName, $dados);
-            self::ontotaldespesas($calcParam);
+        } else {
+            TToast::show('info', 'Selecione uma rota na Rota 1');
         }
     }
 
-    private static function buscarValorFretePorTrecho(string $origem, string $destino, string $tipoVeiculo = ''): ?float
+    public static function onChangeFreteDestino($param): void
+    {
+        if (!empty($param['frete_destino_id'])) {
+            try {
+                TTransaction::open(self::$database);
+                $frete = new TabelaFrete($param['frete_destino_id']);
+                TTransaction::close();
+
+                $obj = new stdClass;
+                $obj->frete_destino = number_format((float) $frete->valor_frete, 2, ',', '.');
+                TForm::sendData(self::$formName, $obj);
+
+                $param['frete_destino'] = $obj->frete_destino;
+                self::ontotaldespesas($param);
+
+                TToast::show('success', 'Rota 2: Frete Destino = R$ ' . $obj->frete_destino);
+            } catch (Exception $e) {
+                TTransaction::rollback();
+                TToast::show('error', 'Falha Rota 2: ' . $e->getMessage());
+            }
+        } else {
+            TToast::show('info', 'Selecione uma rota na Rota 2');
+        }
+    }
+
+    public static function onReloadRotas($param): void
     {
         try {
             TTransaction::open(self::$database);
 
-            $origemNorm = self::normalizarTrechoFrete($origem);
-            $destinoNorm = self::normalizarTrechoFrete($destino);
-            $tipoNorm = self::normalizarTrechoFrete($tipoVeiculo);
+            $origem  = trim(mb_strtoupper((string) ($param['Local_Coleta'] ?? ''), 'UTF-8'));
+            $aduana  = trim(mb_strtoupper((string) ($param['Aduana_Fronteira'] ?? ''), 'UTF-8'));
+            $destino = trim(mb_strtoupper((string) ($param['Local_Entrega'] ?? ''), 'UTF-8'));
+            $tipo    = trim(mb_strtoupper((string) ($param['Tipo_Equipamento'] ?? ''), 'UTF-8'));
 
-            $repo = new TRepository('TabelaFrete');
-
-            // 1) tenta com tipo do veiculo informado
-            if ($tipoNorm !== '') {
-                $criteriaTipo = new TCriteria();
-                $criteriaTipo->add(new TFilter('origem', '=', $origemNorm));
-                $criteriaTipo->add(new TFilter('destino', '=', $destinoNorm));
-                $criteriaTipo->add(new TFilter('tipo_veiculo', '=', $tipoNorm));
-                $criteriaTipo->setProperty('limit', 1);
-                $criteriaTipo->setProperty('order', 'id desc');
-
-                $itemsTipo = $repo->load($criteriaTipo);
-                if ($itemsTipo && isset($itemsTipo[0]->valor_frete)) {
-                    TTransaction::close();
-                    return (float) $itemsTipo[0]->valor_frete;
-                }
+            // Critérios Rota 1: parte da origem e termina na aduana
+            $criteria1 = new TCriteria;
+            if ($origem) $criteria1->add(new TFilter('origem',    'like', '%' . $origem . '%'));
+            if ($aduana) $criteria1->add(new TFilter('fronteira', 'like', '%' . $aduana . '%'));
+            if ($aduana) $criteria1->add(new TFilter('destino',   'like', '%' . $aduana . '%'));
+            if ($tipo) {
+                $filter1 = new TCriteria;
+                $filter1->add(new TFilter('tipo_veiculo', '=', $tipo),   TExpression::OR_OPERATOR);
+                $filter1->add(new TFilter('tipo_veiculo', '=', 'GERAL'), TExpression::OR_OPERATOR);
+                $criteria1->add($filter1);
             }
 
-            // 2) fallback: frete generico (tipo GERAL)
-            $criteriaGeral = new TCriteria();
-            $criteriaGeral->add(new TFilter('origem', '=', $origemNorm));
-            $criteriaGeral->add(new TFilter('destino', '=', $destinoNorm));
-            $criteriaGeral->add(new TFilter('tipo_veiculo', '=', 'GERAL'));
-            $criteriaGeral->setProperty('limit', 1);
-            $criteriaGeral->setProperty('order', 'id desc');
+            TDBCombo::reloadFromModel(self::$formName, 'frete_origem_id', self::$database, 'TabelaFrete', 'id', 'Origem: {origem} > Fronteira: {fronteira} > Destino: {destino} - R$ {valor_frete}', 'id desc', $criteria1);
 
-            $itemsGeral = $repo->load($criteriaGeral);
-            if ($itemsGeral && isset($itemsGeral[0]->valor_frete)) {
-                TTransaction::close();
-                return (float) $itemsGeral[0]->valor_frete;
+            // Critérios Rota 2: parte da aduana e termina no destino final
+            $criteria2 = new TCriteria;
+            if ($aduana)  $criteria2->add(new TFilter('origem',    'like', '%' . $aduana . '%'));
+            if ($aduana)  $criteria2->add(new TFilter('fronteira', 'like', '%' . $aduana . '%'));
+            if ($destino) $criteria2->add(new TFilter('destino',   'like', '%' . $destino . '%'));
+            if ($tipo) {
+                $filter2 = new TCriteria;
+                $filter2->add(new TFilter('tipo_veiculo', '=', $tipo),   TExpression::OR_OPERATOR);
+                $filter2->add(new TFilter('tipo_veiculo', '=', 'GERAL'), TExpression::OR_OPERATOR);
+                $criteria2->add($filter2);
             }
+
+            TDBCombo::reloadFromModel(self::$formName, 'frete_destino_id', self::$database, 'TabelaFrete', 'id', 'Origem: {origem} > Fronteira: {fronteira} > Destino: {destino} - R$ {valor_frete}', 'id desc', $criteria2);
 
             TTransaction::close();
-        } catch (Exception $e) {
-            try { TTransaction::rollback(); } catch (Exception $ee) {}
-        }
 
-        return null;
+            // Re-vincular eventos após reloadFromModel
+            self::rebindFreteComboEvents();
+
+        } catch (Exception $e) {
+            TTransaction::rollback();
+        }
     }
     private static function normalizarTrechoFrete(string $value): string
     {
@@ -1055,6 +1194,11 @@ class PropostaForm extends TPage
         } else {
             new TMessage('warning', 'Preencha ao menos <strong>Local de Origem</strong> e <strong>Local de Destino</strong> para visualizar a rota.');
         }
+    }
+
+    public static function onConsultarFretes($param = null): void
+    {
+        TScript::create("window.open('index.php?class=TabelaFreteList', '_blank');");
     }
 
 
