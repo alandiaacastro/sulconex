@@ -27,7 +27,7 @@ class ConhecimentoForm extends TPage
         $data_transportador_assinatura->setMask('dd/mm/yyyy');
         $fatura_crt                              = new TEntry('fatura_crt');
         //  $pais_destino                              = new TEntry('pais_destino');
-        $status_crt_id                           = new TDBCombo('status_crt_id', 'sample', 'StatusCRT', 'id', 'nome');
+        $status_crt_id                           = new TDBCombo('status_crt_id', 'sample', 'StatusCrt', 'id', 'nome');
         $copiacrt                                = new TCheckButton('copiacrt');
         $copiacrt->setIndexValue('1');
         $copiacrt->setUseSwitch(true, 'blue');
