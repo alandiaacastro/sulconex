@@ -1,0 +1,40 @@
+.kanban-card {
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    background-color: #fff;
+    transition: transform 0.2s ease;
+}
+
+.kanban-card:hover {
+    transform: scale(1.02);
+}
+
+.kanban-card-content {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #333;
+}
+
+.kanban-card-content i {
+    margin-right: 4px;
+}
+
+.kanban-card-content .footer {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.kanban-stage {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 10px;
+}
+
+.kanban-stage-title {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px;
+    color: #007bff;
+}

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-10">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tbutton label="Fechar" button_class="danger" action_class="" action_method="" action_js="Template.closeRightPanel()" style="float:right" register_state="N" static_call="N" custom_params=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-6">
+          <tlabel label="Nome" color="#333333" font_style="b"/>
+          <tentry name="nome" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Cnpj" color="#333333" font_style="b"/>
+          <tentry name="cnpj" required="N" label_required="Cnpj" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Inscricao Estadual" color="#333333" font_style="b"/>
+          <tentry name="inscricao_estadual" required="N" label_required="Inscricao Estadual" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style=""/>
+        </tcolumn>
+      </trow>
+      <trow>
+        <tcolumn col="col-3">
+          <tlabel label="Email" color="#333333" font_style="b"/>
+          <tentry name="email" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Telefone" color="#333333" font_style="b"/>
+          <tentry name="telefone" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Cep" color="#333333" font_style="b"/>
+          <tentry name="cep" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Id" color="#333333" font_style="b"/>
+          <tentry name="id" required="N" label_required="Id" editable="N" width="100%" style=""/>
+        </tcolumn>
+      </trow>
+      <trow>
+        <tcolumn col="col-6">
+          <tlabel label="Endereco" color="#333333" font_style="b"/>
+          <tentry name="endereco" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Cidade" color="#333333" font_style="b"/>
+          <tentry name="cidade" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-3">
+          <tlabel label="Estado" color="#333333" font_style="b"/>
+          <tcombo name="estado" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="Y" items="AC:AC#rn#AL:AL#rn#AP:AP#rn#AM:AM#rn#BA:BA#rn#CE:CE#rn#DF:DF#rn#ES:ES#rn#GO:GO#rn#MA:MA#rn#MT:MT#rn#MS:MS#rn#MG:MG#rn#PA:PA#rn#PB:PB#rn#PR:PR#rn#PE:PE#rn#PI:PI#rn#RJ:RJ#rn#RN:RN#rn#RS:RS#rn#RO:RO#rn#RR:RR#rn#SC:SC#rn#SP:SP#rn#SE:SE#rn#TO:TO#rn#ARGENTINA:ARGENTINA#rn#CHILE:CHILE#rn#URUGUAY:URUGUAY#rn#PARAGUAI:PARAGUAI" items_dynamic="" boolean_mode="N" enable_search="N" change_action="" style="" css_class=""/>
+        </tcolumn>
+      </trow>
+      <trow>
+        <tcolumn col="col-12">
+          <tlabel label="Atividade" color="#333333" font_style="b"/>
+          <tentry name="atividade" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style=""/>
+        </tcolumn>
+      </trow>
+      <trow>
+        <tcolumn col="col-12">
+          <tlabel label="Emissao Crt" color="#333333" font_style="b"/>
+          <ttext name="dados_crt" required="N" label_required="Emissao Crt" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="150" force_case="" exit_action="" style="" css_class=""/>
+        </tcolumn>
+      </trow>
+    </tformbody>
+    <tformfooter>
+      <trow>
+        <tcolumn col="col-6">
+          <tbutton label="Salvar" button_class="primary" action_class="ClientesForm" action_method="onSave" action_js="" register_state="N" static_call="Y" http_method="post" custom_params="" style=""/>
+        </tcolumn>
+        <tcolumn col="col-6">
+        </tcolumn>
+      </trow>
+    </tformfooter>
+  </tform>
+</tpage>

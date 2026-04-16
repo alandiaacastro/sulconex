@@ -1,0 +1,107 @@
+<!--[main]-->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;font-size:9pt;">
+  <tr>
+    <td align="center" style="padding:18px 12px;">
+      <table width="920" cellpadding="0" cellspacing="0" border="0" style="width:920px;max-width:920px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(15,23,42,0.08);">
+
+        <tr>
+          <td style="background:linear-gradient(180deg,#061a2d 0%,#0b1624 100%);padding:18px 28px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" valign="middle" style="color:rgba(255,255,255,0.78);font-size:12px;letter-spacing:2.2px;font-weight:800;text-transform:uppercase;">
+                  ACOMPANHAMENTO LOGISTICO
+                </td>
+                <td align="right" valign="middle" style="color:rgba(255,255,255,0.92);font-size:14px;font-weight:900;letter-spacing:0.4px;white-space:nowrap;">
+                  PROCESSO {$numero_processo}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:0;">
+            <div style="{$alert_style}padding:10px 18px;background:#fff7ed;border-bottom:1px solid #fed7aa;color:#9a3412;font-size:12px;font-weight:700;">{$mensagem}</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="border-bottom:1px solid #e5e7eb;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+              <tr>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">EXPORTADOR</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$exportador}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">IMPORTADOR</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$importador}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">LOCAL DE ENTREGA</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$local_entrega}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">ETA</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#dc2626;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$previsao_entrega}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">ETAPA ATUAL</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$etapa_atual}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;border-right:1px solid #eef2f7;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">CRT</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$crt}</div>
+                </td>
+                <td width="14.28%" style="padding:14px 18px;vertical-align:top;">
+                  <div style="font-size:11px;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;">FATURA</div>
+                  <div style="margin-top:6px;font-size:9pt;font-weight:400;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{$fatura}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:14px 18px;border-bottom:1px solid #eef2f7;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" valign="middle" style="font-weight:900;color:#0f172a;font-size:14px;">
+                  <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563eb;vertical-align:middle;margin-right:10px;"></span>
+                  Historico do Processo
+                  <span style="display:inline-block;margin-left:10px;font-size:12px;font-weight:900;color:#1d4ed8;background:#e0ecff;border:1px solid #c7ddff;padding:3px 10px;border-radius:999px;white-space:nowrap;">{$event_count} registros</span>
+                </td>
+                <td align="right" valign="middle" style="color:#94a3b8;font-size:13px;font-weight:700;">
+                  Movimentacoes mais recentes da carga
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+              <tr>
+                <td style="background:#f8fafc;color:#94a3b8;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;padding:10px 14px;border-bottom:1px solid #eef2f7;width:170px;">DATA</td>
+                <td style="background:#f8fafc;color:#94a3b8;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;padding:10px 14px;border-bottom:1px solid #eef2f7;width:210px;">ETAPA</td>
+                <td style="background:#f8fafc;color:#94a3b8;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;padding:10px 14px;border-bottom:1px solid #eef2f7;width:380px;">EVENTO</td>
+                <td style="background:#f8fafc;color:#94a3b8;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;padding:10px 14px;border-bottom:1px solid #eef2f7;">LOCALIZACAO</td>
+                <td style="background:#f8fafc;color:#94a3b8;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;padding:10px 14px;border-bottom:1px solid #eef2f7;width:150px;">FRANQUIA</td>
+              </tr>
+              {$event_rows|raw}
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:12px 18px;color:#94a3b8;font-size:12.5px;font-weight:700;">
+            Ultima atualizacao: {$last_update}
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<!--[/main]-->

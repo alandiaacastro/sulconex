@@ -1,0 +1,292 @@
+<menu>
+    <menuitem label="CRM" icon="fas:users fa-fw">
+        <menu>
+            <menuitem label="Dashboard CRM">
+                <icon>fas:chart-bar fa-fw</icon>
+                <action>CrmDashboard</action>
+            </menuitem>
+            <menuitem label="Oportunidades">
+                <icon>fas:bullseye fa-fw</icon>
+                <menu>
+                    <menuitem label="Lista de Oportunidades">
+                        <icon>fas:list fa-fw</icon>
+                        <action>OpportunityList</action>
+                    </menuitem>
+                    <menuitem label="Kanban de Oportunidades">
+                        <icon>fas:th-large fa-fw</icon>
+                        <action>OpportunityKanban</action>
+                    </menuitem>
+                    <menuitem label="Negocios Perdidos">
+                        <icon>fas:hand-holding-usd fa-fw</icon>
+                        <action>LostDealList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Propostas">
+                <icon>fas:file-signature fa-fw</icon>
+                <menu>
+                    <menuitem label="Proposta Comercial">
+                        <icon>fas:hand-holding-usd fa-fw</icon>
+                        <action>PropostaList</action>
+                    </menuitem>
+                    <menuitem label="Proposta por Tonelada">
+                        <icon>fas:weight-hanging fa-fw</icon>
+                        <action>PropostaToneladaList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label='_t{Administration}'>
+        <icon>fas:sliders fa-fw</icon>
+        <menu>
+            <menuitem label='Dashboard'>
+                <icon>fas:tachometer-alt fa-fw</icon>
+                <action>SystemAdministrationDashboard</action>
+            </menuitem>
+            <menuitem label='_t{Programs}'>
+                <icon>far:file-code fa-fw</icon>
+                <action>SystemProgramList</action>
+            </menuitem>
+            <menuitem label='_t{Groups}'>
+                <icon>fas:users fa-fw</icon>
+                <action>SystemGroupList</action>
+            </menuitem>
+            <menuitem label='_t{Units}'>
+                <icon>fas:university fa-fw</icon>
+                <action>SystemUnitList</action>
+            </menuitem>
+            <menuitem label='_t{Roles}'>
+                <icon>fas:user-tag fa-fw</icon>
+                <action>SystemRoleList</action>
+            </menuitem>
+            <menuitem label='_t{Users}'>
+                <icon>fas:user fa-fw</icon>
+                <action>SystemUserList</action>
+            </menuitem>
+            <menuitem label='_t{Page management}'>
+                <icon>fab:wikipedia-w fa-fw</icon>
+                <action>SystemWikiList</action>
+            </menuitem>
+            <menuitem label='_t{News management}'>
+                <icon>fas:pen-square fa-fw</icon>
+                <action>SystemPostList</action>
+            </menuitem>
+            <menuitem label='_t{Schedules}'>
+                <icon>fas:clock fa-fw</icon>
+                <action>SystemScheduleList#method=onReload</action>
+            </menuitem>
+            <menuitem label='_t{Preferences}'>
+                <icon>fas:cog fa-fw</icon>
+                <action>SystemPreferenceForm#method=onEdit</action>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label='Logs'>
+        <icon>fas:desktop fa-fw</icon>
+        <menu>
+            <menuitem label='Dashboard'>
+                <icon>fas:tachometer-alt fa-fw</icon>
+                <action>SystemLogDashboard</action>
+            </menuitem>
+            <menuitem label='_t{Access Log}'>
+                <icon>fas:key fa-fw</icon>
+                <action>SystemAccessLogList</action>
+            </menuitem>
+            <menuitem label='_t{Change Log}'>
+                <icon>fas:film fa-fw</icon>
+                <action>SystemChangeLogView</action>
+            </menuitem>
+            <menuitem label='_t{SQL Log}'>
+                <icon>fas:database fa-fw</icon>
+                <action>SystemSqlLogList</action>
+            </menuitem>
+            <menuitem label='_t{Request Log}'>
+                <icon>fas:globe fa-fw</icon>
+                <action>SystemRequestLogList</action>
+            </menuitem>
+            <menuitem label='_t{Schedules}'>
+                <icon>fas:clock fa-fw</icon>
+                <action>SystemScheduleLogList</action>
+            </menuitem>
+            <menuitem label='_t{PHP Log}'>
+                <icon>fas:exclamation-triangle fa-fw</icon>
+                <action>SystemPHPErrorLogView</action>
+            </menuitem>
+            <menuitem label='Session vars'>
+                <icon>fas:code fa-fw</icon>
+                <action>SystemSessionVarsView</action>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label="Operacional">
+        <icon>fas:briefcase fa-fw</icon>
+        <menu>
+            <menuitem label="Cadastros">
+                <icon>fas:address-book fa-fw</icon>
+                <menu>
+                    <menuitem label="Cidades">
+                        <icon>fas:map-marker-alt fa-fw</icon>
+                        <action>CidadeUfList</action>
+                    </menuitem>
+                    <menuitem label="Clientes">
+                        <icon>fas:user fa-fw</icon>
+                        <action>ClientesList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Documentos e Processos">
+                <icon>fas:clipboard-list fa-fw</icon>
+                <menu>
+                    <menuitem label="Conhecimentos">
+                        <icon>fas:book fa-fw</icon>
+                        <action>ConhecimentoList</action>
+                    </menuitem>
+                    <menuitem label="Tracking Processos">
+                        <icon>fas:clipboard-list fa-fw</icon>
+                        <action>AcompProcessoKanban</action>
+                    </menuitem>
+                    <menuitem label="Enlastres">
+                        <icon>fas:book fa-fw</icon>
+                        <action>EnlastreList</action>
+                    </menuitem>
+                    <menuitem label="Importar CSV">
+                        <icon>fas:file-import fa-fw</icon>
+                        <action>ImportarCsv</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Simulador 3D">
+                <icon>fas:cubes fa-fw</icon>
+                <action>PackingViewerPage</action>
+            </menuitem>
+            <menuitem label="Financeiro Operacional">
+                <icon>fas:cash-register fa-fw</icon>
+                <menu>
+                    <menuitem label="Contratos">
+                        <icon>fas:book fa-fw</icon>
+                        <action>ContratoList</action>
+                    </menuitem>
+                    <menuitem label="Faturas">
+                        <icon>fas:book fa-fw</icon>
+                        <action>FaturaList</action>
+                    </menuitem>
+                    <menuitem label="Faturas por Tonelada">
+                        <icon>fas:weight-hanging fa-fw</icon>
+                        <action>FaturaToneladaList</action>
+                    </menuitem>
+                    <menuitem label="Caixa">
+                        <icon>fas:cash-register fa-fw</icon>
+                        <action>CaixaList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Fretes e Frota">
+                <icon>fas:truck fa-fw</icon>
+                <menu>
+                    <menuitem label="Tabela de Fretes">
+                        <icon>fas:route fa-fw</icon>
+                        <action>TabelaFreteList</action>
+                    </menuitem>
+                    <menuitem label="Tipos de Veiculo">
+                        <icon>fas:truck fa-fw</icon>
+                        <action>TipoVeiculoList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label="Portal Motorista">
+        <icon>fas:truck fa-fw</icon>
+        <menu>
+            <menuitem label="Portal">
+                <icon>fas:mobile-alt fa-fw</icon>
+                <menu>
+                    <menuitem label="Cargas Disponiveis">
+                        <icon>fas:truck-loading fa-fw</icon>
+                        <action>PortalMotoristaCargas</action>
+                    </menuitem>
+                    <menuitem label="Minhas Solicitacoes">
+                        <icon>fas:clipboard-check fa-fw</icon>
+                        <action>PortalMotoristaSolicitacoes</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Uso Interno">
+                <icon>fas:cogs fa-fw</icon>
+                <menu>
+                    <menuitem label="Gerenciar Cargas">
+                        <icon>fas:cogs fa-fw</icon>
+                        <action>CargaDisponivelList</action>
+                    </menuitem>
+                    <menuitem label="Gerenciar Solicitacoes">
+                        <icon>fas:tasks fa-fw</icon>
+                        <action>SolicitacaoCargaList</action>
+                    </menuitem>
+                    <menuitem label="Rastreio Motoristas">
+                        <icon>fas:map-marked-alt fa-fw</icon>
+                        <action>PortalMotoristaRastreioAdmin</action>
+                    </menuitem>
+                    <menuitem label="Rastreio Completo">
+                        <icon>fas:crosshairs fa-fw</icon>
+                        <action>RastreioCompletoView</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label="Configuracoes">
+        <icon>fas:cog fa-fw</icon>
+        <menu>
+            <menuitem label="Cadastros">
+                <icon>fas:id-card fa-fw</icon>
+                <menu>
+                    <menuitem label="Veiculos">
+                        <icon>fas:truck fa-fw</icon>
+                        <action>VeiculoList</action>
+                    </menuitem>
+                    <menuitem label="Motoristas">
+                        <icon>fas:user fa-fw</icon>
+                        <action>MotoristaList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="ANTT e Permissoes">
+                <icon>fas:clipboard-check fa-fw</icon>
+                <menu>
+                    <menuitem label="Permisso CRT - Listagem">
+                        <icon>fas:list fa-fw</icon>
+                        <action>PermissoList</action>
+                    </menuitem>
+                    <menuitem label="Consulta ANTT">
+                        <icon>fas:search fa-fw</icon>
+                        <action>ANTTForm</action>
+                    </menuitem>
+                    <menuitem label="Lista ANTT">
+                        <icon>fas:list fa-fw</icon>
+                        <action>ANTTConsultaList</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+            <menuitem label="Fiscal">
+                <icon>fas:percentage fa-fw</icon>
+                <menu>
+                    <menuitem label="Aliquotas de Impostos">
+                        <icon>fas:percentage fa-fw</icon>
+                        <action>AliquotasImpostosForm</action>
+                    </menuitem>
+                </menu>
+            </menuitem>
+        </menu>
+    </menuitem>
+
+    <menuitem label='Logout'>
+        <action>LoginForm#method=onLogout#static=1</action>
+        <icon>fas:sign-out-alt fa-fw</icon>
+    </menuitem>
+</menu>

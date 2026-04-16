@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-6">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size="medium"/>
+        </tcolumn>
+        <tcolumn col="col-6">
+          <tbutton label="Novo" icon="fas fa-plus" button_class="success" action_class="StatusCrtForm" action_method="onEdit" register_state="N" static_call="N" http_method="get" preserve_params="" action_js="" style="float:right" custom_params=""/>
+          <tbutton label="XLS" icon="fas fa-table" button_class="default" action_class="StatusCrtList" action_method="onExportXLS" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params=""/>
+          <tbutton label="PDF" icon="far fa-file-pdf" button_class="default" action_class="StatusCrtList" action_method="onExportPDF" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params=""/>
+          <tbutton label="Filtros" icon="fas fa-filter" button_class="default" action_class="StatusCrtList" action_method="onShowFilters" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" style="float:right" custom_params=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <tdatagrid role="datagrid" db_order_col="[StatusCrt->id]" db_model="StatusCrt" db_order_dir="asc" page_records="10" page_navigation="Y" search_pack="curtain">
+            <tdatagridaction color="#478FCA" icon="far fa-edit" label="Editar" action_class="StatusCrtForm" action_method="onEdit" register_state="N" static_call="N" custom_params=""/>
+            <tdatagridaction color="#DD5A43" icon="far fa-trash-alt" label="Excluir" action_class="StatusCrtList" action_method="onDelete" preserve_params="offset, page, first_page" register_state="N" static_call="Y" custom_params=""/>
+            <tdatagridcolumn title="Id" attribute="{id}" width="small" align="center" printable="Y" db_order_col="[StatusCrt->id]"/>
+              <tdatagridcolumn title="Nome" attribute="{nome}" width="very_large" align="left" printable="Y" db_order_col="[StatusCrt->nome]"/>
+                <tdatagridcolumn title="Cor" attribute="{cor}" width="very_large" align="left" printable="Y" db_order_col="[StatusCrt->cor]"/>
+                  <tdatagridfilter attribute="[StatusCrt->nome]" operator="like" filter_type="formfield" formfield="nome"/>
+                    <tform role="search_form">
+                      <tformbody>
+                        <trow>
+                          <tcolumn col="col-12">
+                            <tlabel label="Nome" color="#333333" font_style="b"/>
+                            <tentry name="nome" required="N" label_required="Nome" editable="Y" width="100%" style=""/>
+                          </tcolumn>
+                        </trow>
+                      </tformbody>
+                    </tform>
+                  </tdatagrid>
+                </tcolumn>
+              </trow>
+            </tformbody>
+            <tformfooter>
+            </tformfooter>
+          </tform>
+        </tpage>

@@ -1,0 +1,187 @@
+<!--[main]-->
+<div id="{$map_id}" style="width:100%;height:360px;border:1px solid #d9dee5;border-radius:10px;overflow:hidden;"></div>
+<div style="margin-top:8px; font-size:13px; color:#495057;">
+    <b>Status atual:</b> {$current_status} | <b>Ponto da rota:</b> {$current_step}
+</div>
+
+<script>
+(function () {
+    var mapId = '{$map_id}';
+    var mapNode = document.getElementById(mapId);
+    if (!mapNode) {
+        return;
+    }
+
+    var routeCoords = {$route_coords|raw} || [];
+    var completedCoords = {$completed_coords|raw} || [];
+    var currentLat = Number({$current_lat});
+    var currentLon = Number({$current_lon});
+
+    if (isNaN(currentLat) || isNaN(currentLon)) {
+        currentLat = -29.759997;
+        currentLon = -57.085609;
+    }
+
+    function validPoint(p) {
+        return Array.isArray(p) && p.length >= 2 && !isNaN(Number(p[0])) && !isNaN(Number(p[1]));
+    }
+
+    routeCoords = (Array.isArray(routeCoords) ? routeCoords : []).filter(validPoint).map(function (p) {
+        return [Number(p[0]), Number(p[1])];
+    });
+
+    completedCoords = (Array.isArray(completedCoords) ? completedCoords : []).filter(validPoint).map(function (p) {
+        return [Number(p[0]), Number(p[1])];
+    });
+
+    function renderIframeFallback() {
+        var delta = 0.7;
+        var left = (currentLon - delta).toFixed(6);
+        var right = (currentLon + delta).toFixed(6);
+        var top = (currentLat + delta).toFixed(6);
+        var bottom = (currentLat - delta).toFixed(6);
+
+        var src = 'https://www.openstreetmap.org/export/embed.html?bbox=' +
+            left + '%2C' + bottom + '%2C' + right + '%2C' + top +
+            '&layer=mapnik&marker=' + currentLat.toFixed(6) + '%2C' + currentLon.toFixed(6);
+
+        mapNode.style.position = 'relative';
+        mapNode.innerHTML = '<iframe title="Mapa da rota" src="' + src + '" style="width:100%;height:100%;border:0;"></iframe>' +
+            '<div style="position:absolute;z-index:2;right:10px;bottom:8px;background:#fff;padding:3px 7px;border-radius:6px;border:1px solid #d1d5db;font-size:11px;color:#475569;">Modo simples</div>';
+    }
+
+    function loadLeafletCss() {
+        if (document.getElementById('leaflet-css-cdn')) {
+            return;
+        }
+        var link = document.createElement('link');
+        link.id = 'leaflet-css-cdn';
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+    }
+
+    function ensureLeaflet(onReady, onFail) {
+        if (typeof L !== 'undefined') {
+            onReady();
+            return;
+        }
+
+        loadLeafletCss();
+
+        var existing = document.getElementById('leaflet-js-cdn');
+        if (existing) {
+            var start = Date.now();
+            var wait = setInterval(function () {
+                if (typeof L !== 'undefined') {
+                    clearInterval(wait);
+                    onReady();
+                    return;
+                }
+                if (Date.now() - start > 6000) {
+                    clearInterval(wait);
+                    onFail();
+                }
+            }, 150);
+            return;
+        }
+
+        var script = document.createElement('script');
+        script.id = 'leaflet-js-cdn';
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.async = true;
+
+        var done = false;
+        script.onload = function () {
+            done = true;
+            if (typeof L !== 'undefined') {
+                onReady();
+            } else {
+                onFail();
+            }
+        };
+        script.onerror = function () {
+            if (!done) {
+                onFail();
+            }
+        };
+
+        document.head.appendChild(script);
+
+        setTimeout(function () {
+            if (typeof L === 'undefined') {
+                onFail();
+            }
+        }, 7000);
+    }
+
+    function drawMap() {
+        var map = L.map(mapId, {
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        var initialPoint = [currentLat, currentLon];
+        map.setView(initialPoint, 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        function drawLine(points, options) {
+            if (!Array.isArray(points) || points.length < 2) {
+                return null;
+            }
+            return L.polyline(points, options).addTo(map);
+        }
+
+        function fitToPoints(points) {
+            if (!Array.isArray(points) || points.length === 0) {
+                return;
+            }
+            if (points.length === 1) {
+                map.setView(points[0], 11);
+                return;
+            }
+            var bounds = L.latLngBounds(points);
+            if (bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [20, 20] });
+            }
+        }
+
+        drawLine(routeCoords, {
+            color: '#9aa5b1',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '6,6'
+        });
+
+        drawLine(completedCoords, {
+            color: '#1f8b4c',
+            weight: 6,
+            opacity: 0.9
+        });
+
+        fitToPoints(routeCoords.length ? routeCoords : [initialPoint]);
+
+        var truckIcon = L.divIcon({
+            html: '<div style="width:34px;height:34px;border-radius:50%;background:#1f8b4c;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.35);font-size:16px;">&#128666;</div>',
+            className: '',
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
+        });
+
+        L.marker([currentLat, currentLon], { icon: truckIcon }).addTo(map)
+            .bindPopup('<b>{$current_status}</b><br>{$current_step}')
+            .openPopup();
+
+        setTimeout(function () {
+            map.invalidateSize();
+        }, 200);
+    }
+
+    ensureLeaflet(drawMap, renderIframeFallback);
+})();
+</script>
+<!--[/main]-->

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-10">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tbutton label="Fechar" button_class="danger" action_class="" action_method="" action_js="Template.closeRightPanel()" style="float:right" register_state="N" static_call="N" custom_params=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <wrapper>
+            <trow>
+              <tcolumn col="col-3">
+                <tlabel label="Id" color="#333333" font_style="b"/>
+                <tentry name="id" required="N" label_required="Id" editable="N" width="100%" style=""/>
+              </tcolumn>
+              <tcolumn col="col-3">
+              </tcolumn>
+              <tcolumn col="col-3">
+                <tlabel label="Numeroenlastre" color="#333333" font_style="b"/>
+                <tentry name="numeroenlastre" required="N" label_required="Numeroenlastre" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+              <tcolumn col="col-3">
+                <tlabel label="Data emissão" color="#333333" font_style="b" font_size="" css_class=""/>
+                <tdate name="dta_emissao" required="N" label_required="" editable="Y" value="" value_dynamic="" placeholder="" tooltip="" view_mask="dd/mm/yyyy" database_mask="yyyy-mm-dd" change_action="" style="" css_class=""/>
+              </tcolumn>
+            </trow>
+          </wrapper>
+          <wrapper>
+            <trow>
+              <tcolumn col="col-12">
+                <tlabel label="Permisso" color="#333333" font_style="b" font_size="" css_class=""/>
+                <ttext name="transportadora" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="" exit_action="" style="" css_class=""/>
+              </tcolumn>
+            </trow>
+          </wrapper>
+          <wrapper>
+            <trow>
+              <tcolumn col="col-4">
+                <tlabel label="cnpj" color="#333333" font_style="b" font_size="" css_class=""/>
+                <tentry name="cnpj" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+              <tcolumn col="col-8">
+                <tlabel label="nome transporte" color="#333333" font_style="b" font_size="" css_class=""/>
+                <tentry name="nometransporte" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+            </trow>
+          </wrapper>
+          <wrapper>
+            <trow>
+              <tcolumn col="col-6">
+                <tlabel label="Motoristaedoc" color="#333333" font_style="b"/>
+                <tentry name="motoristaedoc" required="N" label_required="Motoristaedoc" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+              <tcolumn col="col-3">
+                <tlabel label="Trator" color="#333333" font_style="b"/>
+                <tentry name="trator" required="N" label_required="Trator" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+              <tcolumn col="col-3">
+                <tlabel label="Semi" color="#333333" font_style="b"/>
+                <tentry name="semi" required="N" label_required="Semi" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+              </tcolumn>
+            </trow>
+          </wrapper>
+        </tcolumn>
+      </trow>
+    </tformbody>
+    <tformfooter>
+      <trow>
+        <tcolumn col="col-6">
+          <tbutton label="Salvar" button_class="primary" action_class="EnlastreForm" action_method="onSave" action_js="" register_state="N" static_call="Y" http_method="post" custom_params="" style=""/>
+        </tcolumn>
+        <tcolumn col="col-6">
+        </tcolumn>
+      </trow>
+    </tformfooter>
+  </tform>
+</tpage>

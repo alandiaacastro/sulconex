@@ -1,0 +1,39 @@
+﻿<!--[main]-->
+<div id="{$map_id}" style="width: 100%; height: 350px; border-radius: 10px; border: 1px solid #ddd; z-index: 1;"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+(function () {
+    var mapNode = document.getElementById('{$map_id}');
+    if (!mapNode || typeof L === 'undefined') {
+        return;
+    }
+
+    var lat = Number('{$lat}');
+    var lon = Number('{$lon}');
+    var info = '{$info}';
+
+    var map = L.map('{$map_id}', {
+        zoomControl: true,
+        scrollWheelZoom: false
+    }).setView([lat, lon], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var truckIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/75/75702.png',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+    });
+
+    L.marker([lat, lon], { icon: truckIcon }).addTo(map)
+        .bindPopup('<b>Status da Sulconexlog:</b><br>' + info)
+        .openPopup();
+})();
+</script>
+<!--[/main]-->

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-4">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size="medium"/>
+        </tcolumn>
+        <tcolumn col="col-8">
+          <tbutton label="Novo enlastre" icon="fas fa-plus" button_class="danger" action_class="EnlastreList" action_method="onnumeraremlaste" register_state="N" static_call="N" available_mobile="Y" use_popover="N" http_method="get" preserve_params="" custom_params="" action_js="" style="" css_class=""/>
+          <tbutton label="XLS" icon="fas fa-table" button_class="default" action_class="EnlastreList" action_method="onExportXLS" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params=""/>
+          <tbutton label="PDF" icon="far fa-file-pdf" button_class="default" action_class="EnlastreList" action_method="onExportPDF" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params=""/>
+          <tbutton label="Filtros" icon="fas fa-filter" button_class="default" action_class="EnlastreList" action_method="onShowFilters" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" style="float:right" custom_params=""/>
+          <tbutton label="Colunas" icon="fas fa-columns" button_class="default" action_class="EnlastreList" action_method="onSelectColumns" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params="" use_popover="Y"/>
+          <tcombo name="combo_limit" required="N" label_required="" editable="Y" value="{session_limit} ?? 10" value_dynamic="" tooltip="Registros por página" allow_null_option="Y" items="10:10#rn#20:20#rn#50:50#rn#100:100#rn#500:500#rn#1000:1000" items_dynamic="" boolean_mode="N" enable_search="N" change_action="onChangeLimit" style="float:right#rn#width:70px !important#rn#" css_class="hide-mobile input-sm"/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <tdatagrid role="datagrid" db_order_col="[Enlastre->id]" db_model="enlastre" db_order_dir="asc" page_records="10" page_navigation="Y" search_pack="curtain">
+            <tdatagridaction color="#478FCA" icon="far fa-edit" label="Editar" action_class="EnlastreForm" action_method="onEdit" register_state="N" static_call="N" custom_params=""/>
+            <tdatagridaction color="#DD5A43" icon="far fa-trash-alt" label="Excluir" action_class="EnlastreList" action_method="onDelete" preserve_params="offset, page, first_page" register_state="N" static_call="Y" custom_params=""/>
+            <tdatagridaction label="Rótulo" color="#673AB7" icon="fas fa-print" action_class="EnlastreList" action_method="onEnlastre" display_condition="" register_state="N" static_call="N" preserve_params="" custom_params=""/>
+            <tdatagridcolumn attribute="{id}" title="Id" width="small" align="center" visible="Y" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+            <tdatagridcolumn attribute="{enlastre_id}" title="enlastre_id" db_order_col="[enlastre->enlastre_id]" width="small" align="left" visible="N" filter_field="" transformation="" totalizer="" auto_hide=""/>
+              <tdatagridcolumn attribute="{numeroenlastre}" title="Numeroenlastre" db_order_col="" width="medium" align="left" visible="Y" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+              <tdatagridcolumn attribute="{dta_emissao}" title="Data emissão" db_order_col="" width="small" align="left" filter_field="" transformation="AdiantiCreatorTransformers::dateToBr" totalizer="" auto_hide=""/>
+              <tdatagridcolumn attribute="{nometransporte}" title="nome transporte" db_order_col="[enlastre->nometransporte]" width="very_large" align="left" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                <tdatagridcolumn attribute="{trator}" title="Trator" width="small" align="left" visible="Y" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                <tdatagridcolumn attribute="{semi}" title="Semi" width="small" align="left" visible="Y" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                <tdatagridcolumn attribute="{motoristaedoc}" title="Motoristaedoc" db_order_col="" width="large" align="left" visible="N" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                <tdatagridfilter attribute="[Enlastre->permisso]" operator="like" filter_type="formfield" formfield="permisso"/>
+                  <tform role="search_form">
+                    <tformbody>
+                      <trow>
+                        <tcolumn col="col-12">
+                          <tlabel label="Permisso" color="#333333" font_style="b"/>
+                          <tentry name="permisso" required="N" label_required="Permisso" editable="Y" width="100%" style=""/>
+                        </tcolumn>
+                      </trow>
+                    </tformbody>
+                  </tform>
+                </tdatagrid>
+              </tcolumn>
+            </trow>
+          </tformbody>
+          <tformfooter>
+          </tformfooter>
+        </tform>
+      </tpage>

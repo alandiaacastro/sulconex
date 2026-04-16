@@ -1,0 +1,239 @@
+.fu-wrapper {
+    max-width: 1200px;
+    margin: 16px auto;
+    border: 1px solid #2f2f2f;
+    background: #ececec;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+.fu-header {
+    background: #4d7f31;
+    color: #ffffff;
+    text-align: center;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 0.5px;
+    padding: 18px 14px;
+    text-transform: uppercase;
+}
+
+.fu-alert {
+    display: none;
+    padding: 10px 14px;
+    background: #fff7d7;
+    border-bottom: 1px solid #d7c885;
+    color: #5f4f1b;
+    font-size: 14px;
+}
+
+.fu-alert:not(:empty) {
+    display: block;
+}
+
+.fu-table-container {
+    overflow-x: auto;
+}
+
+.fu-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fu-table th,
+.fu-table td {
+    border: 1px solid #242424;
+    padding: 12px 10px;
+    font-size: 14px;
+}
+
+.fu-table--meta th {
+    width: 140px;
+    background: #d7d7d7;
+    text-align: left;
+    font-weight: 600;
+}
+
+.fu-table--meta td {
+    font-weight: 700;
+    background: #ececec;
+}
+
+.fu-table--dados thead th {
+    background: #4d7f31;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 15px;
+    text-align: center;
+}
+
+.fu-table--dados tbody td {
+    background: #ececec;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Vertical Timeline UI */
+.fu-timeline-container {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.fu-timeline-header {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: #0b5fa5;
+    text-transform: uppercase;
+    font-size: 18px;
+    border-bottom: 2px solid #0b5fa5;
+    padding-bottom: 8px;
+}
+
+.fu-timeline {
+    position: relative;
+    padding: 10px 0;
+}
+
+.fu-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 24px; /* Line position */
+    width: 2px;
+    background: #d0d0d0;
+}
+
+.fu-tl-node {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 24px;
+}
+
+.fu-tl-node:last-child {
+    margin-bottom: 0;
+}
+
+.fu-tl-icon {
+    position: absolute;
+    left: 8px; /* Offset to center on line: (24) - (34/2) + 1px for alignment */
+    top: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #ffd44d;
+    box-shadow: 0 0 0 4px #ffffff; /* White gap between line and icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    font-size: 15px;
+    z-index: 2;
+}
+
+.fu-tl-content {
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 16px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fu-tl-content::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -8px;
+    border-style: solid;
+    border-width: 8px 8px 8px 0;
+    border-color: transparent #e0e0e0 transparent transparent;
+}
+
+.fu-tl-content::after {
+    content: '';
+    position: absolute;
+    top: 11px;
+    left: -7px;
+    border-style: solid;
+    border-width: 7px 7px 7px 0;
+    border-color: transparent #f6f6f6 transparent transparent;
+}
+
+.fu-tl-node:hover .fu-tl-content {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.fu-tl-node--highlight .fu-tl-icon {
+    background: #0b5fa5;
+    color: #ffffff;
+}
+
+.fu-tl-node--highlight .fu-tl-content {
+    background: #e7f1ff;
+    border-color: #b8cbe2;
+}
+
+.fu-tl-node--highlight .fu-tl-content::after {
+    border-color: transparent #e7f1ff transparent transparent;
+}
+
+.fu-tl-node--highlight .fu-tl-content::before {
+    border-color: transparent #b8cbe2 transparent transparent;
+}
+
+.fu-tl-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.fu-tl-title {
+    font-weight: 700;
+    color: #0b2b4a;
+    font-size: 15px;
+}
+
+.fu-tl-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+    background: #ebebeb;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.fu-tl-sub {
+    color: #4a4a4a;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.fu-tl-node--highlight .fu-tl-date {
+    background: #cddff5;
+    color: #0b2b4a;
+}
+
+@media (max-width: 900px) {
+    .fu-wrapper {
+        margin: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+
+    .fu-table th,
+    .fu-table td {
+        font-size: 12px;
+        padding: 8px 6px;
+    }
+    
+    .fu-tl-header-row {
+        flex-direction: column;
+    }
+    
+    .fu-tl-date {
+        margin-top: 6px;
+        align-self: flex-start;
+    }
+}

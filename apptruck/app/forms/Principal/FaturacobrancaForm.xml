@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-10">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tbutton label="Fechar" button_class="danger" action_class="" action_method="" action_js="Template.closeRightPanel()" style="float:right" register_state="N" static_call="N" custom_params=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <tnotebook>
+            <ttab name="Dados">
+              <trow>
+                <tcolumn col="col-3">
+                  <tlabel label="Id" color="#333333" font_style="b"/>
+                  <tentry name="id" required="N" label_required="Id" editable="N" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label="Numero" color="#333333" font_style="b"/>
+                  <tentry name="numero" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label="Emissao" color="#333333" font_style="b"/>
+                  <tdate name="emissao" required="N" label_required="Emissao" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy" style=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label="Vencimento" color="#333333" font_style="b"/>
+                  <tdate name="vencimento" required="N" label_required="Vencimento" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy" style=""/>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-4">
+                  <tlabel label="id cliente" color="#333333" font_style="b" font_size="" border_width="1" border_color="#00FF00" border_radius="0" padding="0" background_color="" css_class=""/>
+                  <tdbcombo name="cliente_id" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="Y" db_connector="Principal" db_model="Clientes" db_key_col="[Clientes->id]" db_name_col="[Clientes->nome]" db_order_col="[Clientes->id]" custom_filters="" enable_search="Y" change_action="" style="" css_class=""/>
+                  </tcolumn>
+                  <tcolumn col="col-4">
+                    <tlabel label="Conhecimento" color="#333333" font_style="b" font_size="" border_width="1" border_color="#00FF00" border_radius="0" padding="0" background_color="" css_class=""/>
+                    <tdbuniquesearch name="conhecimento" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" mask="" db_connector="Principal" db_model="Conhecimento" db_key_col="[Conhecimento->id]" db_name_col="[Conhecimento->numero]" db_order_col="[Conhecimento->id]" custom_filters="" min_length="0" change_action=""/>
+                    </tcolumn>
+                    <tcolumn col="col-4">
+                      <tlabel label="Nota fiscal" color="#333333" font_style="b" font_size="" border_width="1" border_color="#00FF00" border_radius="0" padding="0" background_color="" css_class=""/>
+                      <tentry name="notafiscal" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                    </tcolumn>
+                  </trow>
+                  <trow>
+                    <tcolumn col="col-12">
+                      <tlabel label="Produto " color="#333333" font_style="b" font_size="" border_width="1" border_color="#00FF00" border_radius="0" padding="0" background_color="" css_class=""/>
+                      <tentry name="prod" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                    </tcolumn>
+                  </trow>
+                  <trow>
+                    <tcolumn col="col-12">
+                      <tlabel label="Observações " color="#333333" font_style="b" font_size="" border_width="1" border_color="#00FF00" border_radius="0" padding="0" background_color="" css_class=""/>
+                      <tentry name="obs" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                    </tcolumn>
+                  </trow>
+                </ttab>
+              </tnotebook>
+            </tcolumn>
+          </trow>
+          <trow>
+            <tcolumn col="col-8">
+              <tentry name="descricao1" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+            </tcolumn>
+            <tcolumn col="col-4">
+              <tnumeric name="valor1" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="onsomafatura" style="" css_class=""/>
+            </tcolumn>
+          </trow>
+          <trow>
+            <tcolumn col="col-8">
+              <tentry name="descricao2" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+            </tcolumn>
+            <tcolumn col="col-4">
+              <tnumeric name="valor2" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="onsomafatura" style="" css_class=""/>
+            </tcolumn>
+          </trow>
+          <trow>
+            <tcolumn col="col-8">
+              <tentry name="descricao3" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+            </tcolumn>
+            <tcolumn col="col-4">
+              <tnumeric name="valor3" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="onsomafatura" style="" css_class=""/>
+            </tcolumn>
+          </trow>
+          <trow>
+            <tcolumn col="col-8">
+              <tbutton label="Gerar extenso" tooltip="" icon="fas fa-exchange-alt" button_class="default" action_class="FaturacobrancaForm" action_method="onextenso" register_state="N" static_call="N" available_mobile="Y" use_popover="N" validate_post="Y" http_method="post" preserve_params="" custom_params="" action_js="" style="" css_class=""/>
+              <ttext name="extenso" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="" exit_action="" style="" css_class=""/>
+            </tcolumn>
+            <tcolumn col="col-4">
+              <tnumeric name="total" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style="" css_class=""/>
+            </tcolumn>
+          </trow>
+        </tformbody>
+        <tformfooter>
+          <trow>
+            <tcolumn col="col-6">
+              <tbutton label="Salvar" button_class="primary" action_class="FaturacobrancaForm" action_method="onSave" action_js="" register_state="N" static_call="Y" http_method="post" custom_params="" style=""/>
+            </tcolumn>
+            <tcolumn col="col-6">
+            </tcolumn>
+          </trow>
+        </tformfooter>
+      </tform>
+    </tpage>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage><tform><tformheader>
+    <trow>
+        <tcolumn col="col-10">
+            <tlabel label="[page_name]" color="#333333" font_style="b" font_size=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+            <tbutton label="Fechar" button_class="danger" action_class="" action_method="" action_js="Template.closeRightPanel()" style="float:right" register_state="N" static_call="N"/>
+        </tcolumn>
+    </trow>
+</tformheader><tformbody><trow><tcolumn col="col-12"><tnotebook><ttab name="Dados">
+<trow><tcolumn col="col-12">
+<tlabel label="Id" color="#333333" font_style="b"></tlabel>
+<tentry name="id" required="N" label_required="Id" editable="N" width="100%"></tentry>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Nome" color="#333333" font_style="b"></tlabel>
+<ttext name="nome" required="N" label_required="Nome" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Nome Pai" color="#333333" font_style="b"></tlabel>
+<ttext name="nome_pai" required="N" label_required="Nome Pai" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Nome Mae" color="#333333" font_style="b"></tlabel>
+<ttext name="nome_mae" required="N" label_required="Nome Mae" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Data Nascimento" color="#333333" font_style="b"></tlabel>
+<tdate name="data_nascimento" required="N" label_required="Data Nascimento" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy"></tdate>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Naturalidade" color="#333333" font_style="b"></tlabel>
+<ttext name="naturalidade" required="N" label_required="Naturalidade" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Numero Registro" color="#333333" font_style="b"></tlabel>
+<ttext name="numero_registro" required="N" label_required="Numero Registro" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Cpf" color="#333333" font_style="b"></tlabel>
+<ttext name="cpf" required="N" label_required="Cpf" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Orgao Emissor" color="#333333" font_style="b"></tlabel>
+<ttext name="orgao_emissor" required="N" label_required="Orgao Emissor" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Data Primeira Habilitacao" color="#333333" font_style="b"></tlabel>
+<tdate name="data_primeira_habilitacao" required="N" label_required="Data Primeira Habilitacao" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy"></tdate>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Validade Cnh" color="#333333" font_style="b"></tlabel>
+<tdate name="validade_cnh" required="N" label_required="Validade Cnh" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy"></tdate>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Data Emissao" color="#333333" font_style="b"></tlabel>
+<tdate name="data_emissao" required="N" label_required="Data Emissao" editable="Y" width="100%" database_mask="yyyy-mm-dd" view_mask="dd/mm/yyyy"></tdate>
+</tcolumn>
+</trow>
+<trow><tcolumn col="col-12">
+<tlabel label="Categoria" color="#333333" font_style="b"></tlabel>
+<ttext name="categoria" required="N" label_required="Categoria" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+</ttab>
+</tnotebook>
+</tcolumn>
+</trow>
+</tformbody><tformfooter>
+    <trow>
+        <tcolumn col="col-6">
+            <tbutton label="Salvar" button_class="primary" action_class="MotoristasForm" action_method="onSave" action_js="" register_state="N" static_call="Y" http_method="post"/>
+        </tcolumn>
+        <tcolumn col="col-6"> </tcolumn>
+    </trow>
+</tformfooter></tform></tpage>

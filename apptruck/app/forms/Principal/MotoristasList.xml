@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage><tform><tformheader>
+    <trow>
+        <tcolumn col="col-4">
+            <tlabel label="[page_name]" color="#333333" font_style="b" font_size="medium"/>
+        </tcolumn>
+        <tcolumn col="col-8">
+          <tbutton label="Novo" icon="fas fa-plus" button_class="success" action_class="MotoristasForm" action_method="onEdit" register_state="N" static_call="N" http_method="get" preserve_params="" action_js="" style="float:right"/>
+          <tbutton label="XLS" icon="fas fa-table" button_class="default" action_class="MotoristasList" action_method="onExportXLS" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right"/>
+          <tbutton label="PDF" icon="far fa-file-pdf" button_class="default" action_class="MotoristasList" action_method="onExportPDF" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right"/>
+          <tbutton label="Filtros" icon="fas fa-filter" button_class="default" action_class="MotoristasList" action_method="onShowFilters" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" style="float:right"/>
+          <tbutton label="Colunas" icon="fas fa-columns" button_class="default" action_class="MotoristasList" action_method="onSelectColumns" register_state="N" static_call="Y" http_method="get" preserve_params="" action_js="" available_mobile="N" style="float:right" custom_params="" use_popover="Y"/>
+          <tcombo name="combo_limit" required="N" label_required="" editable="Y" value="{session_limit} ?? 10" value_dynamic="" tooltip="Registros por página" allow_null_option="Y" items="10:10#rn#20:20#rn#50:50#rn#100:100#rn#500:500#rn#1000:1000" items_dynamic="" boolean_mode="N" enable_search="N" change_action="onChangeLimit" style="float:right#rn#width:70px !important#rn#" css_class="hide-mobile input-sm"/>
+        </tcolumn>
+    </trow>
+</tformheader><tformbody><trow><tcolumn col="col-12"><tdatagrid role="datagrid" db_order_col="[Motoristas->id]" db_model="Motoristas" db_order_dir="asc" page_records="10" page_navigation="Y" search_pack="curtain">
+<tdatagridaction color="#478FCA" icon="far fa-edit" label="Editar" action_class="MotoristasForm" action_method="onEdit" register_state="N" static_call="N"></tdatagridaction>
+<tdatagridaction color="#DD5A43" icon="far fa-trash-alt" label="Excluir" action_class="MotoristasList" action_method="onDelete" preserve_params="offset, page, first_page" register_state="N" static_call="Y"></tdatagridaction>
+<tdatagridcolumn title="Id" attribute="{id}" width="small" align="center" printable="Y" visible="Y" db_order_col="[Motoristas->id]"></tdatagridcolumn>
+<tdatagridcolumn title="Nome" attribute="{nome}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->cnh_numero]"></tdatagridcolumn>
+<tdatagridcolumn title="Nome Pai" attribute="{nome_pai}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->data_emissao_cnh]"></tdatagridcolumn>
+<tdatagridcolumn title="Nome Mae" attribute="{nome_mae}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->data_validade_cnh]"></tdatagridcolumn>
+<tdatagridcolumn title="Data Nascimento" attribute="{data_nascimento}" width="very_large" align="center" printable="Y" visible="Y" db_order_col="[Motoristas->categoria]" transformation="AdiantiCreatorTransformers::dateToBr"></tdatagridcolumn>
+<tdatagridcolumn title="Naturalidade" attribute="{naturalidade}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->registro_num]"></tdatagridcolumn>
+<tdatagridcolumn title="Numero Registro" attribute="{numero_registro}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->nome]"></tdatagridcolumn>
+<tdatagridcolumn title="Cpf" attribute="{cpf}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->data_nascimento]"></tdatagridcolumn>
+<tdatagridcolumn title="Orgao Emissor" attribute="{orgao_emissor}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->local_nascimento]"></tdatagridcolumn>
+<tdatagridcolumn title="Data Primeira Habilitacao" attribute="{data_primeira_habilitacao}" width="very_large" align="center" printable="Y" visible="Y" db_order_col="[Motoristas->cpf]" transformation="AdiantiCreatorTransformers::dateToBr"></tdatagridcolumn>
+<tdatagridcolumn title="Validade Cnh" attribute="{validade_cnh}" width="very_large" align="center" printable="Y" visible="Y" db_order_col="[Motoristas->rg_numero]" transformation="AdiantiCreatorTransformers::dateToBr"></tdatagridcolumn>
+<tdatagridcolumn title="Data Emissao" attribute="{data_emissao}" width="very_large" align="center" printable="Y" visible="Y" db_order_col="[Motoristas->rg_emissor]" transformation="AdiantiCreatorTransformers::dateToBr"></tdatagridcolumn>
+<tdatagridcolumn title="Categoria" attribute="{categoria}" width="very_large" align="left" printable="Y" visible="Y" db_order_col="[Motoristas->categoria]"></tdatagridcolumn>
+<tform role="search_form"><tformbody><trow><tcolumn col="col-12">
+<tlabel label="Nome" color="#333333" font_style="b"></tlabel>
+<ttext name="nome" required="N" label_required="Nome" editable="Y" width="100%" height="200"></ttext>
+</tcolumn>
+</trow>
+</tformbody>
+</tform>
+<tdatagridfilter attribute="[Motoristas->cnh_numero]" operator="like" filter_type="formfield" formfield="nome"></tdatagridfilter>
+</tdatagrid>
+</tcolumn>
+</trow>
+</tformbody><tformfooter>
+</tformfooter></tform></tpage>

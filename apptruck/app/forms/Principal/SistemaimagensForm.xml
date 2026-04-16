@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-10">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tbutton label="Fechar" button_class="danger" action_class="" action_method="" action_js="Template.closeRightPanel()" style="float:right" register_state="N" static_call="N" custom_params=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <tnotebook>
+            <ttab name="Dados">
+              <trow>
+                <tcolumn col="col-12">
+                  <tlabel label="Id" color="#333333" font_style="b"/>
+                  <tentry name="id" required="N" label_required="Id" editable="N" width="100%" style=""/>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-12">
+                  <tlabel label="Nome" color="#333333" font_style="b"/>
+                  <tentry name="nome" required="N" label_required="Nome" editable="Y" width="100%" style=""/>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-12">
+                  <tlabel label="Imagem" color="#333333" font_style="b"/>
+                  <tfile name="imagem" required="N" label_required="" editable="Y" tooltip="" extensions="" save_path="files/images" file_handling="json" upload_limit="10" image_gallery="N" enable_popover="N" complete_action=""/>
+                </tcolumn>
+              </trow>
+            </ttab>
+          </tnotebook>
+        </tcolumn>
+      </trow>
+    </tformbody>
+    <tformfooter>
+      <trow>
+        <tcolumn col="col-6">
+          <tbutton label="Salvar" icon="" button_class="primary" action_class="SistemaimagensForm" action_method="onSave" register_state="N" static_call="Y" available_mobile="Y" use_popover="N" http_method="post" preserve_params="" custom_params="" action_js="" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-6">
+        </tcolumn>
+      </trow>
+    </tformfooter>
+  </tform>
+</tpage>

@@ -1,0 +1,50 @@
+<!--[main]-->
+<div class="fu-wrapper">
+    <div class="fu-header">FOLLOW-UP EXPORTACAO</div>
+
+    <div class="fu-alert">{$mensagem}</div>
+
+    <table class="fu-table fu-table--meta">
+        <tr>
+            <th>EXPORTADOR:</th>
+            <td>{$exportador}</td>
+        </tr>
+        <tr>
+            <th>IMPORTADOR:</th>
+            <td>{$importador}</td>
+        </tr>
+    </table>
+
+    <div class="fu-table-container">
+        <table class="fu-table fu-table--dados">
+            <thead>
+                <tr>
+                    <th>FATURA</th>
+                    <th>TRANSPORTE</th>
+                    <th>CRT</th>
+                    <th>DATA DE CARREGAMENTO</th>
+                    <th>ADUANA DE ORIGEM</th>
+                    <th>PORTO DE DESTINO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{$fatura}</td>
+                    <td>{$transporte}</td>
+                    <td>{$crt}</td>
+                    <td>{$data_carregamento}</td>
+                    <td>{$aduana_origem}</td>
+                    <td>{$porto_destino}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="fu-timeline-container">
+        <h3 class="fu-timeline-header">Histórico de Movimentações</h3>
+        <div class="fu-timeline">
+            {$timeline_html|raw}
+        </div>
+    </div>
+</div>
+<!--[/main]-->

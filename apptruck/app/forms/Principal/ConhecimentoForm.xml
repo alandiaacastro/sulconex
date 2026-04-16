@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-10">
+          <tlabel label="[page_name]" color="#333333" font_style="b" font_size="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tbutton label="Fechar" icon="" button_class="danger" action_class="" action_method="" register_state="N" static_call="N" available_mobile="Y" http_method="" preserve_params="" custom_params="" action_js="Template.closeRightPanel()" style="float:right"/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-2">
+          <tlabel label="Data " color="#333333" font_style="b" font_size="small" component="tlabel"/>
+          <tdate name="data_emissao" required="N" label_required="Data Transportador Assinatura" editable="Y" value="" value_dynamic="" placeholder="" tooltip="" view_mask="dd/mm/yyyy" database_mask="yyyy-mm-dd" change_action="" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tlabel label="Fatura Comercial" color="#F44336" font_style="b" font_size="small"/>
+          <tentry name="fatura_crt" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tlabel label="Permisso" color="#333333" font_style="b" font_size="" css_class=""/>
+          <tentry name="permisso" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tlabel label="2 Numero" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+          <tentry name="numero" required="N" label_required="Numero" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tlabel label="Pais destino" color="#333333" font_style="b" font_size="small" css_class=""/>
+          <tentry name="pais_destino" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-2">
+          <tlabel label="Cod" color="#333333" font_style="b" font_size="small" css_class=""/>
+          <tentry name="id" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="2" placeholder="" tooltip="" force_case="" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+        </tcolumn>
+      </trow>
+      <trow>
+        <tcolumn col="col-6">
+          <tlabel label="1 Nombre y domicilio del remitente / Nome e endereço do remetente" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+          <wrapper>
+            <trow>
+              <tcolumn col="col-12">
+                <tdbcombo name="remetente_id" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="N" db_connector="Principal" db_model="Clientes" db_key_col="[Clientes->id]" db_name_col="[Clientes->nome]" db_order_col="" custom_filters="" enable_search="Y" change_action="onexitermetente" style="" css_class=""/>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-12">
+                  <ttext name="endereco_remetente" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="500" placeholder="" tooltip="" height="130" force_case="" exit_action="" style="" css_class=""/>
+                </tcolumn>
+              </trow>
+            </wrapper>
+          </tcolumn>
+          <tcolumn col="col-6">
+            <tlabel label="4 Destinatario" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+            <wrapper>
+              <trow>
+                <tcolumn col="col-12">
+                  <tdbcombo name="destinatario_id" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="Y" db_connector="Principal" db_model="Clientes" db_key_col="[Clientes->id]" db_name_col="[Clientes->nome]" db_order_col="" custom_filters="" enable_search="Y" change_action="ondestinatatio" style="" component="tdbcombo"/>
+                  </tcolumn>
+                </trow>
+                <trow>
+                  <tcolumn col="col-12">
+                    <ttext name="endereco_destinatario" required="N" label_required="Endereco Destinatario" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="130" force_case="" exit_action="" style="" component="ttext"/>
+                  </tcolumn>
+                </trow>
+              </wrapper>
+            </tcolumn>
+          </trow>
+          <trow>
+            <tcolumn col="col-6">
+              <tlabel label="6 Consignatario" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+              <wrapper>
+                <trow>
+                  <tcolumn col="col-12">
+                    <tdbuniquesearch name="consignatario_id" required="N" label_required="Consignatario" editable="Y" value="" value_dynamic="" tooltip="" db_connector="Principal" db_model="Clientes" db_key_col="[Clientes->id]" db_name_col="[Clientes->nome]" db_order_col="" custom_filters="" min_length="0" change_action="onconsignatario" component="tdbuniquesearch"/>
+                    </tcolumn>
+                  </trow>
+                  <trow>
+                    <tcolumn col="col-12">
+                      <ttext name="endereco_consignatario" required="N" label_required="Endereco Consignatario" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="130" force_case="" exit_action="" style="" component="ttext"/>
+                    </tcolumn>
+                  </trow>
+                </wrapper>
+              </tcolumn>
+              <tcolumn col="col-6">
+                <tlabel label="9 Notificar" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                <wrapper>
+                  <trow>
+                    <tcolumn col="col-12">
+                      <tdbuniquesearch name="notificar_id" required="N" label_required="Notificar" editable="Y" value="" value_dynamic="" tooltip="" db_connector="Principal" db_model="Clientes" db_key_col="[Clientes->id]" db_name_col="[Clientes->nome]" db_order_col="" custom_filters="" min_length="0" change_action="onnotificar" component="tdbuniquesearch"/>
+                      </tcolumn>
+                    </trow>
+                    <trow>
+                      <tcolumn col="col-12">
+                        <ttext name="notificar_endereco" required="N" label_required="Notificar Endereco" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="130" force_case="" exit_action="" style="" component="ttext"/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-3">
+                  <tlabel label="5 Local Emissao" color="#333333" font_style="b" font_size="small"/>
+                  <tentry name="local_emissao" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label=" 7 Local Responsabilidade" color="#333333" font_style="b" font_size="small"/>
+                  <tentry name="local_responsabilidade" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label="8 Local Entrega" color="#333333" font_style="b" font_size="small"/>
+                  <tentry name="local_entrega" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-3">
+                  <tlabel label="10 Sucessivos" color="#333333" font_style="b" font_size="small"/>
+                  <tentry name="transportadores_sucessivos" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-8">
+                  <tlabel label="11 Descricao Mercadoria" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                  <ttext name="descricao_mercadoria" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="300" force_case="u" exit_action="" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-4">
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="12 Peso Bruto Kg" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="peso_bruto_kg" required="N" label_required="Peso Bruto Kg" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="3" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style=""/>
+                      </tcolumn>
+                      <tcolumn col="col-6">
+                        <tlabel label="12 Peso Liq Kg" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="peso_liq_kg" required="N" label_required="Peso Liq Kg" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="3" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="13 Volume M3" color="#333333" font_style="b" font_size="small"/>
+                        <tentry name="volume_m3" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="" mask="" exit_action="" style="" component="tentry"/>
+                      </tcolumn>
+                      <tcolumn col="col-6">
+                        <tlabel label="14 Moeda " color="#333333" font_style="b" font_size="small"/>
+                        <tcombo name="moeda_valor_mercadorias" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="N" items="US$:US$#rn#P$:P$#rn#R$:R$#rn#€: €" items_dynamic="" boolean_mode="N" enable_search="N" change_action="" style="" css_class=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="14 Incoterm" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tentry name="incoterm" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" style=""/>
+                      </tcolumn>
+                      <tcolumn col="col-6">
+                        <tlabel label="14 Valor Mercadorias" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="valor_mercadorias" required="N" label_required="Valor Mercadorias" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style="" component="tnumeric"/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="16 incoterm " color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tentry name="incoterm16" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" style=""/>
+                      </tcolumn>
+                      <tcolumn col="col-6">
+                        <tlabel label="16 Valor Declarado" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="valor_declarado" required="N" label_required="Valor Declarado" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style="" component="tnumeric"/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-6">
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="Gastos a pagar" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tentry name="textogasto1" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tlabel label="Custo remetente" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="custoremetente1" required="N" label_required="Custoremetente1" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotalremetente" style="" component="tnumeric"/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tlabel label="Custo destino" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="custodestino1" required="N" label_required="Custodestino1" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotaldestinatario" style=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tentry name="textogasto2" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tnumeric name="custoremetente2" required="N" label_required="Custoremetente2" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotalremetente" style="" component="tnumeric"/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tnumeric name="custodestino2" required="N" label_required="Custodestino2" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotaldestinatario" style=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tentry name="textogasto3" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" force_case="u" mask="" exit_action="" exit_on_enter="N" style="" css_class=""/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tnumeric name="custoremetente3" required="N" label_required="Custoremetente3" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotalremetente" style="" component="tnumeric"/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tnumeric name="custodestino3" required="N" label_required="Custodestino3" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="ontotaldestinatario" style=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-3">
+                        <tlabel label="Gastosmoeda" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tcombo name="gastosmoeda" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="Y" items="US$:US$#rn#P$:P$#rn#R$:R$#rn#€: €" items_dynamic="" boolean_mode="N" enable_search="N" change_action="" style="" css_class=""/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tlabel label="total remetente" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="total_custo_remetente" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style=""/>
+                      </tcolumn>
+                      <tcolumn col="col-3">
+                        <tlabel label="total destinatario" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="total_custo_destinatario" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" precision="2" decimal_separator="," thousand_separator="." reverse="N" allow_negative="Y" exit_action="" style="" component="tnumeric"/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-6">
+                        <tlabel label="Valor Frete Externo" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="valor_frete_externo" required="N" label_required="Valor Frete Externo" editable="Y" width="100%" precision="2" decimal_separator="," thousand_separator="." style=""/>
+                      </tcolumn>
+                      <tcolumn col="col-6">
+                        <tlabel label="Valor Reembolso" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <tnumeric name="valor_reembolso" required="N" label_required="Valor Reembolso" editable="Y" width="100%" precision="2" decimal_separator="," thousand_separator="." style=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                </tcolumn>
+                <tcolumn col="col-6">
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-12">
+                        <tlabel label="Documentos Anexos" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <ttext name="documentos_anexos" required="N" label_required="Documentos Anexos" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="u" exit_action="" style="" css_class=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-12">
+                        <tlabel label="Instrucoes Alfandega" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <ttext name="instrucoes_alfandega" required="N" label_required="Instrucoes Alfandega" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="u" exit_action="" style="" css_class=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                  <wrapper>
+                    <trow>
+                      <tcolumn col="col-12">
+                        <tlabel label="Observacoes" color="#333333" font_style="b" font_size="small" component="tlabel"/>
+                        <ttext name="observacoes" required="N" label_required="Observacoes" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="u" exit_action="" style="" css_class=""/>
+                      </tcolumn>
+                    </trow>
+                  </wrapper>
+                </tcolumn>
+              </trow>
+              <trow>
+                <tcolumn col="col-6">
+                  <tlabel label="Assinatura do transportador" color="#333333" font_style="b" font_size="small"/>
+                  <ttext name="assinatura_nome" required="N" label_required="" editable="Y" value="" value_dynamic="" maxlen="0" placeholder="" tooltip="" height="100" force_case="" exit_action="" style="" css_class=""/>
+                </tcolumn>
+                <tcolumn col="col-6">
+                  <tlabel label="Status" color="#333333" font_style="b" font_size="small" css_class=""/>
+                  <tdbcombo name="status_crt_id" required="N" label_required="" editable="Y" value="" value_dynamic="" tooltip="" allow_null_option="Y" db_connector="Principal" db_model="StatusCrt" db_key_col="[StatusCrt->id]" db_name_col="[StatusCrt->nome]" db_order_col="[StatusCrt->id]" custom_filters="" enable_search="N" change_action="" style="" css_class=""/>
+                  </tcolumn>
+                </trow>
+              </tformbody>
+              <tformfooter>
+                <trow>
+                  <tcolumn col="col-6">
+                    <tbutton label="Salvar" button_class="primary" action_class="ConhecimentoForm" action_method="onSave" action_js="" register_state="N" static_call="Y" http_method="post" custom_params="" style=""/>
+                  </tcolumn>
+                  <tcolumn col="col-6">
+                  </tcolumn>
+                </trow>
+              </tformfooter>
+            </tform>
+          </tpage>

@@ -1,0 +1,26 @@
+# Dependências
+/vendor/
+
+# Banco de dados
+app/database/*.db
+app/database/*.db-shm
+app/database/*.db-wal
+
+# Uploads e saídas geradas
+app/output/
+files/
+app/images/uploads/
+
+# Logs
+*.log
+
+# Configuração local sensível
+app/config/sample.php
+
+# Arquivos temporários
+*.tmp
+*_write_test.txt
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

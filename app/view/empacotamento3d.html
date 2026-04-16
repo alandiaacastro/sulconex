@@ -1,0 +1,92 @@
+<!-- Container 3D -->
+<div style="width:100%; height:600px; border:1px solid #ccc; margin-top:10px">
+    <div id="render3d-container" style="width:100%; height:100%"></div>
+</div>
+
+<!-- Script de Renderização -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+function renderPacking3D(jsonData) {
+    let data = jsonData;
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            console.error('Erro ao parsear JSON:', e);
+            return;
+        }
+    }
+
+    const container = document.getElementById('render3d-container');
+    container.innerHTML = ''; // Limpa renderizações anteriores
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf0f0f0);
+
+    const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    camera.position.set(4, 4, 8);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    container.appendChild(renderer.domElement);
+
+    // Controles orbitais
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Luz
+    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambient);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirLight.position.set(10, 10, 10);
+    scene.add(dirLight);
+
+    // Desenha os itens (caixas e bobinas)
+    data.forEach(item => {
+        let geometry;
+
+        if (item.tipo === 'bobina') {
+            const radius = item.w / 2;
+            geometry = new THREE.CylinderGeometry(radius, radius, item.h, 32);
+        } else {
+            geometry = new THREE.BoxGeometry(item.w, item.h, item.d);
+        }
+
+        const color = (item.tipo === 'bobina') ? 0x1E90FF : 0x90EE90;
+        const material = new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 0.8 });
+
+        const mesh = new THREE.Mesh(geometry, material);
+
+        // Ajuste de posição: centraliza o objeto no ponto
+        mesh.position.set(
+            item.x + item.w / 2,
+            item.z + item.h / 2,
+            item.y + item.d / 2
+        );
+
+        scene.add(mesh);
+    });
+
+    // Contêiner (transparente)
+    const maxX = Math.max(...data.map(i => i.x + i.w), 1);
+    const maxY = Math.max(...data.map(i => i.y + i.d), 1);
+    const maxZ = Math.max(...data.map(i => i.z + i.h), 1);
+
+    const containerGeometry = new THREE.BoxGeometry(maxX, maxZ, maxY);
+    const containerMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+    const containerMesh = new THREE.Mesh(containerGeometry, containerMaterial);
+    containerMesh.position.set(maxX / 2, maxZ / 2, maxY / 2);
+    scene.add(containerMesh);
+
+    // Animação
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+}
+</script>

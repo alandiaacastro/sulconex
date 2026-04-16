@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tpage>
+  <tform>
+    <tformheader>
+      <trow>
+        <tcolumn col="col-6">
+          <tbutton label="Novo CRT" icon="" button_class="primary" action_class="ConhecimentoList" action_method="onNumerarCrt" register_state="N" static_call="Y" available_mobile="Y" use_popover="N" http_method="post" preserve_params="" custom_params="" action_js="" style="" css_class=""/>
+          <tbutton label="XLS" icon="fas fa-table" button_class="default" action_class="ConhecimentoList" action_method="onExportXLS" register_state="N" static_call="Y" available_mobile="N" use_popover="N" http_method="get" preserve_params="" custom_params="" action_js="" style="float:left#rn#" css_class=""/>
+          <tbutton label="Filtros" icon="fas fa-filter" button_class="default" action_class="ConhecimentoList" action_method="onShowFilters" register_state="N" static_call="Y" available_mobile="Y" use_popover="N" http_method="get" preserve_params="" custom_params="" action_js="" style="float:left#rn#" css_class=""/>
+          <tbutton label="PDF" icon="far fa-file-pdf" button_class="default" action_class="ConhecimentoList" action_method="onExportPDF" register_state="N" static_call="Y" available_mobile="N" use_popover="N" http_method="get" preserve_params="" custom_params="" action_js="" style="float:left#rn#" css_class=""/>
+        </tcolumn>
+        <tcolumn col="col-6">
+          <tlabel label="LIstagem de CRT&#039;s" color="#333333" font_style="b" font_size="medium" css_class=""/>
+        </tcolumn>
+      </trow>
+    </tformheader>
+    <tformbody>
+      <trow>
+        <tcolumn col="col-12">
+          <tdatagrid role="datagrid" db_order_col="[Conhecimento->id]" db_model="Conhecimento" db_order_dir="asc" page_records="10" page_navigation="Y" search_pack="curtain">
+            <tdatagridaction label="Editar" color="#478FCA" icon="far fa-edit" action_class="ConhecimentoForm" action_method="onEdit" register_state="N" static_call="N" preserve_params="" custom_params=""/>
+            <tdatagridaction label="Excluir" color="#DD5A43" icon="far fa-trash-alt" action_class="ConhecimentoList" action_method="onDelete" register_state="N" static_call="Y" preserve_params="offset, page, first_page" custom_params=""/>
+            <tdatagridaction label="imprimir" color="#673AB7" icon="fas fa-print" action_class="ConhecimentoList" action_method="onprint_crt" display_condition="" register_state="N" static_call="N" preserve_params="" custom_params=""/>
+            <tdatagridaction label="Duplicar" color="#FFC107" icon="fas fa-copy" action_class="ConhecimentoList" action_method="oncopycrt" display_condition="" register_state="N" static_call="N" preserve_params="" custom_params=""/>
+            <tdatagridcolumn attribute="{id}" title="Id" db_order_col="[Conhecimento->id]" width="small" align="center" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+              <tdatagridcolumn attribute="{data_emissao}" title="Data " db_order_col="[Conhecimento->data_emissao]" width="small" align="center" printable="Y" filter_field="" transformation="AdiantiCreatorTransformers::dateToBr" totalizer="" auto_hide=""/>
+                <tdatagridcolumn attribute="{statuscrt->pill}" title="Status Crt" db_order_col="[Conhecimento->status_crt_id]" width="small" align="left" printable="Y" filter_field="" transformation="AdiantiCreatorTransformers::showAsPill" totalizer="" auto_hide=""/>
+                  <tdatagridcolumn attribute="{permisso}" title="permisso" db_order_col="[Conhecimento->permisso]" width="small" align="left" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                    <tdatagridcolumn attribute="{numero}" title="Numero" db_order_col="[Conhecimento->numero]" width="small" align="left" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                      <tdatagridcolumn attribute="{fatura_crt}" title="Fatura" db_order_col="[Conhecimento->fatura_crt]" width="medium" align="left" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                        <tdatagridcolumn attribute="{remetente->nome}" title="Remetente" db_order_col="[Conhecimento->remetente->nome]" width="very_large" align="left" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                          <tdatagridcolumn attribute="{destinatario->nome}" title="destinatario" db_order_col="[Conhecimento->destinatario->nome]" width="very_large" align="left" printable="Y" filter_field="" transformation="" totalizer="" auto_hide=""/>
+                            <tdatagridfilter attribute="[Conhecimento->permisso]" operator="like" filter_type="formfield" formfield="permisso" systemvar="" constant="" fixedval=""/>
+                              <tform role="search_form">
+                                <tformbody>
+                                  <trow>
+                                    <tcolumn col="col-12">
+                                      <tlabel label="Permisso" color="#333333" font_style="b"/>
+                                      <tentry name="permisso" required="N" label_required="Permisso" editable="Y" width="100%" style=""/>
+                                    </tcolumn>
+                                  </trow>
+                                </tformbody>
+                              </tform>
+                            </tdatagrid>
+                          </tcolumn>
+                        </trow>
+                      </tformbody>
+                      <tformfooter>
+                      </tformfooter>
+                    </tform>
+                  </tpage>

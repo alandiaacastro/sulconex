@@ -1,0 +1,14 @@
+{
+  "short_name": "App Truck(dma)",
+  "name": "App Truck(dma)",
+  "icons": [
+    {
+      "src": "app/images/icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ],
+  "background_color": "#fff",
+  "display": "standalone",
+  "theme_color": "#FFFFFF"
+}

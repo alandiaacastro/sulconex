@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovante de Entrega / Não Conformidade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        header img {
+            max-width: 180px;
+            margin-bottom: 15px;
+        }
+        header h1 {
+            color: #0056b3;
+            font-size: 1.8em;
+            margin: 0;
+        }
+        .section-title {
+            font-size: 1.3em;
+            color: #0056b3;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            padding: 8px 0;
+        }
+        .info-item span {
+            font-weight: bold;
+            color: #555;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            color: #856404;
+            display: flex;
+            align-items: flex-start;
+        }
+        .alert-box .icon {
+            font-size: 1.8em;
+            margin-right: 15px;
+            color: #ffc107;
+        }
+        .checkbox-group {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+        .signature-area {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+            color: #666;
+            font-style: italic;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-top: 30px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .footer-note {
+            background-color: #e2f0d9;
+            border-left: 5px solid #62b144;
+            padding: 15px 20px;
+            margin-top: 30px;
+            border-radius: 5px;
+            color: #2e7d32;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="https://via.placeholder.com/180x60?text=SULCONEX+LOG%C3%8DSTICA" alt="Logo Sulconex Logística">
+            <h1>COMPROVANTE DE ENTREGA / COMPROBANTE DE ENTREGA</h1>
+        </header>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <span>CRT:</span> <input type="text" value="BR7740-00114" readonly>
+            </div>
+            <div class="info-item">
+                <span>MIC/DTA:</span> <input type="text" value="BR7740-00214" readonly>
+            </div>
+            <div class="info-item">
+                <span>Importador:</span> <input type="text" value="DECORACIONES" readonly>
+            </div>
+            <div class="info-item">
+                <span>Motorista:</span> <input type="text" value="EMMANUEL MEDEIROS LEPKOSKI, CPF: 051.277.010-73" readonly>
+            </div>
+            <div class="info-item">
+                <span>Veículo:</span> <input type="text" value="IRI7622/IPZ8J74" readonly>
+            </div>
+        </div>
+
+        <div class="section-title">Não Conformidade / No Conformidad</div>
+
+        <div class="alert-box">
+            <span class="icon">&#9888;</span>
+            <div>
+                <p>Descreva o dano do produto, numerando suas etiquetas enquanto ainda estiver sobre o caminhão, e anexe fotos. Describa el daño del producto, numerando sus etiquetas mientras aún se encuentra sobre el camión, y adjunte fotos.</p>
+                <p>Reclamações realizadas após a descarga da carga não serão reconhecidas pela nossa companhia de seguros. Las reclamaciones realizadas después de la descarga de la carga no serán reconocidas por nuestra compañía de seguros.</p>
+            </div>
+        </div>
+
+        <form>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="ocorrencia" value="avaria_trajeto">
+                    Avaria no Trajeto Internacional / Daño en el Trayecto Internacional
+                </label>
+                <label>
+                    <input type="checkbox" name="ocorrencia" value="produto_defeito_embalagem">
+                    Produto com Defeito de Embalagem / Producto con Defecto de Embalaje
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="descricaoNaoConformidade">Descrição da Não Conformidade / Descripción de la No Conformidad</label>
+                <textarea id="descricaoNaoConformidade" name="descricao_nao_conformidade" placeholder="Descreva aqui a não conformidade encontrada..."></textarea>
+            </div>
+
+            <div class="section-title">Descarga em conformidade com o cliente/Descarga en conformidad con el cliente</div>
+
+            <div class="footer-note">
+                <p>Declaro que recebi a mercadoria em perfeito estado, sem danos nem irregularidades no conteúdo. Verifiquei a embalagem e está tudo conforme. Declaro que he recibido la mercancía en perfecto estado, sin daños ni irregularidades en el contenido. <strong>Verifiquei el paquete y todo está conforme.</strong></p>
+            </div>
+
+            <div class="signature-area">
+                Assinatura, carimbo e data de recepção / Firma, sello y fecha de recepción
+            </div>
+
+            <button type="submit">Enviar Formulário</button>
+        </form>
+    </div>
+</body>
+</html>

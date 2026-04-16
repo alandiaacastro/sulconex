@@ -1,0 +1,43 @@
+:root {
+    --bs-border-width: 1px;
+    ---bs-border-color: {{border_color}};
+    --bs-border-radius: 6px;
+    --bs-border-radius-sm: 6px;
+    --bs-dark: rgb(48 51 55);
+    --bs-light: white;
+    --ad-font-size: 0.95rem;
+    --ad-font-size-plus: 1.045rem;
+    --ad-font-size-less: 0.8075rem;
+    --ad-font-size-menu: 1.00rem;
+    --ad-font-size-super: 1.235rem;
+    --ad-menu-item-color: #4d93ff;
+    --ad-font-size-mini: 0.6rem;
+    --ad-menu-size: 320px;
+}
+.card {
+    ---bs-card-border-color: {{card_border_color}};
+}
+[data-menu-theme=dark] #sidebar {
+    background:  !important;
+}
+a.sidebar-link {
+    padding: 9px;
+}
+[data-bs-theme=dark] {
+    --bs-dark-bg-subtle: #1a1d20 !important;
+}
+[data-bs-theme=light] {
+    --bs-dark-bg-subtle: #f4f6f9 !important;
+}
+[data-bs-theme=dark] .card {
+    --bs-card-bg: #212529 !important;
+}
+[data-bs-theme=light] .card {
+    --bs-card-bg: #ffffff !important;
+    --bs-card-cap-bg: #ffffff !important;
+}
+
+.input-sm
+{
+    padding: 0.25rem 0.6rem;
+}
