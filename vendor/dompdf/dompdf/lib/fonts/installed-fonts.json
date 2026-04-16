@@ -1,0 +1,28 @@
+{
+    "dm sans": {
+        "300": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/dm_sans_300_f8543d32d9115391444a15802cc85f00",
+        "normal": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/dm_sans_normal_42fcd0ea12ff589f4ccf7cd1eb4b0bb8",
+        "500": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/dm_sans_500_e3bc8d7bbed7eb5328692f20824bd3d5",
+        "600": "dm_sans_600_95b1ff7d73eecd4f24f1e5335a68fdd5"
+    },
+    "playfair display": {
+        "bold": "playfair_display_bold_1e531eb7e3e1e9744697b9dd01c254b4"
+    },
+    "libre baskerville": {
+        "normal": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/libre_baskerville_normal_e375ed8c808e41b7feaef95f5ce055c9",
+        "bold": "libre_baskerville_bold_243cda0a084ba487c6983204890f1a90"
+    },
+    "source sans 3": {
+        "300": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/source_sans_3_300_19062ec5e7219278ee080a9d336ef199",
+        "normal": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/source_sans_3_normal_8be80d00b9f05f74cbdf2b68cfd2a9b7",
+        "600": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/source_sans_3_600_12036aad72be9b2d625fd81f75e12413",
+        "bold": "source_sans_3_bold_b3a41a1d8e05aec0ab3d1e8639dff258"
+    },
+    "inter": {
+        "normal": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/inter_normal_5a66f8ceb794f00a7f54c797a21283b3",
+        "500": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/inter_500_efef4d9d61ac26570557ad601dea222a",
+        "600": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/inter_600_3604d9d49b61fc3b7c29c4259c86ff89",
+        "bold": "C:\\wamp64\\www\\sulconex81\\vendor\\dompdf\\dompdf\/lib\/fonts\/inter_bold_02384cdf43e3d24b76c57c66dfd114bf",
+        "800": "inter_800_43e268268a3801a5ec2cf116ab01b114"
+    }
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ordem de Coleta</title>
+<style>
+body{margin:0;background:#efefef;font-family:Arial,Helvetica,sans-serif;color:#111;padding:16px}
+.sheet{max-width:920px;margin:0 auto}
+.box{border:2px solid #222;background:#f4f4f4;margin-bottom:22px}
+.box h3{margin:0;background:#ddd;padding:6px 10px;font-size:34px;font-weight:700;border-bottom:2px solid #222}
+.content{padding:10px 12px}
+.line{margin:9px 0;font-size:35px;line-height:1.25}
+.label{font-weight:700;text-decoration:underline}
+.value{color:#2f4c7a}
+table{width:100%;border-collapse:collapse}
+td{border:2px solid #6f6f6f;padding:6px 10px;font-size:35px;vertical-align:top}
+.half{width:50%}
+@media print{body{padding:0;background:#fff}.sheet{max-width:none}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <section class="box">
+    <h3>Dados do motorista / Datos del chofer</h3>
+    <div class="content">
+      <div class="line"><span class="label">Nome/Sobrenome - Nombre/Apellido:</span> <span class="value">-</span></div>
+      <div class="line"><span class="label">RG / C.I. / CPF /DNI:</span> <span class="value">-</span></div>
+    </div>
+  </section>
+
+  <section class="box">
+    <h3 style="text-align:center">Dados do Veiculo / Datos del Vehiculo</h3>
+    <table>
+      <tr>
+        <td class="half"><span class="label">Cavalo / Tractor:</span> <span class="value">-</span></td>
+        <td class="half"><span class="label">Ano / Año:</span> <span class="value">-</span></td>
+      </tr>
+      <tr>
+        <td><span class="label">Carreta / Semi - Reboque:</span> <span class="value">-</span></td>
+        <td><span class="label">Ano / Año:</span> <span class="value">-</span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><span class="label">Veiculo / Vehículo:</span> <span class="value">-</span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><span class="label">Tara :</span> <span class="value">-</span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><span class="label">Quantidade de eixos / Cantidad de Ejes:</span> <span class="value">-</span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><span class="label">Marca/modelo :</span> <span class="value">-</span></td>
+      </tr>
+    </table>
+  </section>
+
+  <section class="box">
+    <h3>Dados da carga / Datos de la Carga :</h3>
+    <div class="content">
+      <div class="line"><span class="label">Pedido / Nº Ordem :</span> <span class="value">EXP CRT-2350</span></div>
+      <div class="line"><span class="label">Nº Danfe:</span> <span class="value">-</span></div>
+      <div class="line"><span class="label">Proforma / Invoice / Factura :</span> <span class="value">08AR73950-26 B</span></div>
+      <div class="line"><span class="label">Exportador:</span> <span class="value">BO PAPER</span></div>
+      <div class="line"><span class="label">Importador:</span> <span class="value">INTERPACK</span></div>
+      <div class="line"><span class="label">Mercadoria / Producto:</span> <span class="value">PAPEL</span></div>
+      <div class="line"><span class="label">CRT :</span> <span class="value">CRT-2350</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

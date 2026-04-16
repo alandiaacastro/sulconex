@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "WAMP Apache (PHP 8.2)",
+      "runtimeExecutable": "C:/wamp64/bin/apache/apache2.4.62/bin/httpd.exe",
+      "runtimeArgs": ["-k", "start"],
+      "port": 80
+    },
+    {
+      "name": "PHP Dev Server (porta 8080)",
+      "runtimeExecutable": "C:/wamp64/bin/php/php8.2.29/php.exe",
+      "runtimeArgs": ["-S", "localhost:8080", "-t", "C:/wamp64/www/sulconex81"],
+      "port": 8080
+    }
+  ]
+}
