@@ -5,6 +5,9 @@
 app/database/*.db
 app/database/*.db-shm
 app/database/*.db-wal
+apptruck/app/database/*.db
+apptruck/app/database/*.db-shm
+apptruck/app/database/*.db-wal
 
 # Uploads e saídas geradas
 app/output/
@@ -16,6 +19,7 @@ app/images/uploads/
 
 # Configuração local sensível
 app/config/sample.php
+apptruck/app/config/sample.php
 
 # Arquivos temporários
 *.tmp
